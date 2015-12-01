@@ -1,0 +1,47 @@
+apply plugin: 'groovy'
+apply plugin: 'nexus'
+
+//noinspection GroovyUnusedAssignment
+targetCompatibility = JavaVersion.VERSION_1_7
+//noinspection GroovyUnusedAssignment
+sourceCompatibility = JavaVersion.VERSION_1_7
+
+dependencies {
+  compile gradleApi()
+  compile localGroovy()
+  compile 'com.android.tools.build:gradle:1.5.0'
+  compile 'org.aspectj:aspectjtools:1.8.6'
+  compile 'org.aspectj:aspectjrt:1.8.6'
+
+  testCompile 'junit:junit:4.11'
+}
+
+modifyPom {
+  //noinspection GroovyAssignabilityCheck
+  project {
+    name POM_NAME
+    description POM_DESCRIPTION
+    url POM_URL
+
+    scm {
+      url POM_SCM_URL
+      connection POM_SCM_CONNECTION
+      developerConnection POM_SCM_DEV_CONNECTION
+    }
+
+    licenses {
+      license {
+        name POM_LICENCE_NAME
+        url POM_LICENCE_URL
+        Distribution POM_LICENCE_DIST
+      }
+    }
+
+    developers {
+      developer {
+        id POM_DEVELOPER_ID
+        name POM_DEVELOPER_NAME
+      }
+    }
+  }
+}

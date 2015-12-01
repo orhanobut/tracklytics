@@ -1,0 +1,57 @@
+buildscript {
+  repositories {
+    jcenter()
+    maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  }
+  dependencies {
+    classpath 'io.fabric.tools:gradle:1.+'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.7-SNAPSHOT'
+  }
+}
+
+repositories {
+  jcenter()
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.orhanobut.tracklytics'
+
+android {
+  compileSdkVersion 23
+  buildToolsVersion "23.0.1"
+
+  defaultConfig {
+    applicationId "com.orhanobut.tracklytics"
+    minSdkVersion 10
+    targetSdkVersion 23
+    versionCode 1
+    versionName "1.0"
+  }
+
+  tracklytics {
+    mixpanel = false
+    adjust = false
+    fabric = false
+    snowplow = false
+    googleAnalytics = false
+    crittercism = false
+  }
+  startTracklytics.execute()
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+}
+
+dependencies {
+  compile fileTree(dir: 'libs', include: ['*.jar'])
+  testCompile 'junit:junit:4.12'
+  compile 'com.android.support:appcompat-v7:23.1.1'
+  compile 'com.android.support:design:23.1.1'
+
+}
