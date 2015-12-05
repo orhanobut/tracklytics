@@ -14,55 +14,42 @@ Tracklytics moves all these problems to an individual module which has handler f
 #### @TrackEvent("EventName")
 Track an event by using event name. 
 ```java
-class MainActivity {
-
-  @TrackEvent("title") void trackNoValues() {
-  }
+@TrackEvent("title") void trackNoValues() {
+  // something
 }
 ```
 
 #### @TrackValue("key")
 Track method parameters as key/value pair.
 ```java
-class MainActivity {
-
-  @TrackEvent("eventName") void trackMe(@TrackValue("eventKey") String eventValue) {
-  }
-  
+@TrackEvent("eventName") void trackMe(@TrackValue("eventKey") String eventValue) {
+  // something
 }
 ```
 
 Track event with return value. By adding @TrackValue to the method, it will add the returning value to the event key/value pairs.
 ```java
-class MainActivity {
-
-  @TrackEvent("eventName") @TrackValue("eventKey") String trackMe() {
-    return "eventValue";
-  }
-  
+@TrackEvent("eventName") @TrackValue("eventKey") String trackMe() {
+  // something
+  return "eventValue";
 }
 ```
 
 Track event with both return value and parameters.
 ```java
-class MainActivity {
-
-  @TrackEvent("eventName") @TrackValue("eventKey1")
-  String trackMe(@TrackValue("eventKey2") String eventValue2) {
-    return "eventValue1";
-  }
-  
+@TrackEvent("eventName") @TrackValue("eventKey1")
+String trackMe(@TrackValue("eventKey2") String eventValue2) {
+  // something
+  return "eventValue1";
 }
 ```
 
 ### @TrackFilter(TRACKER_TYPE1, TRACKER_TYPE2)
 Sometimes you may want to track an event for a specific tracker or trackers. Filter will handle it for you. For example, below example: Only google analytics will track the event.
 ```java
-class MainActivity {
-
-  @TrackFilter(TrackerType.GOOGLE_ANALYTICS)
-  @TrackEvent("title") void trackEventFilter() {
-  }
+@TrackFilter(TrackerType.GOOGLE_ANALYTICS)
+@TrackEvent("title") void trackEventFilter() {
+  // something
 }
 ```
 
