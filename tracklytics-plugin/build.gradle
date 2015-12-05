@@ -45,3 +45,6 @@ modifyPom {
     }
   }
 }
+
+version = '0.1-SNAPSHOT'
+group = 'com.orhanobut.tracklytics'

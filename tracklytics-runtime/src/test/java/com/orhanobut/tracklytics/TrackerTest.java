@@ -1,5 +1,7 @@
 package com.orhanobut.tracklytics;
 
+import com.orhanobut.tracklytics.debugger.EventItem;
+import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackerType;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
@@ -7,8 +9,10 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -111,5 +115,49 @@ public class TrackerTest {
 
     verify(trackingAdapter).trackEvent(anyString(), anyMap());
     verify(trackingAdapter2).trackEvent(anyString(), anyMap());
+  }
+
+  @Test public void trackEventShouldInvokeEventQueue() {
+    TrackingAdapter trackingAdapter = new TrackingAdapter() {
+      @Override public void trackEvent(String title, Map<String, Object> values) {
+
+      }
+
+      @Override public void start() {
+
+      }
+
+      @Override public void stop() {
+
+      }
+
+      @Override public int getTrackerType() {
+        return 0;
+      }
+
+      @Override public String toString() {
+        return "Tracker";
+      }
+    };
+    TrackingAdapter[] tools = new TrackingAdapter[]{trackingAdapter};
+    final Tracker tracker = spy(Tracker.init(tools));
+
+    class Subscriber implements TrackEventSubscriber {
+      EventItem item;
+
+      @Override public void onEventAdded(EventItem item) {
+        this.item = item;
+      }
+    }
+
+    Subscriber subscriber = spy(new Subscriber());
+
+    EventQueue.subscribe(subscriber);
+
+    tracker.event("title", null);
+
+    verify(subscriber).onEventAdded(any(EventItem.class));
+
+    assertThat(subscriber.item.trackerName).isEqualTo("Tracker");
   }
 }

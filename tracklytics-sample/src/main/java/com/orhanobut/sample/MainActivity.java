@@ -2,9 +2,9 @@ package com.orhanobut.sample;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
 import com.orhanobut.tracklytics.TrackEvent;
@@ -12,11 +12,10 @@ import com.orhanobut.tracklytics.TrackValue;
 import com.orhanobut.tracklytics.Tracker;
 import com.orhanobut.tracklytics.TrackerAction;
 import com.orhanobut.tracklytics.Tracklytics;
-import com.orhanobut.tracklytics.trackers.AdjustTrackingAdapter;
-import com.orhanobut.tracklytics.trackers.CrittercismTrackingAdapter;
-import com.orhanobut.tracklytics.trackers.FabricTrackingAdapter;
-import com.orhanobut.tracklytics.trackers.GoogleAnalyticsTrackingAdapter;
-import com.orhanobut.tracklytics.trackers.MixPanelTrackingAdapter;
+import com.orhanobut.tracklytics.TracklyticsDebugger;
+import com.orhanobut.tracklytics.trackers.TrackingAdapter;
+
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,21 +29,45 @@ public class MainActivity extends AppCompatActivity {
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            .setAction("Action", null).show();
+        event1("test");
       }
     });
 
     init();
+
+    TracklyticsDebugger.inject(this);
+
+    event1("test");
   }
 
   @Tracklytics(TrackerAction.INIT) Tracker init() {
     return Tracker.init(
-        new MixPanelTrackingAdapter(this, "API_KEY"),
-        new GoogleAnalyticsTrackingAdapter(this, "CONTAINER_ID", R.raw.container),
-        new CrittercismTrackingAdapter(this, "APP_ID"),
-        new AdjustTrackingAdapter(this, "APPTOKEN", AdjustTrackingAdapter.Environment.LIVE),
-        new FabricTrackingAdapter(this)
+        new TrackingAdapter() {
+          @Override public void trackEvent(String title, Map<String, Object> values) {
+            Log.d("tag", title);
+          }
+
+          @Override public void start() {
+
+          }
+
+          @Override public void stop() {
+
+          }
+
+          @Override public int getTrackerType() {
+            return 10;
+          }
+
+          @Override public String toString() {
+            return "Tracker";
+          }
+        }
+//        new MixPanelTrackingAdapter(this, "API_KEY"),
+//        new GoogleAnalyticsTrackingAdapter(this, "CONTAINER_ID", R.raw.container),
+//        new CrittercismTrackingAdapter(this, "APP_ID"),
+//        new AdjustTrackingAdapter(this, "APPTOKEN", AdjustTrackingAdapter.Environment.LIVE),
+//        new FabricTrackingAdapter(this)
     );
   }
 

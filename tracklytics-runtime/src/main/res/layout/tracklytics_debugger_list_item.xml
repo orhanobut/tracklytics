@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="4dp"
+    android:orientation="vertical">
+
+  <TextView
+      android:id="@+id/tracklytics_debugger_tracker"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:padding="2dp"
+      android:textColor="#2828cf"
+      tools:text="Tracker Name"/>
+
+  <TextView
+      android:id="@+id/tracklytics_debugger_eventName"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:padding="2dp"
+      android:textColor="#000"
+      tools:text="Event Name"/>
+
+  <TextView
+      android:id="@+id/tracklytics_debugger_values"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:padding="2dp"
+      android:textColor="#000"
+      tools:text="Event values"/>
+
+  <TextView
+      android:id="@+id/tracklytics_debugger_date"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="2dp"
+      android:textColor="#4b4b51"
+      android:gravity="right"
+      android:textSize="12sp"
+      tools:text="12:03:01"/>
+
+</LinearLayout>

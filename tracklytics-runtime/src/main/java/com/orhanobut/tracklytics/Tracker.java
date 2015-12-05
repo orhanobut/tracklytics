@@ -1,8 +1,8 @@
 package com.orhanobut.tracklytics;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
+import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
 import java.util.Collections;
@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class Tracker {
-
-  private static final String TAG = "Tracker";
 
   private final TrackingAdapter[] tools;
 
@@ -36,7 +34,7 @@ public class Tracker {
     for (TrackingAdapter tool : tools) {
       if (filter.isEmpty() || filter.contains(tool.getTrackerType())) {
         tool.trackEvent(title, values);
-        Log.d(TAG, tool.toString() + "---> EventName:" + title + ",  values:" + values.toString());
+        EventQueue.add(tool.getTrackerType(), tool.toString(), title, values);
       }
     }
   }
@@ -61,4 +59,5 @@ public class Tracker {
       tool.stop();
     }
   }
+
 }
