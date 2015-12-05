@@ -49,4 +49,8 @@ public class AdjustTrackingAdapter implements TrackingAdapter {
   @Override public int getTrackerType() {
     return TrackerType.ADJUST.getValue();
   }
+
+  @Override public String toString() {
+    return "Adjust";
+  }
 }

@@ -27,4 +27,8 @@ public class CrittercismTrackingAdapter implements TrackingAdapter {
   @Override public int getTrackerType() {
     return TrackerType.CRITTERCISM.getValue();
   }
+
+  @Override public String toString() {
+    return "Crittercism";
+  }
 }

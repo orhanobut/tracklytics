@@ -19,4 +19,8 @@ public class SnowPlowTrackingAdapter implements TrackingAdapter {
   @Override public int getTrackerType() {
     return TrackerType.SNOWPLOW.getValue();
   }
+
+  @Override public String toString() {
+    return "SnowPlow";
+  }
 }

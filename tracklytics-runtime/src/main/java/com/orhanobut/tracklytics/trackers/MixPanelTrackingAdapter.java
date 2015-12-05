@@ -29,4 +29,8 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
     return TrackerType.MIXPANEL.getValue();
   }
 
+  @Override public String toString() {
+    return "MixPanel";
+  }
+
 }

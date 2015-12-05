@@ -35,4 +35,8 @@ public class FabricTrackingAdapter implements TrackingAdapter {
   @Override public int getTrackerType() {
     return TrackerType.FABRIC.getValue();
   }
+
+  @Override public String toString() {
+    return "Fabric";
+  }
 }

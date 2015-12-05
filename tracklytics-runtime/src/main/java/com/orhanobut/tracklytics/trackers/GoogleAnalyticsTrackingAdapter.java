@@ -49,4 +49,8 @@ public class GoogleAnalyticsTrackingAdapter implements TrackingAdapter {
     return TrackerType.GOOGLE_ANALYTICS.getValue();
   }
 
+  @Override public String toString() {
+    return "GoogleAnalytics";
+  }
+
 }
