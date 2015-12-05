@@ -20,7 +20,8 @@ Tracklytics moves all these problems to an individual module which has handler f
 #### @TrackEvent("EventName")
 Track an event by using event name. 
 ```java
-@TrackEvent("title") void trackNoValues() {
+@TrackEvent("title") 
+public void trackNoValues() {
   // something
 }
 ```
@@ -28,14 +29,17 @@ Track an event by using event name.
 #### @TrackValue("key")
 Track method parameters as key/value pair.
 ```java
-@TrackEvent("eventName") void trackMe(@TrackValue("eventKey") String eventValue) {
+@TrackEvent("eventName") 
+public void trackMe(@TrackValue("eventKey") String eventValue) {
   // something
 }
 ```
 
 Track event with return value. By adding @TrackValue to the method, it will add the returning value to the event key/value pairs.
 ```java
-@TrackEvent("eventName") @TrackValue("eventKey") String trackMe() {
+@TrackEvent("eventName") 
+@TrackValue("eventKey") 
+public String trackMe() {
   // something
   return "eventValue";
 }
@@ -43,8 +47,9 @@ Track event with return value. By adding @TrackValue to the method, it will add 
 
 Track event with both return value and parameters.
 ```java
-@TrackEvent("eventName") @TrackValue("eventKey1")
-String trackMe(@TrackValue("eventKey2") String eventValue2) {
+@TrackEvent("eventName") 
+@TrackValue("eventKey1")
+public String trackMe(@TrackValue("eventKey2") String eventValue2) {
   // something
   return "eventValue1";
 }
@@ -54,7 +59,8 @@ String trackMe(@TrackValue("eventKey2") String eventValue2) {
 Sometimes you may want to track an event for a specific tracker or trackers. Filter will handle it for you. For example, below example: Only google analytics will track the event.
 ```java
 @TrackFilter(TrackerType.GOOGLE_ANALYTICS)
-@TrackEvent("title") void trackEventFilter() {
+@TrackEvent("title") 
+public void trackEventFilter() {
   // something
 }
 ```
@@ -65,7 +71,8 @@ Before using tracklytics, you must initialize it. Create a method which returns 
 ```java
 class DefaultApplication {
 
-  @Tracklytics(TrackerAction.INIT) Tracker init() {
+  @Tracklytics(TrackerAction.INIT) 
+  public Tracker init() {
     return Tracker.init(
         new MixPanelTrackingAdapter(context, "API_KEY"),
         new GoogleAnalyticsTrackingAdapter(context, "CONTAINER_ID", R.raw.container),
@@ -93,27 +100,20 @@ class MainActivity extends Activity {
 ```
 
 ## Install
-Add the following code block to in your app/build.gradle, since it's in progress, artifacts are in snapshot. Also have some issues to move all related fabric stuff to the tracklytics module. Because of that you need to add it to the classpath.
+Add the following code block to in your app/build.gradle. Also have some issues to move all related fabric stuff to the tracklytics module. Because of that you need to add it to the classpath.
 ```groovy
 buildscript {
   repositories {
     jcenter()
     maven { url 'https://maven.fabric.io/public' }
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.+'
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.8-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.10'
   }
 }
 
-repositories {
-  jcenter()
-  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-}
-
 apply plugin: 'com.android.application'
-// Make sure that you add this after com.android.application
 apply plugin: 'com.orhanobut.tracklytics'
 ```
 
@@ -130,8 +130,22 @@ Enable the trackers that you want to use, as default they are enabled. Only enab
   startTracklytics.execute()
 ```
 
+### tracklytics.properties
+For some trackers, tracklytics need the keys beforehand unfortunately. (Will try to solve in the future). For fabric for example. Create tracklytics.properties file on the root file and put your key inside. tracklytics will read the keys from there. 
+
+<pre>
+tracklytics.properties
+fabric = yourkey
+
+YOURPROJECT
+|-app
+|-gradle
+|-tracklytics.properties
+</pre>
+
 ### Event Debugging Monitor
 <img src='https://github.com/orhanobut/tracklytics/blob/master/art/image1.png' height='400'/> <img src='https://github.com/orhanobut/tracklytics/blob/master/art/image2.png' height='400'/>
+
 To be able to use debugging monitor, you need to inject it in the activity class.
 ```java
  TracklyticsDebugger.inject(this);
@@ -156,7 +170,7 @@ Currently available tools:
 - Adjust
 - SnowPlow (in progress)
 
-##TOO
+##TODO
 - put the artifacts into the release repository and minify install part
 - find a solution for fabric
 - add more analytic tools
