@@ -40,8 +40,7 @@ class TracklyticsPlugin implements Plugin<Project> {
 
       project.dependencies {
         compile 'org.aspectj:aspectjrt:1.8.6'
-//        compile 'com.orhanobut.tracklytics:tracklytics-runtime:0.7-SNAPSHOT@aar'
-        compile(project.project(":tracklytics-runtime"))
+        compile 'com.orhanobut.tracklytics:tracklytics-runtime:0.8-SNAPSHOT@aar'
 
         // Fabric
         if (project.tracklytics.fabric) {

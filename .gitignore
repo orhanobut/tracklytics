@@ -37,4 +37,4 @@ fabric.properties
 /app/keystore.properties
 keys.properties
 tracklytics.properties
-credential.properties
+credentials.properties

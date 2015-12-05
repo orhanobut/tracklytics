@@ -9,6 +9,12 @@ Common problems are for the analytics tools are;
 
 Tracklytics moves all these problems to an individual module which has handler for each analytic tool. By using aspect oriented programming, all tracking codes will be added to your business code during the compile time, which means that you don't need to worry about performance.
 
+## Tracklytics solution
+- Moves all analytics/tracking code and add them in compile time.
+- Provides a debugging monitor tool to visualise all occured events.
+
+<img src='https://github.com/orhanobut/tracklytics/blob/master/art/image4.png'/>
+
 # Usage
 
 #### @TrackEvent("EventName")
@@ -97,7 +103,7 @@ buildscript {
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.+'
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.7-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.8-SNAPSHOT'
   }
 }
 
@@ -123,6 +129,20 @@ Enable the trackers that you want to use, as default they are enabled. Only enab
   }
   startTracklytics.execute()
 ```
+
+### Event Debugging Monitor
+<img src='https://github.com/orhanobut/tracklytics/blob/master/art/image1.png' height='400'/> <img src='https://github.com/orhanobut/tracklytics/blob/master/art/image2.png' height='400'/>
+To be able to use debugging monitor, you need to inject it in the activity class.
+```java
+ TracklyticsDebugger.inject(this);
+```
+
+By clicking "hand" icon, monitor will be displayed and each event will be updated in the list.
+
+Debugging monitor displays
+- each event for each tracker
+- an option to remove all
+- filter option to select tracker, time and keyword (in progress)
 
 ### Add custom tracker
 You can always add another tracker by using TrackingAdapter.

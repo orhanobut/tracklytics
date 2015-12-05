@@ -8,7 +8,7 @@
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
     android:layout_marginTop="50dp"
-    android:background="@drawable/tracklytics_debugger_backgorund"
+    android:background="@drawable/tracklytics_debugger_background"
     android:orientation="vertical">
 
   <LinearLayout

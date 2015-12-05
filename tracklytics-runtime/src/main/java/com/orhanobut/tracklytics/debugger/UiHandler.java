@@ -1,9 +1,11 @@
 package com.orhanobut.tracklytics.debugger;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -26,6 +28,7 @@ public final class UiHandler {
 
   private View container;
   private DebugEventAdapter adapter;
+  private int buttonSize;
 
   public UiHandler(Activity activity) {
     context = activity;
@@ -37,6 +40,14 @@ public final class UiHandler {
     displaySize.set(display.getWidth(), display.getHeight());
 
     init();
+
+    buttonSize = dpToPx(24, context);
+  }
+
+  public int dpToPx(int dp, Context context) {
+    DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+    int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    return px;
   }
 
   private void init() {
@@ -87,7 +98,7 @@ public final class UiHandler {
 
     private static final int MIN_MOVEMENT = 20;
 
-    final BeeGestureListener gestureListener = new BeeGestureListener();
+    final GestureListener gestureListener = new GestureListener();
     final GestureDetector gestureDetector = new GestureDetector(context, gestureListener);
 
     PointF touchPos = new PointF();
@@ -132,13 +143,13 @@ public final class UiHandler {
     }
 
     private boolean isInBoundaries(int x, int y) {
-      int half = 40 / 2;
+      int half = buttonSize / 2;
       return !(x + half > displaySize.x || x < half || y + half > displaySize.y || y < half + 50);
     }
 
   };
 
-  private class BeeGestureListener implements GestureDetector.OnGestureListener {
+  private class GestureListener implements GestureDetector.OnGestureListener {
 
     @Override
     public boolean onDown(MotionEvent e) {

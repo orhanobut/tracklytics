@@ -62,7 +62,29 @@ public class MainActivity extends AppCompatActivity {
           @Override public String toString() {
             return "Tracker";
           }
+        },
+        new TrackingAdapter() {
+          @Override public void trackEvent(String title, Map<String, Object> values) {
+            Log.d("tag", title);
+          }
+
+          @Override public void start() {
+
+          }
+
+          @Override public void stop() {
+
+          }
+
+          @Override public int getTrackerType() {
+            return 10;
+          }
+
+          @Override public String toString() {
+            return "Tracker2";
+          }
         }
+
 //        new MixPanelTrackingAdapter(this, "API_KEY"),
 //        new GoogleAnalyticsTrackingAdapter(this, "CONTAINER_ID", R.raw.container),
 //        new CrittercismTrackingAdapter(this, "APP_ID"),
