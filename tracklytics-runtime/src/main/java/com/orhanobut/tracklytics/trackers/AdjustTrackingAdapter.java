@@ -10,19 +10,12 @@ import java.util.Map;
 
 public class AdjustTrackingAdapter implements TrackingAdapter {
 
-  public enum Environment {
-    STAGING(AdjustConfig.ENVIRONMENT_SANDBOX),
-    LIVE(AdjustConfig.ENVIRONMENT_PRODUCTION);
-
-    final String environment;
-
-    Environment(String environment) {
-      this.environment = environment;
-    }
+  public AdjustTrackingAdapter(Context context, String appToken, String environment) {
+    onCreate(context, appToken, environment);
   }
 
-  public AdjustTrackingAdapter(Context context, String appToken, Environment environment) {
-    AdjustConfig config = new AdjustConfig(context, appToken, environment.environment);
+  public void onCreate(Context context, String appToken, String environment) {
+    AdjustConfig config = new AdjustConfig(context, appToken, environment);
     Adjust.onCreate(config);
   }
 

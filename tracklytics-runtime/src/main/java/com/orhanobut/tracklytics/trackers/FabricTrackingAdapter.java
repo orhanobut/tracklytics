@@ -13,7 +13,12 @@ import io.fabric.sdk.android.Fabric;
 public class FabricTrackingAdapter implements TrackingAdapter {
 
   public FabricTrackingAdapter(Context context) {
+    onCreate(context);
+  }
+
+  public void onCreate(Context context) {
     Fabric.with(context, new Crashlytics());
+    Fabric.with(context, new Answers());
   }
 
   @Override public void trackEvent(String title, Map<String, Object> values) {

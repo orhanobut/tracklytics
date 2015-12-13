@@ -11,6 +11,10 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
   private MixpanelAPI mixpanelAPI;
 
   public MixPanelTrackingAdapter(Context context, String apiKey) {
+    onCreate(context, apiKey);
+  }
+
+  public void onCreate(Context context, String apiKey) {
     mixpanelAPI = MixpanelAPI.getInstance(context, apiKey);
   }
 

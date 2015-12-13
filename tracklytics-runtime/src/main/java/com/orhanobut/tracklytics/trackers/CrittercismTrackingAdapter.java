@@ -9,6 +9,10 @@ import java.util.Map;
 public class CrittercismTrackingAdapter implements TrackingAdapter {
 
   public CrittercismTrackingAdapter(Context context, String appId) {
+    onCreate(context, appId);
+  }
+
+  public void onCreate(Context context, String appId) {
     Crittercism.initialize(context, appId);
   }
 

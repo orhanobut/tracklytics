@@ -18,6 +18,10 @@ public class GoogleAnalyticsTrackingAdapter implements TrackingAdapter {
   private DataLayer dataLayer;
 
   public GoogleAnalyticsTrackingAdapter(Context context, String containerId, int containerResId) {
+    onCreate(context, containerId, containerResId);
+  }
+
+  public void onCreate(Context context, String containerId, int containerResId) {
     TagManager tagManager = TagManager.getInstance(context);
     PendingResult<ContainerHolder> pending =
         tagManager.loadContainerPreferNonDefault(containerId, containerResId);

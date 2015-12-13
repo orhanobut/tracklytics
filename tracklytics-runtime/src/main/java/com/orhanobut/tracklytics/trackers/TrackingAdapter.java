@@ -9,6 +9,6 @@ public interface TrackingAdapter {
   void start();
 
   void stop();
-
+  
   int getTrackerType();
 }
