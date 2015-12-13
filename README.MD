@@ -83,6 +83,16 @@ class DefaultApplication {
   }
 }
 ```
+or for custom initialization, override onCreate method of TrackingAdapter.
+```java
+  new FabricTrackingAdapter(context) {
+    @Override public void onCreate(Context context){
+      Fabric.with(context, new Answers());
+      Fabric.with(context, new Crashlytics());
+      .. more
+    }
+  }
+```
 
 For the best usage, use start and stop functions in your activities onStart/onStop or on any other entry/exit points
 ```java
