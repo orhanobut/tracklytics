@@ -140,18 +140,15 @@ Enable the trackers that you want to use, as default they are enabled. Only enab
   startTracklytics.execute()
 ```
 
-### tracklytics.properties
-For some trackers, tracklytics need the keys beforehand unfortunately. (Will try to solve in the future). For fabric for example. Create tracklytics.properties file on the root file and put your key inside. tracklytics will read the keys from there. 
-
-<pre>
-tracklytics.properties
-fabric = yourkey
-
-YOURPROJECT
-|-app
-|-gradle
-|-tracklytics.properties
-</pre>
+### Fabric
+Fabric key should be added to your manifest file in order to use it.
+```xml
+<meta-data
+  android:name="io.fabric.ApiKey"
+  android:value="YOUR_FABRIC_KEY"
+  tools:replace="android:value"
+/>
+```
 
 ### Event Debugging Monitor
 <img src='https://github.com/orhanobut/tracklytics/blob/master/art/image1.png' height='400'/> <img src='https://github.com/orhanobut/tracklytics/blob/master/art/image2.png' height='400'/>
