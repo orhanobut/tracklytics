@@ -31,7 +31,6 @@ class TracklyticsPlugin implements Plugin<Project> {
 
       // Fabric
       if (project.tracklytics.fabric) {
-        log.debug("Fabric url and apply")
         project.repositories {
           maven { url 'https://maven.fabric.io/public' }
         }
@@ -40,7 +39,7 @@ class TracklyticsPlugin implements Plugin<Project> {
 
       project.dependencies {
         compile 'org.aspectj:aspectjrt:1.8.6'
-        compile 'com.orhanobut.tracklytics:tracklytics-runtime:0.12@aar'
+        compile 'com.orhanobut.tracklytics:tracklytics-runtime:0.22-SNAPSHOT@aar'
 
         // Fabric
         if (project.tracklytics.fabric) {
@@ -49,38 +48,12 @@ class TracklyticsPlugin implements Plugin<Project> {
           }
         }
 
-        //  Adjust
-        if (project.tracklytics.adjust) {
-          compile 'com.adjust.sdk:adjust-android:4.1.3'
-          compile 'com.google.android.gms:play-services-base:8.1.0'
-          compile 'com.google.android.gms:play-services-gcm:8.1.0'
-
-          // Adjust uses it to get unique identifier
-          compile 'com.google.android.gms:play-services-ads:8.1.0'
-        }
-
         // mixpanel
         if (project.tracklytics.mixpanel) {
           compile('com.mixpanel.android:mixpanel-android:4.6.4') {
             transitive = true;
           }
         }
-
-        // snowplow
-        if (project.tracklytics.snowplow) {
-          log.debug("compile --> snowplow (nothing yet)")
-        }
-
-        // crittercism
-        if (project.tracklytics.crittercism) {
-          compile 'com.crittercism:crittercism-android-agent:5.5.0-rc-1'
-        }
-
-        // google analytics
-        if (project.tracklytics.googleAnalytics) {
-          compile 'com.google.android.gms:play-services-analytics:8.3.0'
-        }
-
       }
 
       variants.all { variant ->

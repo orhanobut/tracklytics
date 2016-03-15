@@ -1,9 +1,7 @@
 apply plugin: 'groovy'
 apply plugin: 'nexus'
 
-//noinspection GroovyUnusedAssignment
 targetCompatibility = JavaVersion.VERSION_1_7
-//noinspection GroovyUnusedAssignment
 sourceCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
@@ -17,7 +15,6 @@ dependencies {
 }
 
 modifyPom {
-  //noinspection GroovyAssignabilityCheck
   project {
     name POM_NAME
     description POM_DESCRIPTION
@@ -45,6 +42,3 @@ modifyPom {
     }
   }
 }
-
-//version = '0.1-SNAPSHOT'
-//group = 'com.orhanobut.tracklytics'

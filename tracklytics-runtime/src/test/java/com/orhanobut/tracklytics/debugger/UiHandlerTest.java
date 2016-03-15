@@ -14,7 +14,7 @@ import org.robolectric.annotation.Config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(sdk = 21, constants = BuildConfig.class)
+@Config(sdk = 21, constants = BuildConfig.class, packageName = "com.orhanobut.tracklytics")
 public class UiHandlerTest {
 
   private Activity activity;

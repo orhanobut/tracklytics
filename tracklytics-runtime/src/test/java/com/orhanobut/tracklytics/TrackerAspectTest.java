@@ -5,8 +5,12 @@ import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Spy;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -18,10 +22,11 @@ import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TrackerAspectTest {
 
@@ -30,19 +35,31 @@ public class TrackerAspectTest {
     @TrackEvent("title") void noValue() {
     }
 
-    @TrackEvent("title") void foo(@TrackValue("key") String param) {
+    @TrackEvent("title") void foo(@Attribute("key") String param) {
     }
 
-    @TrackEvent("title") @TrackValue("key") String fooReturn() {
+    @TrackEvent("title") @Attribute("key") String fooReturn() {
       return "test";
     }
 
-    @TrackEvent("title") @TrackValue("key1") String fooReturnAndParam(@TrackValue("key2") String param) {
+    @TrackEvent("title") @Attribute("key1") String fooReturnAndParam(@Attribute("key2") String param) {
       return "test";
     }
 
-    @TrackFilter(TrackerType.ADJUST)
+    @TrackFilter(TrackerType.MIXPANEL)
     @TrackEvent("title") void trackEventFilter() {
+    }
+
+    @TrackEvent("title")
+    @Attribute(value = "key1", defaultResult = "defaultResult") void trackDefaultValue() {
+    }
+
+    @TrackEvent("title")
+    @Attribute(value = "key1", defaultResult = "defaultResult") String trackDefaultValueWithReturn() {
+      return "returnValue";
+    }
+
+    @Track(eventName = "Event", attributeKey = "key", attributeValue = "value") void trackWithTrack() {
     }
 
     @Tracklytics(TrackerAction.INIT) Tracker init() {
@@ -56,70 +73,54 @@ public class TrackerAspectTest {
     @Tracklytics(TrackerAction.STOP) Tracker stop() {
       return Tracker.init();
     }
+
   }
 
-  @Test public void weaveJointTracklyticsShouldInvokeInit() throws Throwable {
-    TrackerAspect aspect = spy(new TrackerAspect());
-    ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
-    MethodSignature methodSignature = mock(MethodSignature.class);
+  Tracker tracker;
+  FooBar fooBar;
+
+  @Spy TrackerAspect aspect;
+  @Mock ProceedingJoinPoint joinPoint;
+  @Mock MethodSignature methodSignature;
+  @Mock TrackingAdapter trackingAdapter;
+  @Captor ArgumentCaptor<Map<String, Object>> valueMapCaptor;
+
+  @Before public void setup() throws Exception {
+    initMocks(this);
+
+    fooBar = new FooBar();
+
     when(joinPoint.getSignature()).thenReturn(methodSignature);
 
-    FooBar fooBar = new FooBar();
-    Method method = fooBar.getClass().getDeclaredMethod("init");
+    tracker = spy(Tracker.init(trackingAdapter));
+    aspect.init(tracker);
+  }
 
-    when(methodSignature.getMethod()).thenReturn(method);
+  @Test public void invokeInit() throws Throwable {
+    initMethod("init");
 
     aspect.weaveJointTracklytics(joinPoint);
 
-    verify(aspect).init(any());
+    verify(aspect, times(2)).init(any());
   }
 
-  @Test public void weaveJointTracklyticsShouldInvokeStart() throws Throwable {
-    TrackerAspect aspect = spy(new TrackerAspect());
-    ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
-    MethodSignature methodSignature = mock(MethodSignature.class);
-    when(joinPoint.getSignature()).thenReturn(methodSignature);
-
-    FooBar fooBar = new FooBar();
-    Method method = fooBar.getClass().getDeclaredMethod("start");
-
-    when(methodSignature.getMethod()).thenReturn(method);
-
-    Tracker tracker = mock(Tracker.class);
-    aspect.init(tracker);
+  @Test public void invokeStart() throws Throwable {
+    initMethod("start");
 
     aspect.weaveJointTracklytics(joinPoint);
 
     verify(aspect).start();
   }
 
-  @Test public void weaveJointTracklyticsShouldInvokeStop() throws Throwable {
-    TrackerAspect aspect = spy(new TrackerAspect());
-    ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
-    MethodSignature methodSignature = mock(MethodSignature.class);
-    when(joinPoint.getSignature()).thenReturn(methodSignature);
-
-    FooBar fooBar = new FooBar();
-    Method method = fooBar.getClass().getDeclaredMethod("stop");
-
-    when(methodSignature.getMethod()).thenReturn(method);
-
-    Tracker tracker = mock(Tracker.class);
-    aspect.init(tracker);
+  @Test public void invokeStop() throws Throwable {
+    initMethod("stop");
 
     aspect.weaveJointTracklytics(joinPoint);
 
     verify(aspect).stop();
   }
 
-  @Test public void weaveJointShouldInvokeTrackEvent() throws Throwable {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    Tracker tracker = Tracker.init(trackingAdapter);
-
-    TrackerAspect aspect = spy(new TrackerAspect());
-    aspect.init(tracker);
-    ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
-    MethodSignature methodSignature = mock(MethodSignature.class);
+  @Test public void invokeTrackEvent() throws Throwable {
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(joinPoint.getArgs()).thenReturn(new Object[]{"value"});
 
@@ -130,43 +131,25 @@ public class TrackerAspectTest {
 
     aspect.weaveJoinPoint(joinPoint);
 
-    verify(aspect).generateValues(any(Annotation[][].class), any(Object[].class), anyMap());
+    verify(aspect).generateFieldValues(any(Annotation[][].class), any(Object[].class), anyMap());
     verify(aspect).trackEvent(eq("title"), anyMapOf(String.class, Object.class), isNull(TrackerType[].class));
     verify(trackingAdapter).trackEvent(eq("title"), anyMapOf(String.class, Object.class));
   }
 
-  @Test public void startShouldInvokeTrackerStart() {
-    Tracker tracker = mock(Tracker.class);
-    TrackerAspect trackerAspect = new TrackerAspect();
-    trackerAspect.init(tracker);
-    trackerAspect.start();
+  @Test public void invokeTrackerStart() {
+    aspect.start();
 
     verify(tracker).start();
   }
 
-  @Test public void stopShouldInvokeTrackerStop() {
-    Tracker tracker = mock(Tracker.class);
-    TrackerAspect trackerAspect = new TrackerAspect();
-    trackerAspect.init(tracker);
-    trackerAspect.stop();
+  @Test public void invokeTrackerStop() {
+    aspect.stop();
 
     verify(tracker).stop();
   }
 
   @Test public void trackEventShouldUseNoValue() throws Throwable {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    Tracker tracker = Tracker.init(trackingAdapter);
-
-    TrackerAspect aspect = spy(new TrackerAspect());
-    aspect.init(tracker);
-    ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
-    MethodSignature methodSignature = mock(MethodSignature.class);
-    when(joinPoint.getSignature()).thenReturn(methodSignature);
-
-    FooBar fooBar = new FooBar();
-    Method method = fooBar.getClass().getDeclaredMethod("noValue");
-
-    when(methodSignature.getMethod()).thenReturn(method);
+    initMethod("noValue");
 
     aspect.weaveJoinPoint(joinPoint);
 
@@ -174,23 +157,11 @@ public class TrackerAspectTest {
 
     verify(aspect).trackEvent(eq("title"), argument.capture(), isNull(TrackerType[].class));
 
-    assertThat(argument.getValue()).hasSize(0);
+    assertThat(argument.getValue()).isEmpty();
   }
 
   @Test public void trackEventShouldUseReturnValue() throws Throwable {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    Tracker tracker = Tracker.init(trackingAdapter);
-
-    TrackerAspect aspect = spy(new TrackerAspect());
-    aspect.init(tracker);
-    ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
-    MethodSignature methodSignature = mock(MethodSignature.class);
-    when(joinPoint.getSignature()).thenReturn(methodSignature);
-
-    FooBar fooBar = new FooBar();
-    Method method = fooBar.getClass().getDeclaredMethod("fooReturn");
-
-    when(methodSignature.getMethod()).thenReturn(method);
+    initMethod("fooReturn");
     when(joinPoint.proceed()).thenReturn("test");
 
     aspect.weaveJoinPoint(joinPoint);
@@ -199,24 +170,11 @@ public class TrackerAspectTest {
 
     verify(aspect).trackEvent(eq("title"), argument.capture(), isNull(TrackerType[].class));
 
-    assertThat(argument.getValue()).hasSize(1);
-    assertThat(argument.getValue().get("key")).isEqualTo("test");
+    assertThat(argument.getValue()).containsEntry("key", "test");
   }
 
   @Test public void trackEventShouldUseReturnValueAndParameters() throws Throwable {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    Tracker tracker = Tracker.init(trackingAdapter);
-
-    TrackerAspect aspect = spy(new TrackerAspect());
-    aspect.init(tracker);
-    ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
-    MethodSignature methodSignature = mock(MethodSignature.class);
-    when(joinPoint.getSignature()).thenReturn(methodSignature);
-
-    FooBar fooBar = new FooBar();
-    Method method = fooBar.getClass().getDeclaredMethod("fooReturnAndParam", String.class);
-
-    when(methodSignature.getMethod()).thenReturn(method);
+    initMethod("fooReturnAndParam", String.class);
     when(joinPoint.proceed()).thenReturn("test");
     when(joinPoint.getArgs()).thenReturn(new Object[]{"param"});
 
@@ -226,26 +184,35 @@ public class TrackerAspectTest {
 
     verify(aspect).trackEvent(eq("title"), argument.capture(), isNull(TrackerType[].class));
 
-    assertThat(argument.getValue()).hasSize(2);
-    assertThat(argument.getValue()).containsKeys("key1", "key2");
+    assertThat(argument.getValue()).containsOnlyKeys("key1", "key2");
     assertThat(argument.getValue().get("key1")).isEqualTo("test");
     assertThat(argument.getValue().get("key2")).isEqualTo("param");
   }
 
+  @Test public void useDefaultValueOnTrackValueWhenItIsSet() throws Throwable {
+    initMethod("trackDefaultValue");
+
+    aspect.weaveJoinPoint(joinPoint);
+
+    ArgumentCaptor<TrackerType[]> argument = ArgumentCaptor.forClass(TrackerType[].class);
+    verify(aspect).trackEvent(eq("title"), valueMapCaptor.capture(), argument.capture());
+
+    assertThat(valueMapCaptor.getValue()).containsEntry("key1", "defaultResult");
+  }
+
+  @Test public void useDefaultValueOnTrackValueWhenThereIsReturnValueAndItIsSet() throws Throwable {
+    initMethod("trackDefaultValueWithReturn");
+
+    aspect.weaveJoinPoint(joinPoint);
+
+    ArgumentCaptor<TrackerType[]> argument = ArgumentCaptor.forClass(TrackerType[].class);
+    verify(aspect).trackEvent(eq("title"), valueMapCaptor.capture(), argument.capture());
+
+    assertThat(valueMapCaptor.getValue()).containsEntry("key1", "defaultResult");
+  }
+
   @Test public void testFilters() throws Throwable {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    Tracker tracker = Tracker.init(trackingAdapter);
-
-    TrackerAspect aspect = spy(new TrackerAspect());
-    aspect.init(tracker);
-    ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
-    MethodSignature methodSignature = mock(MethodSignature.class);
-    when(joinPoint.getSignature()).thenReturn(methodSignature);
-
-    FooBar fooBar = new FooBar();
-    Method method = fooBar.getClass().getDeclaredMethod("trackEventFilter");
-
-    when(methodSignature.getMethod()).thenReturn(method);
+    initMethod("trackEventFilter");
 
     aspect.weaveJoinPoint(joinPoint);
 
@@ -254,6 +221,20 @@ public class TrackerAspectTest {
     verify(aspect).trackEvent(eq("title"), anyMap(), argument.capture());
 
     assertThat(argument.getValue()).hasSize(1);
+  }
+
+  @Test public void testTrack() throws Throwable {
+    initMethod("trackWithTrack");
+
+    aspect.weaveJoinPoint(joinPoint);
+
+    verify(aspect).trackEvent(eq("Event"), valueMapCaptor.capture(), any(TrackerType[].class));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key", "value");
+  }
+
+  void initMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
+    Method method = fooBar.getClass().getDeclaredMethod(name, parameterTypes);
+    when(methodSignature.getMethod()).thenReturn(method);
   }
 
 }

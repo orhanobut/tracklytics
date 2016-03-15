@@ -28,9 +28,12 @@ public class EventQueue {
   }
 
   public static List<EventItem> getUndispatched() {
-    List<EventItem> list = new ArrayList<>(undispatched.size());
-    list.addAll(undispatched);
+    List<EventItem> list = new ArrayList<>(undispatched);
     undispatched.clear();
     return list;
+  }
+
+  public static void clearAll() {
+    undispatched.clear();
   }
 }

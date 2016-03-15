@@ -4,6 +4,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TrackEvent {
-  String value();
+public @interface Track {
+  String eventName();
+
+  String attributeKey();
+
+  String attributeValue();
 }

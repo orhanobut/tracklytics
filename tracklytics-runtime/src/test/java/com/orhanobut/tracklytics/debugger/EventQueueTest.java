@@ -56,6 +56,7 @@ public class EventQueueTest {
 
   @Test public void getUndispatchedShouldClearList() {
     EventQueue.TRACK_EVENT_SUBSCRIBERS.clear();
+    EventQueue.clearAll();
     EventQueue.add(1, "Tracker", "title", Collections.<String, Object>emptyMap());
 
     List<EventItem> list = EventQueue.getUndispatched();

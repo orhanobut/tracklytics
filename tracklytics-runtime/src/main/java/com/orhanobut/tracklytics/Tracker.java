@@ -1,7 +1,5 @@
 package com.orhanobut.tracklytics;
 
-import android.support.annotation.NonNull;
-
 import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
@@ -19,7 +17,7 @@ public class Tracker {
     this.tools = tools;
   }
 
-  public static Tracker init(@NonNull TrackingAdapter... tools) {
+  public static Tracker init(TrackingAdapter... tools) {
     return new Tracker(tools);
   }
 
@@ -27,7 +25,7 @@ public class Tracker {
     event(title, values, Collections.<Integer>emptySet());
   }
 
-  public void event(String title, Map<String, Object> values, @NonNull Set<Integer> filter) {
+  public void event(String title, Map<String, Object> values, Set<Integer> filter) {
     if (!enabled) {
       return;
     }

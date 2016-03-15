@@ -46,14 +46,13 @@ public final class UiHandler {
 
   public int dpToPx(int dp, Context context) {
     DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-    int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    return px;
+    return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
   }
 
   private void init() {
-    View rootView = context.getWindow().getDecorView();
+    ViewGroup rootView = (ViewGroup) context.getWindow().getDecorView().findViewById(android.R.id.content);
     LayoutInflater inflater = LayoutInflater.from(context);
-    View mainContainer = inflater.inflate(R.layout.tracklytics_debugger_layout, (ViewGroup) rootView, true);
+    View mainContainer = inflater.inflate(R.layout.tracklytics_debugger_layout, rootView, true);
     container = mainContainer.findViewById(R.id.tracklytics_debugger_container);
     container.setVisibility(View.GONE);
     mainContainer.findViewById(R.id.tracklytics_debugger_close).setOnClickListener(new View.OnClickListener() {
@@ -77,12 +76,12 @@ public final class UiHandler {
   }
 
   public void inject() {
-    ViewGroup rootView = (ViewGroup) context.getWindow().getDecorView();
+    ViewGroup rootView = (ViewGroup) context.getWindow().getDecorView().findViewById(android.R.id.content);
     setButton(rootView);
   }
 
   private void setButton(ViewGroup rootView) {
-    beeImageView.setImageResource(R.drawable.ic_pan_tool_black_24dp);
+    beeImageView.setImageResource(R.drawable.tracklytics_ic_pan_tool_black_24dp);
     FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER | Gravity.RIGHT
     );

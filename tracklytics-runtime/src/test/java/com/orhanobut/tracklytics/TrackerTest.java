@@ -5,7 +5,9 @@ import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackerType;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -21,61 +23,50 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TrackerTest {
 
-  @Test public void eventShouldInvokeToolsTrackEventWhenDisabled() {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    TrackingAdapter[] tools = new TrackingAdapter[]{trackingAdapter};
-    Tracker tracker = Tracker.init(tools).enabled(false);
+  @Mock TrackingAdapter trackingAdapter;
+
+  TrackingAdapter[] tools;
+  Tracker tracker;
+
+  @Before public void setup() {
+    initMocks(this);
+    tools = new TrackingAdapter[]{trackingAdapter};
+    tracker = Tracker.init(tools);
+  }
+
+  @Test public void doNotTrackEventWhenDisabled() {
+    tracker.enabled(false);
     tracker.event("title", null);
 
+    assertThat(tracker.isEnabled()).isFalse();
     verify(trackingAdapter, never()).trackEvent("title", null);
   }
 
   @Test public void isEnabledShouldReturnTrueAsDefault() {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    TrackingAdapter[] tools = new TrackingAdapter[]{trackingAdapter};
-    Tracker tracker = Tracker.init(tools);
     assertThat(tracker.isEnabled()).isTrue();
   }
 
-  @Test public void isEnabledShouldReturnFalse() {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    TrackingAdapter[] tools = new TrackingAdapter[]{trackingAdapter};
-    Tracker tracker = Tracker.init(tools).enabled(false);
-    assertThat(tracker.isEnabled()).isFalse();
-  }
-
   @Test public void startShouldInvokeStartForeachTrackingTool() {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    TrackingAdapter[] tools = new TrackingAdapter[]{trackingAdapter};
-    Tracker tracker = spy(Tracker.init(tools));
-
     tracker.start();
 
     verify(tools[0]).start();
   }
 
   @Test public void stopShouldInvokeStopForeachTrackingTool() {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    TrackingAdapter[] tools = new TrackingAdapter[]{trackingAdapter};
-    Tracker tracker = spy(Tracker.init(tools));
-
     tracker.stop();
 
     verify(tools[0]).stop();
   }
 
-  @Test public void trackEventShouldNotBeCalledWhenNotFiltered() {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    when(trackingAdapter.getTrackerType()).thenReturn(TrackerType.ADJUST.getValue());
-
-    TrackingAdapter[] tools = new TrackingAdapter[]{trackingAdapter};
-    Tracker tracker = spy(Tracker.init(tools));
+  @Test public void doNotTrackEventWhenNotFiltered() {
+    when(trackingAdapter.getTrackerType()).thenReturn(TrackerType.FABRIC.getValue());
 
     HashSet<Integer> filter = new HashSet<>();
-    filter.add(TrackerType.CRITTERCISM.getValue());
+    filter.add(TrackerType.MIXPANEL.getValue());
 
     tracker.event("title", null, filter);
 
@@ -83,17 +74,16 @@ public class TrackerTest {
   }
 
   @Test public void onlyFilteredTrackersShouldCallTrackEvent() {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    when(trackingAdapter.getTrackerType()).thenReturn(TrackerType.ADJUST.getValue());
+    when(trackingAdapter.getTrackerType()).thenReturn(TrackerType.MIXPANEL.getValue());
 
     TrackingAdapter trackingAdapter2 = mock(TrackingAdapter.class);
-    when(trackingAdapter2.getTrackerType()).thenReturn(TrackerType.CRITTERCISM.getValue());
+    when(trackingAdapter2.getTrackerType()).thenReturn(TrackerType.FABRIC.getValue());
 
     TrackingAdapter[] tools = new TrackingAdapter[]{trackingAdapter, trackingAdapter2};
     Tracker tracker = spy(Tracker.init(tools));
 
     HashSet<Integer> filter = new HashSet<>();
-    filter.add(TrackerType.ADJUST.getValue());
+    filter.add(TrackerType.MIXPANEL.getValue());
 
     tracker.event("title", null, filter);
 
@@ -102,11 +92,10 @@ public class TrackerTest {
   }
 
   @Test public void allTrackersShouldCallTrackEventWhenThereIsNoFilter() {
-    TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    when(trackingAdapter.getTrackerType()).thenReturn(TrackerType.ADJUST.getValue());
+    when(trackingAdapter.getTrackerType()).thenReturn(TrackerType.MIXPANEL.getValue());
 
     TrackingAdapter trackingAdapter2 = mock(TrackingAdapter.class);
-    when(trackingAdapter2.getTrackerType()).thenReturn(TrackerType.CRITTERCISM.getValue());
+    when(trackingAdapter2.getTrackerType()).thenReturn(TrackerType.MIXPANEL.getValue());
 
     TrackingAdapter[] tools = new TrackingAdapter[]{trackingAdapter, trackingAdapter2};
     Tracker tracker = spy(Tracker.init(tools));

@@ -2,21 +2,19 @@ buildscript {
   repositories {
     jcenter()
     maven { url 'https://maven.fabric.io/public' }
-//    mavenLocal()
-//    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    mavenLocal()
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.+'
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.10'
-//    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.8-SNAPSHOT@aar'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.22-SNAPSHOT'
   }
 }
 
-//repositories {
-//  jcenter()
-//  mavenLocal()
-////  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-//}
+repositories {
+  jcenter()
+  mavenLocal()
+//  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.orhanobut.tracklytics'
@@ -34,12 +32,8 @@ android {
   }
 
   tracklytics {
-    mixpanel = false
-    adjust = false
+    mixpanel = true
     fabric = false
-    snowplow = false
-    googleAnalytics = false
-    crittercism = false
   }
   startTracklytics.execute()
 
@@ -52,11 +46,7 @@ android {
 }
 
 dependencies {
-  compile fileTree(dir: 'libs', include: ['*.jar'])
   testCompile 'junit:junit:4.12'
   compile 'com.android.support:appcompat-v7:23.1.1'
   compile 'com.android.support:design:23.1.1'
-//
-//  compile project(":tracklytics-runtime")
-
 }
