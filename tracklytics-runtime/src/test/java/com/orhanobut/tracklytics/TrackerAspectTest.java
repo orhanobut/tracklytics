@@ -10,76 +10,25 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Spy;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TrackerAspectTest {
 
-  static class FooBar {
-
-    @TrackEvent("title") void noValue() {
-    }
-
-    @TrackEvent("title") void foo(@Attribute("key") String param) {
-    }
-
-    @TrackEvent("title") @Attribute("key") String fooReturn() {
-      return "test";
-    }
-
-    @TrackEvent("title") @Attribute("key1") String fooReturnAndParam(@Attribute("key2") String param) {
-      return "test";
-    }
-
-    @TrackFilter(TrackerType.MIXPANEL)
-    @TrackEvent("title") void trackEventFilter() {
-    }
-
-    @TrackEvent("title")
-    @Attribute(value = "key1", defaultResult = "defaultResult") void trackDefaultValue() {
-    }
-
-    @TrackEvent("title")
-    @Attribute(value = "key1", defaultResult = "defaultResult") String trackDefaultValueWithReturn() {
-      return "returnValue";
-    }
-
-    @Track(eventName = "Event", attributeKey = "key", attributeValue = "value") void trackWithTrack() {
-    }
-
-    @Tracklytics(TrackerAction.INIT) Tracker init() {
-      return Tracker.init();
-    }
-
-    @Tracklytics(TrackerAction.START) Tracker start() {
-      return Tracker.init();
-    }
-
-    @Tracklytics(TrackerAction.STOP) Tracker stop() {
-      return Tracker.init();
-    }
-
-  }
-
   Tracker tracker;
-  FooBar fooBar;
 
-  @Spy TrackerAspect aspect;
+  TrackerAspect aspect;
   @Mock ProceedingJoinPoint joinPoint;
   @Mock MethodSignature methodSignature;
   @Mock TrackingAdapter trackingAdapter;
@@ -88,7 +37,7 @@ public class TrackerAspectTest {
   @Before public void setup() throws Exception {
     initMocks(this);
 
-    fooBar = new FooBar();
+    aspect = new TrackerAspect();
 
     when(joinPoint.getSignature()).thenReturn(methodSignature);
 
@@ -96,93 +45,95 @@ public class TrackerAspectTest {
     aspect.init(tracker);
   }
 
-  @Test public void invokeInit() throws Throwable {
-    initMethod("init");
+  @Test public void testInit() throws Throwable {
+    class Foo {
+      @Tracklytics(TrackerAction.INIT) Tracker init() {
+        return Tracker.init();
+      }
+    }
+    initMethod(Foo.class, "init");
+
+    Tracker tracker = (Tracker) aspect.weaveJointTracklytics(joinPoint);
+
+    assertThat(tracker).isEqualTo(tracker);
+  }
+
+  @Test public void testStart() throws Throwable {
+    class Foo {
+      @Tracklytics(TrackerAction.START) Tracker start() {
+        return Tracker.init();
+      }
+    }
+    initMethod(Foo.class, "start");
 
     aspect.weaveJointTracklytics(joinPoint);
-
-    verify(aspect, times(2)).init(any());
-  }
-
-  @Test public void invokeStart() throws Throwable {
-    initMethod("start");
-
-    aspect.weaveJointTracklytics(joinPoint);
-
-    verify(aspect).start();
-  }
-
-  @Test public void invokeStop() throws Throwable {
-    initMethod("stop");
-
-    aspect.weaveJointTracklytics(joinPoint);
-
-    verify(aspect).stop();
-  }
-
-  @Test public void invokeTrackEvent() throws Throwable {
-    when(joinPoint.getSignature()).thenReturn(methodSignature);
-    when(joinPoint.getArgs()).thenReturn(new Object[]{"value"});
-
-    FooBar fooBar = new FooBar();
-    Method method = fooBar.getClass().getDeclaredMethod("foo", String.class);
-
-    when(methodSignature.getMethod()).thenReturn(method);
-
-    aspect.weaveJoinPoint(joinPoint);
-
-    verify(aspect).generateFieldValues(any(Annotation[][].class), any(Object[].class), anyMap());
-    verify(aspect).trackEvent(eq("title"), anyMapOf(String.class, Object.class), isNull(TrackerType[].class));
-    verify(trackingAdapter).trackEvent(eq("title"), anyMapOf(String.class, Object.class));
-  }
-
-  @Test public void invokeTrackerStart() {
-    aspect.start();
 
     verify(tracker).start();
   }
 
-  @Test public void invokeTrackerStop() {
-    aspect.stop();
+  @Test public void testStop() throws Throwable {
+    class Foo {
+      @Tracklytics(TrackerAction.STOP) Tracker stop() {
+        return Tracker.init();
+      }
+    }
+    initMethod(Foo.class, "stop");
+
+    aspect.weaveJointTracklytics(joinPoint);
 
     verify(tracker).stop();
   }
 
   @Test public void trackEventShouldUseNoValue() throws Throwable {
-    initMethod("noValue");
+    class Foo {
+      @TrackEvent("title") void noValue() {
+      }
+    }
+    initMethod(Foo.class, "noValue");
 
-    aspect.weaveJoinPoint(joinPoint);
+    aspect.weaveJoinPointTrackEvent(joinPoint);
 
     ArgumentCaptor<Map> argument = ArgumentCaptor.forClass(Map.class);
 
-    verify(aspect).trackEvent(eq("title"), argument.capture(), isNull(TrackerType[].class));
+    verify(tracker).event(eq("title"), argument.capture(), eq(Collections.<Integer>emptySet()));
 
     assertThat(argument.getValue()).isEmpty();
   }
 
   @Test public void trackEventShouldUseReturnValue() throws Throwable {
-    initMethod("fooReturn");
+    class Foo {
+      @TrackEvent("title") @Attribute("key") String fooReturn() {
+        return "test";
+      }
+    }
+
+    initMethod(Foo.class, "fooReturn");
     when(joinPoint.proceed()).thenReturn("test");
 
-    aspect.weaveJoinPoint(joinPoint);
+    aspect.weaveJoinPointTrackEvent(joinPoint);
 
-    ArgumentCaptor<Map> argument = ArgumentCaptor.forClass(Map.class);
+    ArgumentCaptor<Map> values = ArgumentCaptor.forClass(Map.class);
 
-    verify(aspect).trackEvent(eq("title"), argument.capture(), isNull(TrackerType[].class));
+    verify(tracker).event(eq("title"), values.capture(), eq(Collections.<Integer>emptySet()));
 
-    assertThat(argument.getValue()).containsEntry("key", "test");
+    assertThat(values.getValue()).containsEntry("key", "test");
   }
 
   @Test public void trackEventShouldUseReturnValueAndParameters() throws Throwable {
-    initMethod("fooReturnAndParam", String.class);
+    class Foo {
+      @TrackEvent("title") @Attribute("key1") String fooReturnAndParam(@Attribute("key2") String param) {
+        return "test";
+      }
+    }
+    initMethod(Foo.class, "fooReturnAndParam", String.class);
     when(joinPoint.proceed()).thenReturn("test");
     when(joinPoint.getArgs()).thenReturn(new Object[]{"param"});
 
-    aspect.weaveJoinPoint(joinPoint);
+    aspect.weaveJoinPointTrackEvent(joinPoint);
 
     ArgumentCaptor<Map> argument = ArgumentCaptor.forClass(Map.class);
 
-    verify(aspect).trackEvent(eq("title"), argument.capture(), isNull(TrackerType[].class));
+    verify(tracker).event(eq("title"), argument.capture(), eq(Collections.<Integer>emptySet()));
 
     assertThat(argument.getValue()).containsOnlyKeys("key1", "key2");
     assertThat(argument.getValue().get("key1")).isEqualTo("test");
@@ -190,51 +141,69 @@ public class TrackerAspectTest {
   }
 
   @Test public void useDefaultValueOnTrackValueWhenItIsSet() throws Throwable {
-    initMethod("trackDefaultValue");
+    class Foo {
+      @TrackEvent("title")
+      @Attribute(value = "key1", defaultResult = "defaultResult") void trackDefaultValue() {
+      }
+    }
+    initMethod(Foo.class, "trackDefaultValue");
 
-    aspect.weaveJoinPoint(joinPoint);
+    aspect.weaveJoinPointTrackEvent(joinPoint);
 
-    ArgumentCaptor<TrackerType[]> argument = ArgumentCaptor.forClass(TrackerType[].class);
-    verify(aspect).trackEvent(eq("title"), valueMapCaptor.capture(), argument.capture());
+    verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.<Integer>emptySet()));
 
     assertThat(valueMapCaptor.getValue()).containsEntry("key1", "defaultResult");
   }
 
   @Test public void useDefaultValueOnTrackValueWhenThereIsReturnValueAndItIsSet() throws Throwable {
-    initMethod("trackDefaultValueWithReturn");
+    class Foo {
+      @TrackEvent("title")
+      @Attribute(value = "key1", defaultResult = "defaultResult") String trackDefaultValueWithReturn() {
+        return "returnValue";
+      }
+    }
+    initMethod(Foo.class, "trackDefaultValueWithReturn");
 
-    aspect.weaveJoinPoint(joinPoint);
+    aspect.weaveJoinPointTrackEvent(joinPoint);
 
-    ArgumentCaptor<TrackerType[]> argument = ArgumentCaptor.forClass(TrackerType[].class);
-    verify(aspect).trackEvent(eq("title"), valueMapCaptor.capture(), argument.capture());
+    verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.<Integer>emptySet()));
 
     assertThat(valueMapCaptor.getValue()).containsEntry("key1", "defaultResult");
   }
 
   @Test public void testFilters() throws Throwable {
-    initMethod("trackEventFilter");
+    class Foo {
+      @TrackFilter(TrackerType.MIXPANEL) @TrackEvent("title") void trackEventFilter() {
+      }
+    }
+    initMethod(Foo.class, "trackEventFilter");
 
-    aspect.weaveJoinPoint(joinPoint);
+    aspect.weaveJoinPointTrackEvent(joinPoint);
 
-    ArgumentCaptor<TrackerType[]> argument = ArgumentCaptor.forClass(TrackerType[].class);
+    ArgumentCaptor<Set> filters = ArgumentCaptor.forClass(Set.class);
 
-    verify(aspect).trackEvent(eq("title"), anyMap(), argument.capture());
+    verify(tracker).event(eq("title"), anyMap(), filters.capture());
 
-    assertThat(argument.getValue()).hasSize(1);
+    assertThat(filters.getValue()).containsExactly(TrackerType.MIXPANEL.getValue());
   }
 
   @Test public void testTrack() throws Throwable {
-    initMethod("trackWithTrack");
+    class Foo {
+      @Track(eventName = "Event", attributeKey = "key", attributeValue = "value") void trackWithTrack() {
+      }
+    }
+    initMethod(Foo.class, "trackWithTrack");
 
-    aspect.weaveJoinPoint(joinPoint);
+    aspect.weaveJoinPointTrack(joinPoint);
 
-    verify(aspect).trackEvent(eq("Event"), valueMapCaptor.capture(), any(TrackerType[].class));
+    verify(tracker).event(eq("Event"), valueMapCaptor.capture(), eq(Collections.<Integer>emptySet()));
     assertThat(valueMapCaptor.getValue()).containsEntry("key", "value");
   }
 
-  void initMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
-    Method method = fooBar.getClass().getDeclaredMethod(name, parameterTypes);
+  Method initMethod(Class<?> klass, String name, Class<?>... parameterTypes) throws NoSuchMethodException {
+    Method method = klass.getDeclaredMethod(name, parameterTypes);
     when(methodSignature.getMethod()).thenReturn(method);
+    return method;
   }
 
 }

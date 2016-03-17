@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.orhanobut.tracklytics.Attribute;
+import com.orhanobut.tracklytics.Track;
 import com.orhanobut.tracklytics.TrackEvent;
 import com.orhanobut.tracklytics.Tracker;
 import com.orhanobut.tracklytics.TrackerAction;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     });
 
     findViewById(R.id.no_return_button).setOnClickListener(new View.OnClickListener() {
+      @Track(eventName = "OnClick", attributeKey = "key", attributeValue = "value")
       @Override public void onClick(View v) {
         eventNoReturn();
       }
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     return "test";
   }
 
-  @TrackEvent("event2") @Attribute(value = "test", defaultResult = "something") void eventNoReturn() {
+  @Track(eventName = "test", attributeKey = "key", attributeValue = "value") void eventNoReturn() {
   }
+
 }

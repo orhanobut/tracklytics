@@ -6,7 +6,7 @@ buildscript {
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.+'
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.22-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.25-SNAPSHOT'
   }
 }
 

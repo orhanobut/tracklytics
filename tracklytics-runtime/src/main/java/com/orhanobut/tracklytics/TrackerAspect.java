@@ -64,6 +64,32 @@ public class TrackerAspect {
     tracker.stop();
   }
 
+  @Pointcut("execution(@com.orhanobut.tracklytics.Track * *(..))")
+  public void methodAnnotatedWithTrack() {
+  }
+
+  @Pointcut("execution(@com.orhanobut.tracklytics.Track *.new(..))")
+  public void constructorAnnotatedTrack() {
+  }
+
+  @Around("methodAnnotatedWithTrack() || constructorAnnotatedTrack()")
+  public Object weaveJoinPointTrack(ProceedingJoinPoint joinPoint) throws Throwable {
+    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+    Object result = joinPoint.proceed();
+
+    Method method = methodSignature.getMethod();
+    String eventName;
+    Map<String, Object> values = new HashMap<>();
+
+    Track track = method.getAnnotation(Track.class);
+    eventName = track.eventName();
+    values.put(track.attributeKey(), track.attributeValue());
+
+    trackEvent(eventName, values, method);
+
+    return result;
+  }
+
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackEvent * *(..))")
   public void methodAnnotatedWithTrackEvent() {
   }
@@ -73,7 +99,7 @@ public class TrackerAspect {
   }
 
   @Around("methodAnnotatedWithTrackEvent() || constructorAnnotatedTrackEvent()")
-  public Object weaveJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
+  public Object weaveJoinPointTrackEvent(ProceedingJoinPoint joinPoint) throws Throwable {
     MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
     Object result = joinPoint.proceed();
 
@@ -81,36 +107,24 @@ public class TrackerAspect {
     String eventName;
     Map<String, Object> values = new HashMap<>();
 
-    Track track = method.getAnnotation(Track.class);
-    if (track != null) {
-      eventName = track.eventName();
-      values.put(track.attributeKey(), track.attributeValue());
-    } else {
-      TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
-      eventName = trackEvent.value();
+    TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
+    eventName = trackEvent.value();
 
-      Attribute methodAttribute = method.getAnnotation(Attribute.class);
-      if (methodAttribute != null) {
-        String defaultValue = methodAttribute.defaultResult();
-        if (defaultValue != null && defaultValue.trim().length() != 0) {
-          values.put(methodAttribute.value(), methodAttribute.defaultResult());
-        } else {
-          values.put(methodAttribute.value(), result);
-        }
+    Attribute methodAttribute = method.getAnnotation(Attribute.class);
+    if (methodAttribute != null) {
+      String defaultValue = methodAttribute.defaultResult();
+      if (defaultValue != null && defaultValue.trim().length() != 0) {
+        values.put(methodAttribute.value(), methodAttribute.defaultResult());
+      } else {
+        values.put(methodAttribute.value(), result);
       }
-
-      Object[] fields = joinPoint.getArgs();
-      Annotation[][] annotations = method.getParameterAnnotations();
-      generateFieldValues(annotations, fields, values);
     }
 
-    TrackFilter trackFilter = method.getAnnotation(TrackFilter.class);
-    TrackerType[] filter = null;
-    if (trackFilter != null) {
-      filter = trackFilter.value();
-    }
+    Object[] fields = joinPoint.getArgs();
+    Annotation[][] annotations = method.getParameterAnnotations();
+    generateFieldValues(annotations, fields, values);
 
-    trackEvent(eventName, values, filter);
+    trackEvent(eventName, values, method);
 
     return result;
   }
@@ -129,14 +143,20 @@ public class TrackerAspect {
     }
   }
 
-  void trackEvent(String title, Map<String, Object> values, TrackerType[] trackers) {
+  void trackEvent(String title, Map<String, Object> values, Method method) {
     if (tracker == null) {
       return;
     }
+    TrackFilter trackFilter = method.getAnnotation(TrackFilter.class);
+    TrackerType[] filters = null;
+    if (trackFilter != null) {
+      filters = trackFilter.value();
+    }
+
     Set<Integer> filter = Collections.emptySet();
-    if (trackers != null) {
-      filter = new HashSet<>(trackers.length);
-      for (TrackerType tracker : trackers) {
+    if (filters != null) {
+      filter = new HashSet<>(filters.length);
+      for (TrackerType tracker : filters) {
         filter.add(tracker.getValue());
       }
     }
