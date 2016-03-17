@@ -26,19 +26,25 @@ public void trackNoValues() {
 }
 ```
 
-#### @TrackValue("key")
+#### @Attribute("key")
 Track method parameters as key/value pair.
 ```java
 @TrackEvent("eventName") 
-public void trackMe(@TrackValue("eventKey") String eventValue) {
+public void trackMe(@Attribute("eventKey") String eventValue) {
   // something
 }
 ```
 
-Track event with return value. By adding @TrackValue to the method, it will add the returning value to the event key/value pairs.
+Attribute has now a default result. Default result will be used regardless of the parameter or return value
+```java
+@Attribute(value="Login", defaultResult="Success")
+```
+
+
+Track event with return value. By adding @Attribute to the method, it will add the returning value to the event key/value pairs.
 ```java
 @TrackEvent("eventName") 
-@TrackValue("eventKey") 
+@Attribute("eventKey")
 public String trackMe() {
   // something
   return "eventValue";
@@ -48,17 +54,24 @@ public String trackMe() {
 Track event with both return value and parameters.
 ```java
 @TrackEvent("eventName") 
-@TrackValue("eventKey1")
-public String trackMe(@TrackValue("eventKey2") String eventValue2) {
+@Attribute("eventKey1")
+public String trackMe(@Attribute("eventKey2") String eventValue2) {
   // something
   return "eventValue1";
 }
 ```
 
+### @Track
+For single tracking operation, you can use Track.
+```java
+@Track(eventName="Foo", attributeKey="Login", attributeValue="Success")
+void something(){}
+```
+
 ### @TrackFilter(TRACKER_TYPE1, TRACKER_TYPE2)
 Sometimes you may want to track an event for a specific tracker or trackers. Filter will handle it for you. For example, below example: Only google analytics will track the event.
 ```java
-@TrackFilter(TrackerType.GOOGLE_ANALYTICS)
+@TrackFilter(TrackerType.MIXPANEL)
 @TrackEvent("title") 
 public void trackEventFilter() {
   // something
@@ -75,9 +88,6 @@ class DefaultApplication {
   public Tracker init() {
     return Tracker.init(
         new MixPanelTrackingAdapter(context, "API_KEY"),
-        new GoogleAnalyticsTrackingAdapter(context, "CONTAINER_ID", R.raw.container),
-        new CrittercismTrackingAdapter(context, "APP_ID"),
-        new AdjustTrackingAdapter(context, "APPTOKEN", AdjustTrackingAdapter.Environment.LIVE),
         new FabricTrackingAdapter(context)
     );
   }
@@ -115,11 +125,12 @@ Add the following code block to in your app/build.gradle. Also have some issues 
 buildscript {
   repositories {
     jcenter()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     maven { url 'https://maven.fabric.io/public' }
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.+'
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.13'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.22-SNAPSHOT'
   }
 }
 
@@ -131,11 +142,7 @@ Enable the trackers that you want to use, as default they are enabled. Only enab
 ```groovy
   tracklytics {
     mixpanel = true
-    adjust = false
-    fabric = false
-    snowplow = false
-    googleAnalytics = false
-    crittercism = false
+    fabric = true
   }
   startTracklytics.execute()
 ```
@@ -146,7 +153,6 @@ Fabric key should be added to your manifest file in order to use it.
 <meta-data
   android:name="io.fabric.ApiKey"
   android:value="YOUR_FABRIC_KEY"
-  tools:replace="android:value"
 />
 ```
 
@@ -170,12 +176,8 @@ You can always add another tracker by using TrackingAdapter.
 
 Currently available tools:
 
-- Google analytics
-- Fabric (Crashlytics)
-- Crittercism
+- Fabric (Crashlytics, Answers)
 - Mixpanel
-- Adjust
-- SnowPlow (in progress)
 
 ##TODO
 - put the artifacts into the release repository and minify install part
