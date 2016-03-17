@@ -1,12 +1,8 @@
 package com.orhanobut.tracklytics.trackers;
 
 public enum TrackerType {
-  ADJUST(1),
-  CRITTERCISM(2),
-  FABRIC(3),
-  GOOGLE_ANALYTICS(4),
-  MIXPANEL(5),
-  SNOWPLOW(6);
+  FABRIC(1),
+  MIXPANEL(2);
 
   private final int value;
 

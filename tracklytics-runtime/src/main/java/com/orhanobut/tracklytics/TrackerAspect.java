@@ -78,19 +78,31 @@ public class TrackerAspect {
     Object result = joinPoint.proceed();
 
     Method method = methodSignature.getMethod();
-    TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
-    String title = trackEvent.value();
-
+    String eventName;
     Map<String, Object> values = new HashMap<>();
 
-    TrackValue returnField = method.getAnnotation(TrackValue.class);
-    if (returnField != null) {
-      values.put(returnField.value(), result);
-    }
+    Track track = method.getAnnotation(Track.class);
+    if (track != null) {
+      eventName = track.eventName();
+      values.put(track.attributeKey(), track.attributeValue());
+    } else {
+      TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
+      eventName = trackEvent.value();
 
-    Object[] fields = joinPoint.getArgs();
-    Annotation[][] annotations = method.getParameterAnnotations();
-    generateValues(annotations, fields, values);
+      Attribute methodAttribute = method.getAnnotation(Attribute.class);
+      if (methodAttribute != null) {
+        String defaultValue = methodAttribute.defaultResult();
+        if (defaultValue != null && defaultValue.trim().length() != 0) {
+          values.put(methodAttribute.value(), methodAttribute.defaultResult());
+        } else {
+          values.put(methodAttribute.value(), result);
+        }
+      }
+
+      Object[] fields = joinPoint.getArgs();
+      Annotation[][] annotations = method.getParameterAnnotations();
+      generateFieldValues(annotations, fields, values);
+    }
 
     TrackFilter trackFilter = method.getAnnotation(TrackFilter.class);
     TrackerType[] filter = null;
@@ -98,22 +110,22 @@ public class TrackerAspect {
       filter = trackFilter.value();
     }
 
-    trackEvent(title, values, filter);
+    trackEvent(eventName, values, filter);
 
     return result;
   }
 
-  void generateValues(Annotation[][] keys, Object[] values, Map<String, Object> result) {
+  void generateFieldValues(Annotation[][] keys, Object[] values, Map<String, Object> result) {
     if (keys == null || values == null) {
       return;
     }
     for (int i = 0, size = values.length; i < size; i++) {
-      TrackValue trackValue = (TrackValue) keys[i][0];
-      if (trackValue == null) {
+      Attribute attribute = (Attribute) keys[i][0];
+      if (attribute == null) {
         continue;
       }
       Object value = values[i];
-      result.put(trackValue.value(), value);
+      result.put(attribute.value(), value);
     }
   }
 

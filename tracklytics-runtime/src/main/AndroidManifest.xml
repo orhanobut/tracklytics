@@ -1,21 +1,5 @@
 <manifest
     package="com.orhanobut.tracklytics"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-
-  <application>
-    <meta-data
-        android:name="io.fabric.ApiKey"
-        android:value="${FABRIC_API_KEY}"/>
-
-    <!--Used by Adjust-->
-    <receiver
-        android:name="com.adjust.sdk.AdjustReferrerReceiver"
-        android:exported="true">
-      <intent-filter>
-        <action android:name="com.android.vending.INSTALL_REFERRER"/>
-      </intent-filter>
-    </receiver>
-
-  </application>
+    >
 
 </manifest>

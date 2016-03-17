@@ -1,6 +1,5 @@
 package com.orhanobut.tracklytics.debugger;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -10,8 +9,8 @@ import com.orhanobut.tracklytics.BuildConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
@@ -27,38 +26,39 @@ import static org.mockito.Mockito.verify;
 @Config(sdk = 21, constants = BuildConfig.class)
 public class DebugEventAdapterTest {
 
-  private DebugEventAdapter adapter;
-  private Context context;
-  private List<EventItem> list = spy(new ArrayList<EventItem>());
+  DebugEventAdapter adapter;
+  Context context;
+  List<EventItem> list = spy(new ArrayList<EventItem>());
+  EventItem eventItem;
 
   @Before public void setup() {
-    EventItem item = new EventItem(1, "tracker", "title", Collections.<String, Object>emptyMap());
-    list.add(item);
+    eventItem = new EventItem(1, "tracker", "title", Collections.<String, Object>emptyMap());
+    list.add(eventItem);
     adapter = spy(new DebugEventAdapter(list));
-    context = Robolectric.setupActivity(Activity.class).getApplicationContext();
+    context = RuntimeEnvironment.application;
   }
 
-  @Test public void getCountShouldBe0AsDefault() throws Exception {
+  @Test public void getCountShouldBe0AsDefault() {
     DebugEventAdapter adapter = new DebugEventAdapter();
     assertThat(adapter.getCount()).isEqualTo(0);
   }
 
-  @Test public void testGetCountWithFullList() throws Exception {
+  @Test public void testGetCountWithFullList() {
     assertThat(adapter.getCount()).isEqualTo(1);
   }
 
-  @Test public void getItem() throws Exception {
-    assertThat(adapter.getItem(0)).isNotNull();
+  @Test public void getItem() {
+    assertThat(adapter.getItem(0)).isEqualTo(eventItem);
   }
 
-  @Test public void getItemId() throws Exception {
+  @Test public void getItemId() {
     EventItem item = new EventItem(1, "Tracker", "title", Collections.<String, Object>emptyMap());
     adapter.onEventAdded(item);
 
     assertThat(adapter.getItemId(1)).isEqualTo(1);
   }
 
-  @Test public void getView() throws Exception {
+  @Test public void getView() {
     View view = adapter.getView(0, null, new LinearLayout(context));
 
     assertThat(view).isNotNull();
@@ -71,13 +71,13 @@ public class DebugEventAdapterTest {
     assertThat(view.getTag()).isInstanceOf(DebugEventAdapter.ViewHolder.class);
   }
 
-  @Test public void clearAll() throws Exception {
+  @Test public void clearAll() {
     adapter.clearAll();
 
     assertThat(adapter.getCount()).isEqualTo(0);
   }
 
-  @Test public void onEventAdded() throws Exception {
+  @Test public void onEventAdded() {
     EventItem item = new EventItem(1, "Tracker", "title", Collections.<String, Object>emptyMap());
     adapter.onEventAdded(item);
 
