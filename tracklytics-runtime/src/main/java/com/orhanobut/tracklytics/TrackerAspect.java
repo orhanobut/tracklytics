@@ -1,7 +1,5 @@
 package com.orhanobut.tracklytics;
 
-import com.orhanobut.tracklytics.trackers.TrackerType;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,6 +16,8 @@ import java.util.Set;
 
 @Aspect
 public class TrackerAspect {
+
+  private final Map<String, Object> superAttributes = new HashMap<>();
 
   private Tracker tracker;
 
@@ -47,6 +47,8 @@ public class TrackerAspect {
       case STOP:
         stop();
         break;
+      default:
+        throw new Exception("This should not happen");
     }
 
     return tracker;
@@ -64,32 +66,6 @@ public class TrackerAspect {
     tracker.stop();
   }
 
-  @Pointcut("execution(@com.orhanobut.tracklytics.Track * *(..))")
-  public void methodAnnotatedWithTrack() {
-  }
-
-  @Pointcut("execution(@com.orhanobut.tracklytics.Track *.new(..))")
-  public void constructorAnnotatedTrack() {
-  }
-
-  @Around("methodAnnotatedWithTrack() || constructorAnnotatedTrack()")
-  public Object weaveJoinPointTrack(ProceedingJoinPoint joinPoint) throws Throwable {
-    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-    Object result = joinPoint.proceed();
-
-    Method method = methodSignature.getMethod();
-    String eventName;
-    Map<String, Object> values = new HashMap<>();
-
-    Track track = method.getAnnotation(Track.class);
-    eventName = track.eventName();
-    values.put(track.attributeKey(), track.attributeValue());
-
-    trackEvent(eventName, values, method);
-
-    return result;
-  }
-
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackEvent * *(..))")
   public void methodAnnotatedWithTrackEvent() {
   }
@@ -105,31 +81,67 @@ public class TrackerAspect {
 
     Method method = methodSignature.getMethod();
     String eventName;
-    Map<String, Object> values = new HashMap<>();
+    Map<String, Object> attributes = new HashMap<>();
 
     TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
     eventName = trackEvent.value();
 
-    Attribute methodAttribute = method.getAnnotation(Attribute.class);
-    if (methodAttribute != null) {
-      String defaultValue = methodAttribute.defaultResult();
-      if (defaultValue != null && defaultValue.trim().length() != 0) {
-        values.put(methodAttribute.value(), methodAttribute.defaultResult());
-      } else {
-        values.put(methodAttribute.value(), result);
-      }
-    }
+    addAttribute(method.getAnnotation(Attribute.class), attributes, result);
+
+    addFixedAttribute(method.getAnnotation(FixedAttribute.class), attributes);
+    addFixedAttributes(method.getAnnotation(FixedAttributes.class), attributes);
+
+    Class<?> declaringClass = method.getDeclaringClass();
+    addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class), attributes);
+    addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class), attributes);
 
     Object[] fields = joinPoint.getArgs();
     Annotation[][] annotations = method.getParameterAnnotations();
-    generateFieldValues(annotations, fields, values);
 
-    trackEvent(eventName, values, method);
+    generateFieldValues(annotations, fields, attributes);
+
+    trackEvent(eventName, attributes, superAttributes, method);
 
     return result;
   }
 
-  void generateFieldValues(Annotation[][] keys, Object[] values, Map<String, Object> result) {
+  private void addAttribute(Attribute attribute, Map<String, Object> values, Object methodResult) {
+    if (attribute != null) {
+      Object value = null;
+      if (methodResult != null) {
+        value = methodResult;
+      } else if (attribute.defaultValue().length() != 0) {
+        value = attribute.defaultValue();
+      }
+      values.put(attribute.value(), value);
+      if (attribute.isSuper()) {
+        superAttributes.put(attribute.value(), value);
+      }
+    }
+  }
+
+  private void addFixedAttributes(FixedAttributes fixedAttributes, Map<String, Object> values) {
+    if (fixedAttributes != null) {
+      FixedAttribute[] attributes = fixedAttributes.value();
+      for (FixedAttribute attribute : attributes) {
+        values.put(attribute.key(), attribute.value());
+        if (attribute.isSuper()) {
+          superAttributes.put(attribute.key(), attribute.value());
+        }
+      }
+    }
+  }
+
+  private void addFixedAttribute(FixedAttribute attribute, Map<String, Object> values) {
+    if (attribute != null) {
+      values.put(attribute.key(), attribute.value());
+      if (attribute.isSuper()) {
+        superAttributes.put(attribute.key(), attribute.value());
+      }
+    }
+  }
+
+  private void generateFieldValues(Annotation[][] keys, Object[] values, Map<String, Object> result) {
     if (keys == null || values == null) {
       return;
     }
@@ -143,12 +155,13 @@ public class TrackerAspect {
     }
   }
 
-  void trackEvent(String title, Map<String, Object> values, Method method) {
+  private void trackEvent(String title, Map<String, Object> attributes, Map<String, Object> superAttributes,
+                          Method method) {
     if (tracker == null) {
       return;
     }
     TrackFilter trackFilter = method.getAnnotation(TrackFilter.class);
-    TrackerType[] filters = null;
+    int[] filters = null;
     if (trackFilter != null) {
       filters = trackFilter.value();
     }
@@ -156,11 +169,11 @@ public class TrackerAspect {
     Set<Integer> filter = Collections.emptySet();
     if (filters != null) {
       filter = new HashSet<>(filters.length);
-      for (TrackerType tracker : filters) {
-        filter.add(tracker.getValue());
+      for (int tracker : filters) {
+        filter.add(tracker);
       }
     }
-    tracker.event(title, values, filter);
+    tracker.event(title, attributes, superAttributes, filter);
   }
 
 }

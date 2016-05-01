@@ -1,8 +1,6 @@
 package com.orhanobut.tracklytics.debugger;
 
 import android.content.Context;
-import android.view.View;
-import android.widget.LinearLayout;
 
 import com.orhanobut.tracklytics.BuildConfig;
 
@@ -23,7 +21,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(sdk = 21, constants = BuildConfig.class)
+@Config(sdk = 21, constants = BuildConfig.class, packageName = "com.orhanobut.tracklytics")
 public class DebugEventAdapterTest {
 
   DebugEventAdapter adapter;
@@ -56,19 +54,6 @@ public class DebugEventAdapterTest {
     adapter.onEventAdded(item);
 
     assertThat(adapter.getItemId(1)).isEqualTo(1);
-  }
-
-  @Test public void getView() {
-    View view = adapter.getView(0, null, new LinearLayout(context));
-
-    assertThat(view).isNotNull();
-    assertThat(view.getTag()).isNotNull();
-  }
-
-  @Test public void viewTagShouldHaveViewHolder() {
-    View view = adapter.getView(0, null, new LinearLayout(context));
-
-    assertThat(view.getTag()).isInstanceOf(DebugEventAdapter.ViewHolder.class);
   }
 
   @Test public void clearAll() {

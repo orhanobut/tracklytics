@@ -1,7 +1,5 @@
 package com.orhanobut.tracklytics;
 
-import com.orhanobut.tracklytics.trackers.TrackerType;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,5 +8,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.CONSTRUCTOR, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TrackFilter {
-  TrackerType[] value();
+  int[] value();
 }

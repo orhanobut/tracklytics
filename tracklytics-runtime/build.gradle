@@ -15,9 +15,17 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply from: '../maven_push.gradle'
+apply plugin: 'checkstyle'
 
-repositories {
-  maven { url 'https://maven.fabric.io/public' }
+check.dependsOn('checkstyle')
+
+task checkstyle(type: Checkstyle) {
+  configFile = rootProject.file('checkstyle.xml')
+  source 'src'
+  include '**/*.java'
+  exclude '**/gen/**'
+
+  classpath = files()
 }
 
 android {
@@ -40,14 +48,6 @@ android {
 
 dependencies {
   provided 'org.aspectj:aspectjrt:1.8.6'
-
-  // Fabric
-  provided('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
-    transitive = true;
-  }
-
-  // Mixpanel
-  provided 'com.mixpanel.android:mixpanel-android:4.8.0'
 
   testCompile 'junit:junit:4.12'
   testCompile "org.mockito:mockito-core:1.9.5"

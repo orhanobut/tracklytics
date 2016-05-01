@@ -7,54 +7,67 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-public class Tracker {
+public interface Tracker {
 
-  private final TrackingAdapter[] tools;
+  Tracker init(TrackingAdapter... tools);
 
-  private boolean enabled = true;
+  void event(String title, Map<String, Object> values, Map<String, Object> superAttributes);
 
-  public Tracker(TrackingAdapter[] tools) {
-    this.tools = tools;
-  }
+  void event(String title, Map<String, Object> attributes, Map<String, Object> superAttributes, Set<Integer> filter);
 
-  public static Tracker init(TrackingAdapter... tools) {
-    return new Tracker(tools);
-  }
+  Tracker enabled(boolean enabled);
 
-  public void event(String title, Map<String, Object> values) {
-    event(title, values, Collections.<Integer>emptySet());
-  }
+  boolean isEnabled();
 
-  public void event(String title, Map<String, Object> values, Set<Integer> filter) {
-    if (!enabled) {
-      return;
+  void start();
+
+  void stop();
+
+  class Default implements Tracker {
+    private TrackingAdapter[] tools;
+    private boolean enabled = true;
+
+    @Override public Tracker init(TrackingAdapter... tools) {
+      this.tools = tools;
+      return this;
     }
-    for (TrackingAdapter tool : tools) {
-      if (filter.isEmpty() || filter.contains(tool.getTrackerType())) {
-        tool.trackEvent(title, values);
-        EventQueue.add(tool.getTrackerType(), tool.toString(), title, values);
+
+    @Override public void event(String title, Map<String, Object> values, Map<String, Object> superAttributes) {
+      event(title, values, superAttributes, Collections.<Integer>emptySet());
+    }
+
+    @Override public void event(String title, Map<String, Object> attributes, Map<String, Object> superAttributes,
+                                Set<Integer> filter) {
+      if (!enabled) {
+        return;
+      }
+      for (TrackingAdapter tool : tools) {
+        if (filter.isEmpty() || filter.contains(tool.getTrackerType())) {
+          tool.trackEvent(title, attributes, superAttributes);
+          EventQueue.add(tool.getTrackerType(), tool.toString(), title, attributes);
+        }
       }
     }
-  }
 
-  public Tracker enabled(boolean enabled) {
-    this.enabled = enabled;
-    return this;
-  }
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void start() {
-    for (TrackingAdapter tool : tools) {
-      tool.start();
+    @Override public Tracker enabled(boolean enabled) {
+      this.enabled = enabled;
+      return this;
     }
-  }
 
-  public void stop() {
-    for (TrackingAdapter tool : tools) {
-      tool.stop();
+    @Override public boolean isEnabled() {
+      return enabled;
+    }
+
+    @Override public void start() {
+      for (TrackingAdapter tool : tools) {
+        tool.start();
+      }
+    }
+
+    @Override public void stop() {
+      for (TrackingAdapter tool : tools) {
+        tool.stop();
+      }
     }
   }
 
