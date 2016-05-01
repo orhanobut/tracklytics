@@ -114,7 +114,7 @@ public void foo(@Attribute("key1") String value, @Attribute("key2") int code){
 ```
 
 ### @TrackFilter(100, 200)
-Sometimes you may want to track an event for a specific tracker or trackers. Filter will handle it for you. 
+Sometimes you may want to track an event for a specific tracker or trackers. Filter will handle it for you. Each TrackingAdapter implementation will ask a TrackType which is Integer type. Tracklytics will use this an identifier
 ```java
 @TrackFilter(100)
 @TrackEvent("title") 
