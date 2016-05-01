@@ -4,10 +4,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Track {
-  String eventName();
+public @interface FixedAttribute {
+  String key();
 
-  String attributeKey();
+  String value();
 
-  String attributeValue();
+  /**
+   * Keep this event in entire app scope
+   */
+  boolean isSuper() default false;
 }

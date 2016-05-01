@@ -6,5 +6,8 @@ android:
     - android-23
     - tools
 
+script:
+ - ./gradlew checkstyle tracklytics-runtime:testDebugUnitTest
+
 notifications:
   email: false

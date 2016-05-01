@@ -1,8 +1,9 @@
-package com.orhanobut.tracklytics.trackers;
+package com.orhanobut.sample.trackers;
 
 import android.content.Context;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
   }
 
   @Override public int getTrackerType() {
-    return TrackerType.MIXPANEL.getValue();
+    return 100;
   }
 
   @Override public String toString() {

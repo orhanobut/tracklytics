@@ -69,7 +69,7 @@ public final class UiHandler {
 
     ListView listView = (ListView) container.findViewById(R.id.tracklytics_debugger_list);
 
-    adapter = new DebugEventAdapter(EventQueue.getUndispatched());
+    adapter = new DebugEventAdapter(EventQueue.pollUndispatched());
     listView.setAdapter(adapter);
 
     EventQueue.subscribe(adapter);
@@ -129,6 +129,8 @@ public final class UiHandler {
           params.leftMargin = x - v.getWidth() / 2;
           params.gravity = Gravity.NO_GRAVITY;
           v.setLayoutParams(params);
+          break;
+        default:
           break;
       }
       return SystemClock.uptimeMillis() - touchTime > 200;

@@ -13,7 +13,6 @@ import com.orhanobut.tracklytics.Tracker;
 import com.orhanobut.tracklytics.TrackerAction;
 import com.orhanobut.tracklytics.Tracklytics;
 import com.orhanobut.tracklytics.TracklyticsDebugger;
-import com.orhanobut.tracklytics.trackers.MixPanelTrackingAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
   @Tracklytics(TrackerAction.INIT) Tracker init() {
     return Tracker.init(
-        new MixPanelTrackingAdapter(this, "API_KEY")
+//        new MixPanelTrackingAdapter(this, "API_KEY")
     );
   }
 
