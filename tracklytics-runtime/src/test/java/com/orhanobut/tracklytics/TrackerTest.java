@@ -33,8 +33,8 @@ public class TrackerTest {
     tools = new TrackingAdapter[]{trackingAdapter, trackingAdapter2};
     tracker = new Tracker.Default().init(tools);
 
-    when(trackingAdapter.getTrackerType()).thenReturn(100);
-    when(trackingAdapter2.getTrackerType()).thenReturn(200);
+    when(trackingAdapter.id()).thenReturn(100);
+    when(trackingAdapter2.id()).thenReturn(200);
     when(trackingAdapter.toString()).thenReturn("Tracker");
   }
 

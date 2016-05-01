@@ -10,5 +10,5 @@ public interface TrackingAdapter {
 
   void stop();
 
-  int getTrackerType();
+  int id();
 }

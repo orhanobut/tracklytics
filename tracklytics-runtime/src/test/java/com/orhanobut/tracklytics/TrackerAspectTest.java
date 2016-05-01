@@ -343,7 +343,7 @@ public class TrackerAspectTest {
 
   @Test public void testFilters() throws Throwable {
     TrackingAdapter trackingAdapter = mock(TrackingAdapter.class);
-    when(trackingAdapter.getTrackerType()).thenReturn(1);
+    when(trackingAdapter.id()).thenReturn(1);
 
     class Foo {
       @TrackFilter(1) @TrackEvent("title") void foo() {
