@@ -187,7 +187,7 @@ class MainActivity extends Activity {
 ```
 
 ## Install
-Add the following code block to in your app/build.gradle. Also have some issues to move all related fabric stuff to the tracklytics module. Because of that you need to add it to the classpath.
+Add the following code block to in your app/build.gradle. 
 ```groovy
 buildscript {
   repositories {
