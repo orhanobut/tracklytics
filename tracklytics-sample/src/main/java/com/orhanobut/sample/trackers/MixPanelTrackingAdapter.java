@@ -12,14 +12,10 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
   private MixpanelAPI mixpanelAPI;
 
   public MixPanelTrackingAdapter(Context context, String apiKey) {
-    onCreate(context, apiKey);
-  }
-
-  public void onCreate(Context context, String apiKey) {
     mixpanelAPI = MixpanelAPI.getInstance(context, apiKey);
   }
 
-  @Override public void trackEvent(String title, Map<String, Object> values) {
+  @Override public void trackEvent(String title, Map<String, Object> values, Map<String, Object> superAttributes) {
     mixpanelAPI.trackMap(title, values);
   }
 
@@ -30,7 +26,7 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
     mixpanelAPI.flush();
   }
 
-  @Override public int getTrackerType() {
+  @Override public int id() {
     return 100;
   }
 

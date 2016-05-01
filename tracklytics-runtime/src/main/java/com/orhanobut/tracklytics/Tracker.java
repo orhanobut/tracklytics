@@ -42,9 +42,9 @@ public interface Tracker {
         return;
       }
       for (TrackingAdapter tool : tools) {
-        if (filter.isEmpty() || filter.contains(tool.getTrackerType())) {
+        if (filter.isEmpty() || filter.contains(tool.id())) {
           tool.trackEvent(title, attributes, superAttributes);
-          EventQueue.add(tool.getTrackerType(), tool.toString(), title, attributes);
+          EventQueue.add(tool.id(), tool.toString(), title, attributes);
         }
       }
     }
