@@ -1,25 +1,28 @@
 # Tracklytics
 
-Tracklytics is an annotation based analytic data delegator. It basically delegates all analytic/tracking data to a tunnel which you can decide what to do with this data. 
+Tracklytics is an annotation based analytic data delegator. It basically delegates all analytic/tracking data to a tunnel which you can decide what to do with them. 
 
-Common problems are for the analytics tools are;
-  - Polluted code, more tracking code than the business
+Common problems for the analytics tools are;
+  - Polluted code, more tracking code than the domain code
   - Too many analytic tools to track events and they are spread to code like disease
   - Hard to maintain
 
-Tracklytics moves all these problems to an individual module which has handler for each analytic tool. By using aspect oriented programming, all tracking codes will be added to your business code during the compile time, which means that you don't need to worry about performance.
+Tracklytics moves all these problems to an individual module which has a handler for each analytic tool. By using aspect oriented programming, all tracking codes will be added to your business code during the compile time, which means that you don't need to worry about performance.
 
 ## Tracklytics solution
 - Moves all analytics/tracking code and add them in compile time.
-- Provides a debugging monitor tool to visualise all triggered events.
+- Provides a debugging monitor tool to visualise all the triggered events.
 
 <img src='https://github.com/orhanobut/tracklytics/blob/master/art/image4.png'/>
 
 # Usage
-Events have a common pattern, and almost all of them contains event name and attributes which are key/value pairs.
+Events have a common pattern, and almost all of them contains 2 things.
+
+1. Event name 
+2. Attributes (key/value pair)
 
 #### @TrackEvent("EventName")
-Track the event. This is required for each event. Otherwise nothing will be triggered.
+Trigger the event. This is required for each event. Otherwise nothing will be triggered.
 ```java
 @TrackEvent("title") 
 public void trackNoValues() {
@@ -30,7 +33,7 @@ public void trackNoValues() {
 #### @Attribute("key")
 **Scope:** Method, Parameters
 
-Add an attribute with method parameters. Parameter value will be used as attribute value.
+Add an attribute by using method parameters. Parameter value will be used as attribute value. Multiple parameter can be used.
 ```java
 @TrackEvent("eventName") 
 public void trackMe(@Attribute("eventKey") String eventValue) {
@@ -48,7 +51,7 @@ public String trackMe() {
 }
 ```
 
-Use default value when the expected value is null.
+Use default value when the expected value is null. If the return value or parameter value is null, default value will be used.
 ```java
 @Attribute(value="Login", defaultValue="defaultValue")
 ```
@@ -63,7 +66,7 @@ If the attribute values are constant, use FixedAttribute.
 public void foo(){
 }
 ```
-You can also have class-wide attributes. These attributes will be added to each event that is triggered in the class. For example: Following foo() method will also have "Screen Name" attribute.
+You can also have class-wide attributes. These attributes will be added to each event that is triggered within the class. For example: Following foo() method will also have "Screen Name" attribute.
 ```java
 @FixedAttribute(key="Screen Name", value="Login")
 public class LoginActivity{
@@ -78,7 +81,7 @@ public class LoginActivity{
 ### FixedAttributes
 **Scope:** Method, Class
 
-Java 7 or below API's don't allow repeated annotations. Sometimes you may need to have more fixed attributes. Use this annotation to add multiple attributes
+Java 7 or below API's don't allow repeated annotations. Sometimes you may need more fixed attributes. Use this annotation to add multiple attributes
 ```java
 @TrackEvent("eventName")
 @FixedAttributes({
@@ -90,7 +93,7 @@ public void foo(){
 ```
 
 ### Super Attributes
-Some attributes might be used for every event within the app. Both Attribute and FixedAttribute provide this option. Use isSuper flag to keep the attribute in entire app scope. They will be kept in memory and accessible always. 
+Some attributes might be used for every event within the app. Both Attribute and FixedAttribute provide this option. Use isSuper flag to keep the attribute in entire application scope. They will be kept in memory and always accessible. They won't be added to current attributes automatically but you will have this option to add. Check TrackingAdapter 
 ```java
 @Attribute(value="key", isSuper=true)
 ```
@@ -100,7 +103,7 @@ or
 ```
 
 ### Note
-All kind of attributes can be used at the same time. There is no restriction
+Any attribute kind can be used at the same time.
 ```java
 @TrackEvent("eventName")
 @FixedAttributes({
@@ -114,7 +117,7 @@ public void foo(@Attribute("key1") String value, @Attribute("key2") int code){
 ```
 
 ### @TrackFilter(100, 200)
-Sometimes you may want to track an event for a specific tracker or trackers. TrackFilter will handle it for you. Each TrackingAdapter implementation will ask an id implementation. Tracklytics will use this an identifier to differentiate trackers.
+Sometimes you may want to track an event for a specific tracker or trackers. TrackFilter will handle it for you. Each TrackingAdapter implementation will ask an id implementation. Tracklytics will use this an identifier to differentiate trackers. ie: Only Tracker id == 100 will track this event.
 ```java
 @TrackFilter(100)
 @TrackEvent("title") 
@@ -123,8 +126,8 @@ public void trackEventFilter() {
 }
 ```
 
-### Implement TrackingAdapter for the tools you want to use
-Implement TrackingAdapter and initialize them in init method. ie: MixPanel implementation. This part is totally up to you.
+### Implement TrackingAdapter for any analytic/tracker tool
+Implement TrackingAdapter and initialize them in init method. ie: MixPanel implementation. This part is totally up to you. This is just an example.
 ```java
 public class MixPanelTrackingAdapter implements TrackingAdapter {
   private final MixpanelAPI mixpanelAPI;
@@ -133,8 +136,9 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
     mixpanelAPI = MixpanelAPI.getInstance(context, apiKey);
   }
 
-  @Override public void trackEvent(String title, Map<String, Object> values, Map<String, Object> superAttributes) {
-    mixpanelAPI.trackMap(title, values);
+  // attributes and superAttributes are self explanatory 
+  @Override public void trackEvent(String eventName, Map<String, Object> attributes, Map<String, Object> superAttributes) {
+    mixpanelAPI.trackMap(eventName, attributes);
   }
 
   @Override public void start() {
@@ -149,6 +153,7 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
     return 100;
   }
 
+  // Used for debugging tool
   @Override public String toString() {
     return "MixPanel";
   }
@@ -160,7 +165,7 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
 
 Before using tracklytics, you must initialize it. Create a method which returns Tracker type and initialize all your trackers. All dependencies and other complex logic will be added/handled by tracklytics.
 ```java
-class DefaultApplication {
+class DefaultApplication extends Application{
 
   @Tracklytics(TrackerAction.INIT) 
   public Tracker init() {
@@ -200,6 +205,7 @@ buildscript {
 }
 
 apply plugin: 'com.android.application'
+// must be added after 'com.android.application'
 apply plugin: 'com.orhanobut.tracklytics'
 ```
 
