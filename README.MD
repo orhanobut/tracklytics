@@ -114,27 +114,12 @@ public void foo(@Attribute("key1") String value, @Attribute("key2") int code){
 ```
 
 ### @TrackFilter(100, 200)
-Sometimes you may want to track an event for a specific tracker or trackers. Filter will handle it for you. Each TrackingAdapter implementation will ask a TrackType which is Integer type. Tracklytics will use this an identifier
+Sometimes you may want to track an event for a specific tracker or trackers. TrackFilter will handle it for you. Each TrackingAdapter implementation will ask an id implementation. Tracklytics will use this an identifier to differentiate trackers.
 ```java
 @TrackFilter(100)
 @TrackEvent("title") 
 public void trackEventFilter() {
   // something
-}
-```
-
-### @Tracklytics
-
-Before using tracklytics, you must initialize it. Create a method which returns Tracker type and initialize all your trackers. All dependencies and other complex logic will be added/handled by tracklytics.
-```java
-class DefaultApplication {
-
-  @Tracklytics(TrackerAction.INIT) 
-  public Tracker init() {
-    return new Tracker.Default().init(
-        new MixPanelTrackingAdapter(context, "API_KEY")
-    );
-  }
 }
 ```
 
@@ -159,7 +144,8 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
     mixpanelAPI.flush();
   }
 
-  @Override public int getTrackerType() {
+  // This will be used as identifier for filter, use different id's for each tracker
+  @Override public int id() {
     return 100;
   }
 
@@ -167,6 +153,21 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
     return "MixPanel";
   }
 
+}
+```
+
+### @Tracklytics
+
+Before using tracklytics, you must initialize it. Create a method which returns Tracker type and initialize all your trackers. All dependencies and other complex logic will be added/handled by tracklytics.
+```java
+class DefaultApplication {
+
+  @Tracklytics(TrackerAction.INIT) 
+  public Tracker init() {
+    return new Tracker.Default().init(
+        new MixPanelTrackingAdapter(context, "API_KEY")
+    );
+  }
 }
 ```
 
