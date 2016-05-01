@@ -1,24 +1,25 @@
 # Tracklytics
 
-Tracklytics is an annotation based analytic tools aggregator with using AOP to track events and crashes. It basically collects all analytic/tracking tools together and provide a simple and clean solution without polluting your code base.
+Tracklytics is an annotation based analytic data delegator. It basically delegates all analytic/tracking data to a tunnel which you can decide what to do with this data. 
 
 Common problems are for the analytics tools are;
-  - Polluted code, more tracking code than the business code
-  - Too many analytic tools to track events
+  - Polluted code, more tracking code than the business
+  - Too many analytic tools to track events and they are spread to code like disease
   - Hard to maintain
 
 Tracklytics moves all these problems to an individual module which has handler for each analytic tool. By using aspect oriented programming, all tracking codes will be added to your business code during the compile time, which means that you don't need to worry about performance.
 
 ## Tracklytics solution
 - Moves all analytics/tracking code and add them in compile time.
-- Provides a debugging monitor tool to visualise all occured events.
+- Provides a debugging monitor tool to visualise all triggered events.
 
 <img src='https://github.com/orhanobut/tracklytics/blob/master/art/image4.png'/>
 
 # Usage
+Events have a common pattern, and almost all of them contains event name and attributes which are key/value pairs.
 
 #### @TrackEvent("EventName")
-Track an event by using event name. 
+Track the event. This is required for each event. Otherwise nothing will be triggered.
 ```java
 @TrackEvent("title") 
 public void trackNoValues() {
@@ -27,7 +28,9 @@ public void trackNoValues() {
 ```
 
 #### @Attribute("key")
-Track method parameters as key/value pair.
+**Scope:** Method, Parameters
+
+Add an attribute with method parameters. Parameter value will be used as attribute value.
 ```java
 @TrackEvent("eventName") 
 public void trackMe(@Attribute("eventKey") String eventValue) {
@@ -35,13 +38,7 @@ public void trackMe(@Attribute("eventKey") String eventValue) {
 }
 ```
 
-Attribute has now a default result. Default result will be used regardless of the parameter or return value
-```java
-@Attribute(value="Login", defaultResult="Success")
-```
-
-
-Track event with return value. By adding @Attribute to the method, it will add the returning value to the event key/value pairs.
+Add an attribute by using the return value as attribute value. 
 ```java
 @TrackEvent("eventName") 
 @Attribute("eventKey")
@@ -51,27 +48,61 @@ public String trackMe() {
 }
 ```
 
-Track event with both return value and parameters.
+Use default value when the expected value is null.
 ```java
-@TrackEvent("eventName") 
-@Attribute("eventKey1")
-public String trackMe(@Attribute("eventKey2") String eventValue2) {
-  // something
-  return "eventValue1";
+@Attribute(value="Login", defaultValue="defaultValue")
+```
+
+### FixedAttribute
+**Scope:** Method, Class
+
+If the attribute values are constant, use FixedAttribute. 
+```java
+@TrackEvent("eventName")
+@FixedAttribute(key="Login", value="Success")
+public void foo(){
+}
+```
+You can also have class-wide attributes. These attributes will be added to each event that is triggered in the class. For example: Following foo() method will also have "Screen Name" attribute.
+```java
+@FixedAttribute(key="Screen Name", value="Login")
+public class LoginActivity{
+
+  @TrackEvent("eventName")
+  @FixedAttribute(key="Login", value="Success")
+  public void foo(){
+  }
 }
 ```
 
-### @Track
-For single tracking operation, you can use Track.
+### FixedAttributes
+**Scope:** Method, Class
+
+Java 7 or below API's don't allow repeated annotations. Sometimes you may need to have more fixed attributes. Use this annotation to add multiple attributes
 ```java
-@Track(eventName="Foo", attributeKey="Login", attributeValue="Success")
-void something(){}
+@TrackEvent("eventName")
+@FixedAttributes({
+  @FixedAttribute(key="Name", value="Something"),
+  @FixedAttribute(key="LastName", value="Something")
+})
+public void foo(){
+}
 ```
 
-### @TrackFilter(TRACKER_TYPE1, TRACKER_TYPE2)
-Sometimes you may want to track an event for a specific tracker or trackers. Filter will handle it for you. For example, below example: Only google analytics will track the event.
+### Super Attributes
+Some attributes might be used for every event within the app. Both Attribute and FixedAttribute provide this option. Use isSuper flag to keep the attribute in entire app scope. They will be kept in memory and accessible always. 
 ```java
-@TrackFilter(TrackerType.MIXPANEL)
+@Attribute(value="key", isSuper=true)
+```
+or 
+```java
+@FixedAttribute(key="key", value="value",  isSuper=true)
+```
+
+### @TrackFilter(100, 200)
+Sometimes you may want to track an event for a specific tracker or trackers. Filter will handle it for you. 
+```java
+@TrackFilter(100)
 @TrackEvent("title") 
 public void trackEventFilter() {
   // something
@@ -86,22 +117,43 @@ class DefaultApplication {
 
   @Tracklytics(TrackerAction.INIT) 
   public Tracker init() {
-    return Tracker.init(
-        new MixPanelTrackingAdapter(context, "API_KEY"),
-        new FabricTrackingAdapter(context)
+    return new Tracker.Default().init(
+        new MixPanelTrackingAdapter(context, "API_KEY")
     );
   }
 }
 ```
-or for custom initialization, override onCreate method of TrackingAdapter.
+
+### Implement TrackingAdapter for the tools you want to use
+Implement TrackingAdapter and initialize them in init method. ie: MixPanel implementation. This part is totally up to you.
 ```java
-  new FabricTrackingAdapter(context) {
-    @Override public void onCreate(Context context){
-      Fabric.with(context, new Answers());
-      Fabric.with(context, new Crashlytics());
-      .. more
-    }
+public class MixPanelTrackingAdapter implements TrackingAdapter {
+  private final MixpanelAPI mixpanelAPI;
+
+  public MixPanelTrackingAdapter(Context context, String apiKey) {
+    mixpanelAPI = MixpanelAPI.getInstance(context, apiKey);
   }
+
+  @Override public void trackEvent(String title, Map<String, Object> values, Map<String, Object> superAttributes) {
+    mixpanelAPI.trackMap(title, values);
+  }
+
+  @Override public void start() {
+  }
+
+  @Override public void stop() {
+    mixpanelAPI.flush();
+  }
+
+  @Override public int getTrackerType() {
+    return 100;
+  }
+
+  @Override public String toString() {
+    return "MixPanel";
+  }
+
+}
 ```
 
 For the best usage, use start and stop functions in your activities onStart/onStop or on any other entry/exit points
@@ -126,34 +178,14 @@ buildscript {
   repositories {
     jcenter()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-    maven { url 'https://maven.fabric.io/public' }
   }
   dependencies {
-    classpath 'io.fabric.tools:gradle:1.+'
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:0.25-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.0.0-SNAPSHOT'
   }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.orhanobut.tracklytics'
-```
-
-Enable the trackers that you want to use, as default they are enabled. Only enabled tracker's dependencies will be added to the project.
-```groovy
-  tracklytics {
-    mixpanel = true
-    fabric = true
-  }
-  startTracklytics.execute()
-```
-
-### Fabric
-Fabric key should be added to your manifest file in order to use it.
-```xml
-<meta-data
-  android:name="io.fabric.ApiKey"
-  android:value="YOUR_FABRIC_KEY"
-/>
 ```
 
 ### Event Debugging Monitor
@@ -171,22 +203,14 @@ Debugging monitor displays
 - an option to remove all
 - filter option to select tracker, time and keyword (in progress)
 
-### Add custom tracker
-You can always add another tracker by using TrackingAdapter.
-
-Currently available tools:
-
-- Fabric (Crashlytics, Answers)
-- Mixpanel
-
-##TODO
-- put the artifacts into the release repository and minify install part
-- find a solution for fabric
-- add more analytic tools
+### Removed
+- All internal tracker implementations are removed, they are up to client now. 
+- tracklytics gradle settings is removed
+- Track annotation is removed
 
 ### Licence
 <pre>
-Copyright 2015 Orhan Obut
+Copyright 2016 Orhan Obut
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
