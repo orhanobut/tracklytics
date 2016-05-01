@@ -99,6 +99,20 @@ or
 @FixedAttribute(key="key", value="value",  isSuper=true)
 ```
 
+### Note
+All kind of attributes can be used at the same time. There is no restriction
+```java
+@TrackEvent("eventName")
+@FixedAttributes({
+  @FixedAttribute(key="Name", value="Something"),
+  @FixedAttribute(key="LastName", value="Something")
+})
+@Attribute("key")
+public void foo(@Attribute("key1") String value, @Attribute("key2") int code){
+  return "value100"
+}
+```
+
 ### @TrackFilter(100, 200)
 Sometimes you may want to track an event for a specific tracker or trackers. Filter will handle it for you. 
 ```java
