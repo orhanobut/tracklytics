@@ -12,10 +12,12 @@ import org.mockito.Mock;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -358,6 +360,73 @@ public class TrackerAspectTest {
     verify(tracker).event(eq("title"), anyMap(), anyMap(), filters.capture());
 
     assertThat(filters.getValue()).containsExactly(1);
+  }
+
+  @Test public void testTrackable() throws Throwable {
+    class Bar implements Trackable {
+
+      @Override public Map<String, String> getTrackableAttributes() {
+        Map<String, String> values = new HashMap<>();
+        values.put("key1", "value1");
+        values.put("key2", "value2");
+        return values;
+      }
+    }
+
+    class Foo {
+      @TrackEvent("title") void foo(@TrackableAttribute Bar bar) {
+      }
+    }
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{new Bar()});
+
+    initMethod(Foo.class, "foo", Bar.class);
+
+    aspect.weaveJoinPointTrackEvent(joinPoint);
+
+    verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsKeys("key1", "key2");
+  }
+
+  @Test public void ignoreNullValuesOnTrackable() throws Throwable {
+    class Bar implements Trackable {
+
+      @Override public Map<String, String> getTrackableAttributes() {
+        return null;
+      }
+    }
+
+    class Foo {
+      @TrackEvent("title") void foo(@TrackableAttribute Bar bar) {
+      }
+    }
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{new Bar()});
+
+    initMethod(Foo.class, "foo", Bar.class);
+
+    aspect.weaveJoinPointTrackEvent(joinPoint);
+
+    verify(tracker).event(eq("title"), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+  }
+
+  @Test public void throwExceptionWhenTrackableAnnotationNotMatchWithValue() throws Throwable {
+
+    class Foo {
+      @TrackEvent("title") void foo(@TrackableAttribute String bar) {
+      }
+    }
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{"sdfsd"});
+
+    initMethod(Foo.class, "foo", String.class);
+
+    try {
+      aspect.weaveJoinPointTrackEvent(joinPoint);
+      fail("Should throw exception");
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Trackable interface must be implemented for the parameter type");
+    }
   }
 
 }

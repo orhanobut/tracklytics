@@ -98,7 +98,7 @@ public class TrackerAspect {
     Object[] fields = joinPoint.getArgs();
     Annotation[][] annotations = method.getParameterAnnotations();
 
-    generateFieldValues(annotations, fields, attributes);
+    generateAttributeValues(annotations, fields, attributes);
 
     trackEvent(eventName, attributes, superAttributes, method);
 
@@ -141,17 +141,28 @@ public class TrackerAspect {
     }
   }
 
-  private void generateFieldValues(Annotation[][] keys, Object[] values, Map<String, Object> result) {
+  private void generateAttributeValues(Annotation[][] keys, Object[] values, Map<String, Object> result) {
     if (keys == null || values == null) {
       return;
     }
     for (int i = 0, size = values.length; i < size; i++) {
-      Attribute attribute = (Attribute) keys[i][0];
-      if (attribute == null) {
-        continue;
-      }
       Object value = values[i];
-      result.put(attribute.value(), value);
+      Annotation annotation = keys[i][0];
+      if (annotation instanceof Attribute) {
+        Attribute attribute = (Attribute) annotation;
+        result.put(attribute.value(), value);
+      }
+      if (annotation instanceof TrackableAttribute) {
+        if (value instanceof Trackable) {
+          Trackable trackable = (Trackable) value;
+          Map<String, String> trackableValues = trackable.getTrackableAttributes();
+          if (trackableValues != null) {
+            result.putAll(trackable.getTrackableAttributes());
+          }
+        } else {
+          throw new ClassCastException("Trackable interface must be implemented for the parameter type");
+        }
+      }
     }
   }
 
