@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### 1.1.1-SNAPSHOT
+- TrackableAttribute annotation is added. Works with Trackable types.
+- Trackable type added. Types can have predefined attributes now.
+
 ### 1.0.1-SNAPSHOT
 - Attribute signature changed
 - FixedAttribute added
