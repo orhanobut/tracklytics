@@ -4,6 +4,20 @@
 - TrackableAttribute annotation is added. Works with Trackable types.
 - Trackable type added. Types can have predefined attributes now.
 
+```java
+class Foo implements Trackable {
+  @Override public Map<String, String> getTrackableAttributes() {
+    Map<String,String> values = new HashMap<>();
+    values.put("key","value");
+    return values;
+  }
+}
+
+@TrackEvent("Event A")
+void something(@TrackableAttribute FooTrackable foo){}
+```
+When Event A is triggered, Foo.getTrackableAttributes() will be added to this event.
+
 ### 1.0.1-SNAPSHOT
 - Attribute signature changed
 - FixedAttribute added
