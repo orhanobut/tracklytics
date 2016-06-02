@@ -116,6 +116,21 @@ public void foo(@Attribute("key1") String value, @Attribute("key2") int code){
 }
 ```
 
+### TrackableAttribute and Trackable type
+```java
+class Foo implements Trackable {
+  @Override public Map<String, String> getTrackableAttributes() {
+    Map<String,String> values = new HashMap<>();
+    values.put("key","value");
+    return values;
+  }
+}
+
+@TrackEvent("Event A")
+void something(@TrackableAttribute FooTrackable foo){}
+```
+When Event A is triggered, Foo.getTrackableAttributes() will be added to this event's attributes.
+
 ### @TrackFilter(100, 200)
 Sometimes you may want to track an event for a specific tracker or trackers. TrackFilter will handle it for you. Each TrackingAdapter implementation will ask an id implementation. Tracklytics will use this an identifier to differentiate trackers. ie: Only Tracker id == 100 will track this event.
 ```java
