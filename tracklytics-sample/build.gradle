@@ -1,25 +1,22 @@
 buildscript {
   repositories {
     jcenter()
-    maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     mavenLocal()
   }
   dependencies {
-//    classpath 'io.fabric.tools:gradle:1.+'
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.0.1-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.0-SNAPSHOT'
   }
 }
 
 repositories {
   jcenter()
   mavenLocal()
-  maven { url 'https://maven.fabric.io/public' }
-//  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.orhanobut.tracklytics'
-//apply plugin: 'io.fabric'
 
 android {
   compileSdkVersion 23
@@ -43,13 +40,8 @@ android {
 
 dependencies {
   testCompile 'junit:junit:4.12'
-  compile 'com.android.support:appcompat-v7:23.1.1'
-  compile 'com.android.support:design:23.1.1'
-
-  // Fabric
-//  compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
-//    transitive = true;
-//  }
+  compile 'com.android.support:appcompat-v7:23.0.1'
+  compile 'com.android.support:design:23.0.1'
 
   // Mixpanel
   compile 'com.mixpanel.android:mixpanel-android:4.8.0'
