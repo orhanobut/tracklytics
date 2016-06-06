@@ -191,6 +191,11 @@ class DefaultApplication extends Application{
 }
 ```
 
+or use static method to init tracklytics
+```java
+TrackerAspect.init(tracker);
+```
+
 For the best usage, use start and stop functions in your activities onStart/onStop or on any other entry/exit points
 ```java
 class MainActivity extends Activity {
@@ -215,7 +220,7 @@ buildscript {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   }
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.0.1-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.3-SNAPSHOT'
   }
 }
 

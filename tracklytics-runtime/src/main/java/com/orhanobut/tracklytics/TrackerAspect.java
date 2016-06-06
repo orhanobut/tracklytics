@@ -19,7 +19,14 @@ public class TrackerAspect {
 
   private final Map<String, Object> superAttributes = new HashMap<>();
 
-  private Tracker tracker;
+  private static Tracker tracker;
+
+  /**
+   * Init without aspect
+   */
+  public static void init(Tracker tracker) {
+    TrackerAspect.tracker = tracker;
+  }
 
   @Pointcut("execution(@com.orhanobut.tracklytics.Tracklytics * *(..))")
   public void methodAnnotatedWithTracklytics() {

@@ -5,7 +5,7 @@ buildscript {
     mavenLocal()
   }
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.0-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.23-SNAPSHOT'
   }
 }
 
@@ -45,4 +45,8 @@ dependencies {
 
   // Mixpanel
   compile 'com.mixpanel.android:mixpanel-android:4.8.0'
+
+  testCompile "org.mockito:mockito-core:1.9.5"
+  testCompile 'org.assertj:assertj-core:1.7.0'
+  testCompile "org.robolectric:robolectric:3.0"
 }
