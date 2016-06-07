@@ -152,7 +152,10 @@ public class TrackerAspect {
     if (keys == null || values == null) {
       return;
     }
-    for (int i = 0, size = values.length; i < size; i++) {
+    for (int i = 0, size = keys.length; i < size; i++) {
+      if (keys[0].length == 0) {
+        continue;
+      }
       Object value = values[i];
       Annotation annotation = keys[i][0];
       if (annotation instanceof Attribute) {

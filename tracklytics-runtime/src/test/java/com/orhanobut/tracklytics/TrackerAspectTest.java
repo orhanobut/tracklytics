@@ -429,4 +429,20 @@ public class TrackerAspectTest {
     }
   }
 
+  @Test public void testMethodParameterWithoutAnnotation() throws Throwable {
+    class Foo {
+      @TrackEvent("title") void foo(String bar) {
+      }
+    }
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{"sdfsd"});
+
+    initMethod(Foo.class, "foo", String.class);
+
+    try {
+      aspect.weaveJoinPointTrackEvent(joinPoint);
+    } catch (Exception e) {
+      fail("Method parameters without annotation should be accepted");
+    }
+  }
 }
