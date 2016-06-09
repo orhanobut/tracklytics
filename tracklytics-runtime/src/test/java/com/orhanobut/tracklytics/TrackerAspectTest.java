@@ -47,11 +47,18 @@ public class TrackerAspectTest {
     aspect.init(tracker);
   }
 
-  Method initMethod(Class<?> klass, String name, Class<?>... parameterTypes) throws NoSuchMethodException {
+  private Method invokeMethod(Class<?> klass, String name, Class<?>... parameterTypes) throws Throwable {
+    Method method = initMethod(klass, name, parameterTypes);
+    aspect.weaveJoinPointTrackEvent(joinPoint);
+    return method;
+  }
+
+  private Method initMethod(Class<?> klass, String name, Class<?>... parameterTypes) throws Throwable {
     Method method = klass.getDeclaredMethod(name, parameterTypes);
     when(methodSignature.getMethod()).thenReturn(method);
     return method;
   }
+
 
   @Test public void testInit() throws Throwable {
     class Foo {
@@ -74,8 +81,7 @@ public class TrackerAspectTest {
     }
     initMethod(Foo.class, "start");
 
-    aspect.weaveJointTracklytics(joinPoint);
-
+    Tracker tracker = (Tracker) aspect.weaveJointTracklytics(joinPoint);
     verify(tracker).start();
   }
 
@@ -86,8 +92,7 @@ public class TrackerAspectTest {
       }
     }
     initMethod(Foo.class, "stop");
-
-    aspect.weaveJointTracklytics(joinPoint);
+    Tracker tracker = (Tracker) aspect.weaveJointTracklytics(joinPoint);
 
     verify(tracker).stop();
   }
@@ -97,9 +102,7 @@ public class TrackerAspectTest {
       @TrackEvent("title") void noAttribute() {
       }
     }
-    initMethod(Foo.class, "noAttribute");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "noAttribute");
 
     ArgumentCaptor<Map> argument = ArgumentCaptor.forClass(Map.class);
 
@@ -115,10 +118,8 @@ public class TrackerAspectTest {
       }
     }
 
-    initMethod(Foo.class, "foo");
     when(joinPoint.proceed()).thenReturn("test");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo");
 
     ArgumentCaptor<Map> values = ArgumentCaptor.forClass(Map.class);
     verify(tracker).event(eq("title"), values.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
@@ -132,11 +133,10 @@ public class TrackerAspectTest {
         return "test";
       }
     }
-    initMethod(Foo.class, "foo", String.class);
+
     when(joinPoint.proceed()).thenReturn("test");
     when(joinPoint.getArgs()).thenReturn(new Object[]{"param"});
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo", String.class);
 
     ArgumentCaptor<Map> argument = ArgumentCaptor.forClass(Map.class);
 
@@ -153,9 +153,7 @@ public class TrackerAspectTest {
       @Attribute(value = "key1", defaultValue = "defaultValue") void foo() {
       }
     }
-    initMethod(Foo.class, "foo");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo");
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
 
@@ -169,30 +167,26 @@ public class TrackerAspectTest {
         return "returnValue";
       }
     }
-    initMethod(Foo.class, "foo");
     when(joinPoint.proceed()).thenReturn("returnValue");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo");
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
 
     assertThat(valueMapCaptor.getValue()).containsEntry("key1", "returnValue");
   }
 
-  @Test public void useDefaultValueWhenReturnValueIsNull() throws Throwable {
+  @Test public void useDefaultValueWhenParameterValueIsNull() throws Throwable {
     class Foo {
-      @TrackEvent("title")
-      @Attribute(value = "key1", defaultValue = "defaulValue") String foo() {
-        return null;
+      @TrackEvent("title") void foo(@Attribute(value = "key1", defaultValue = "default") String val) {
       }
     }
-    initMethod(Foo.class, "foo");
 
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    when(joinPoint.getArgs()).thenReturn(new Object[]{null});
+    invokeMethod(Foo.class, "foo", String.class);
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
 
-    assertThat(valueMapCaptor.getValue()).containsEntry("key1", "defaulValue");
+    assertThat(valueMapCaptor.getValue()).containsEntry("key1", "default");
   }
 
   @Test public void testFixedAttributeOnMethodScope() throws Throwable {
@@ -202,9 +196,7 @@ public class TrackerAspectTest {
         return "returnValue";
       }
     }
-    initMethod(Foo.class, "foo");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo");
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
 
@@ -223,9 +215,7 @@ public class TrackerAspectTest {
       public void foo() {
       }
     }
-    initMethod(Foo.class, "foo");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo");
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
 
@@ -244,10 +234,9 @@ public class TrackerAspectTest {
         return "value1";
       }
     }
-    initMethod(Foo.class, "foo");
-    when(joinPoint.proceed()).thenReturn("value1");
 
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    when(joinPoint.proceed()).thenReturn("value1");
+    invokeMethod(Foo.class, "foo");
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
 
@@ -266,9 +255,7 @@ public class TrackerAspectTest {
       public void foo() {
       }
     }
-    initMethod(Foo.class, "foo");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo");
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
 
@@ -281,7 +268,7 @@ public class TrackerAspectTest {
     class Foo {
       @TrackEvent("title")
       @Attribute(value = "key1", isSuper = true)
-      public String foo() {
+      public String foo(@Attribute(value = "key2", isSuper = true) String value) {
         return "value1";
       }
 
@@ -290,17 +277,17 @@ public class TrackerAspectTest {
       }
     }
 
-    initMethod(Foo.class, "foo");
     when(joinPoint.proceed()).thenReturn("value1");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    when(joinPoint.getArgs()).thenReturn(new Object[]{"value2"});
+    invokeMethod(Foo.class, "foo", String.class);
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), valueMapCaptor.capture(), eq(Collections.EMPTY_SET));
     assertThat(valueMapCaptor.getAllValues().get(0)).containsEntry("key1", "value1");
+    assertThat(valueMapCaptor.getAllValues().get(0)).containsEntry("key2", "value2");
     assertThat(valueMapCaptor.getAllValues().get(1)).containsEntry("key1", "value1");
+    assertThat(valueMapCaptor.getAllValues().get(1)).containsEntry("key2", "value2");
 
-    initMethod(Foo.class, "foo2");
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo2");
     verify(tracker).event(eq("event2"), anyMap(), valueMapCaptor.capture(), eq(Collections.EMPTY_SET));
     assertThat(valueMapCaptor.getValue()).containsEntry("key1", "value1");
   }
@@ -322,10 +309,8 @@ public class TrackerAspectTest {
       }
     }
 
-    initMethod(Foo.class, "foo");
+    invokeMethod(Foo.class, "foo");
     when(joinPoint.proceed()).thenReturn("value1");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), valueMapCaptor.capture(), eq(Collections.EMPTY_SET));
     assertThat(valueMapCaptor.getAllValues().get(0)).containsEntry("key1", "value1");
@@ -335,8 +320,7 @@ public class TrackerAspectTest {
     assertThat(valueMapCaptor.getAllValues().get(1)).containsEntry("key2", "value2");
     assertThat(valueMapCaptor.getAllValues().get(1)).containsEntry("key3", "value3");
 
-    initMethod(Foo.class, "foo2");
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo2");
     verify(tracker).event(eq("event2"), anyMap(), valueMapCaptor.capture(), eq(Collections.EMPTY_SET));
     assertThat(valueMapCaptor.getValue()).containsEntry("key2", "value2");
     assertThat(valueMapCaptor.getValue()).containsEntry("key3", "value3");
@@ -351,9 +335,7 @@ public class TrackerAspectTest {
       @TrackFilter(1) @TrackEvent("title") void foo() {
       }
     }
-    initMethod(Foo.class, "foo");
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo");
 
     ArgumentCaptor<Set> filters = ArgumentCaptor.forClass(Set.class);
 
@@ -380,9 +362,7 @@ public class TrackerAspectTest {
 
     when(joinPoint.getArgs()).thenReturn(new Object[]{new Bar()});
 
-    initMethod(Foo.class, "foo", Bar.class);
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo", Bar.class);
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
     assertThat(valueMapCaptor.getValue()).containsKeys("key1", "key2");
@@ -403,9 +383,7 @@ public class TrackerAspectTest {
 
     when(joinPoint.getArgs()).thenReturn(new Object[]{new Bar()});
 
-    initMethod(Foo.class, "foo", Bar.class);
-
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.class, "foo", Bar.class);
 
     verify(tracker).event(eq("title"), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
   }
@@ -431,13 +409,13 @@ public class TrackerAspectTest {
 
   @Test public void testMethodParameterWithoutAnnotation() throws Throwable {
     class Foo {
-      @TrackEvent("title") void foo(String bar) {
+      @TrackEvent("title") void foo(@Attribute("Key") String bar, String param2) {
       }
     }
 
     when(joinPoint.getArgs()).thenReturn(new Object[]{"sdfsd"});
 
-    initMethod(Foo.class, "foo", String.class);
+    invokeMethod(Foo.class, "foo", String.class, String.class);
 
     try {
       aspect.weaveJoinPointTrackEvent(joinPoint);
@@ -459,11 +437,129 @@ public class TrackerAspectTest {
       }
     }
 
-    initMethod(Foo.Inner.class, "bar");
-    aspect.weaveJoinPointTrackEvent(joinPoint);
+    invokeMethod(Foo.Inner.class, "bar");
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
     assertThat(valueMapCaptor.getValue()).containsEntry("key1", "value1");
     assertThat(valueMapCaptor.getValue()).containsEntry("key2", "value2");
+  }
+
+  @Test public void testTransformAttributeForParameters() throws Throwable {
+    class Foo {
+      @TrackEvent("event")
+      @TransformAttributeMap(
+          keys = {"0", "1"},
+          values = {"value1", "value2"}
+      )
+      public void foo(@TransformAttribute("key1") Integer type) {
+      }
+    }
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{0});
+    invokeMethod(Foo.class, "foo", Integer.class);
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key1", "value1");
+  }
+
+  @Test public void testTransformAttributeMapInvalidState() throws Throwable {
+    class Foo {
+      @TrackEvent("event")
+      @TransformAttributeMap(
+          keys = {"0", "1"},
+          values = {"value1"}
+      )
+      public void foo(@TransformAttribute("key1") Integer type) {
+      }
+    }
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{0});
+
+    try {
+      invokeMethod(Foo.class, "foo", Integer.class);
+    } catch (Exception e) {
+      assertThat(e).hasMessage("TransformAttributeMap keys and values must have same length");
+    }
+  }
+
+  @Test public void testTransformAttributeWithoutTransformAttributeMap() throws Throwable {
+    class Foo {
+      @TrackEvent("event")
+      public void foo(@TransformAttribute("key1") Integer type) {
+      }
+    }
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{0});
+
+    try {
+      invokeMethod(Foo.class, "foo", Integer.class);
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Method must have TransformAttributeMap when TransformAttribute is used");
+    }
+  }
+
+  @Test public void testTransformAttributeForReturnValue() throws Throwable {
+    class Foo {
+      @TrackEvent("event")
+      @TransformAttributeMap(
+          keys = {"0", "1"},
+          values = {"value1", "value2"}
+      )
+      @TransformAttribute("key1")
+      public int foo() {
+        return 1;
+      }
+    }
+
+    when(joinPoint.proceed()).thenReturn(1);
+    invokeMethod(Foo.class, "foo");
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key1", "value2");
+  }
+
+  @Test public void testSuperTransformAttribute() throws Throwable {
+    class Foo {
+      @TrackEvent("event")
+      @TransformAttributeMap(
+          keys = {"0", "1"},
+          values = {"value1", "value2"}
+      )
+      @TransformAttribute(value = "key1", isSuper = true)
+      public int foo(@TransformAttribute(value = "key2", isSuper = true) Integer val) {
+        return 0;
+      }
+    }
+
+    when(joinPoint.proceed()).thenReturn(0);
+    when(joinPoint.getArgs()).thenReturn(new Object[]{1});
+    invokeMethod(Foo.class, "foo", Integer.class);
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), valueMapCaptor.capture(), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getAllValues().get(0)).containsEntry("key1", "value1");
+    assertThat(valueMapCaptor.getAllValues().get(0)).containsEntry("key2", "value2");
+    assertThat(valueMapCaptor.getAllValues().get(1)).containsEntry("key1", "value1");
+    assertThat(valueMapCaptor.getAllValues().get(1)).containsEntry("key2", "value2");
+  }
+
+  @Test public void testTransformAttributeDefaultValue() throws Throwable {
+    class Foo {
+      @TrackEvent("event")
+      @TransformAttributeMap(
+          keys = {"0", "1"},
+          values = {"value1", "value2"}
+      )
+      @TransformAttribute(value = "key1", defaultValue = "default1")
+      public String foo(@TransformAttribute(value = "key2", defaultValue = "default2") String val) {
+        return null;
+      }
+    }
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{null});
+    invokeMethod(Foo.class, "foo", String.class);
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key1", "default1");
+    assertThat(valueMapCaptor.getValue()).containsEntry("key2", "default2");
   }
 }

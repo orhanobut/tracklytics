@@ -108,7 +108,22 @@ public class TrackerAspect {
     Object[] fields = joinPoint.getArgs();
     Annotation[][] annotations = method.getParameterAnnotations();
 
-    generateAttributeValues(annotations, fields, attributes);
+    Map<String, String> transformMap = null;
+    TransformAttributeMap transformAttributeMap = method.getAnnotation(TransformAttributeMap.class);
+    if (transformAttributeMap != null) {
+      transformMap = new HashMap<>();
+      String[] keys = transformAttributeMap.keys();
+      String[] values = transformAttributeMap.values();
+      if (keys.length != values.length) {
+        throw new IllegalStateException("TransformAttributeMap keys and values must have same length");
+      }
+      for (int i = 0; i < keys.length; i++) {
+        transformMap.put(keys[i], values[i]);
+      }
+    }
+    addTransformAttribute(method.getAnnotation(TransformAttribute.class), attributes, result, transformMap);
+
+    generateAttributeValues(annotations, fields, attributes, transformMap);
 
     trackEvent(eventName, attributes, superAttributes, method);
 
@@ -116,34 +131,41 @@ public class TrackerAspect {
   }
 
   private void addAttribute(Attribute attribute, Map<String, Object> values, Object methodResult) {
-    if (attribute != null) {
-      Object value = null;
-      if (methodResult != null) {
-        value = methodResult;
-      } else if (attribute.defaultValue().length() != 0) {
-        value = attribute.defaultValue();
-      }
-      values.put(attribute.value(), value);
-      if (attribute.isSuper()) {
-        superAttributes.put(attribute.value(), value);
-      }
+    if (attribute == null) return;
+
+    Object value = null;
+    if (methodResult != null) {
+      value = methodResult;
+    } else if (attribute.defaultValue().length() != 0) {
+      value = attribute.defaultValue();
+    }
+    values.put(attribute.value(), value);
+    if (attribute.isSuper()) {
+      superAttributes.put(attribute.value(), value);
+    }
+  }
+
+  private void addTransformAttribute(TransformAttribute attribute, Map<String, Object> values, Object methodResult,
+                                     Map<String, String> transformMap) {
+    if (attribute == null) return;
+
+    Object value = null;
+    if (methodResult != null) {
+      value = transformMap.get(String.valueOf(methodResult));
+    } else if (attribute.defaultValue().length() != 0) {
+      value = attribute.defaultValue();
+    }
+    values.put(attribute.value(), value);
+    if (attribute.isSuper()) {
+      superAttributes.put(attribute.value(), value);
     }
   }
 
   private void addFixedAttributes(FixedAttributes fixedAttributes, Map<String, Object> values) {
-    if (fixedAttributes != null) {
-      FixedAttribute[] attributes = fixedAttributes.value();
-      for (FixedAttribute attribute : attributes) {
-        values.put(attribute.key(), attribute.value());
-        if (attribute.isSuper()) {
-          superAttributes.put(attribute.key(), attribute.value());
-        }
-      }
-    }
-  }
+    if (fixedAttributes == null) return;
 
-  private void addFixedAttribute(FixedAttribute attribute, Map<String, Object> values) {
-    if (attribute != null) {
+    FixedAttribute[] attributes = fixedAttributes.value();
+    for (FixedAttribute attribute : attributes) {
       values.put(attribute.key(), attribute.value());
       if (attribute.isSuper()) {
         superAttributes.put(attribute.key(), attribute.value());
@@ -151,29 +173,64 @@ public class TrackerAspect {
     }
   }
 
-  private void generateAttributeValues(Annotation[][] keys, Object[] values, Map<String, Object> result) {
+  private void addFixedAttribute(FixedAttribute attribute, Map<String, Object> values) {
+    if (attribute == null) return;
+    values.put(attribute.key(), attribute.value());
+    if (attribute.isSuper()) {
+      superAttributes.put(attribute.key(), attribute.value());
+    }
+  }
+
+  private void generateAttributeValues(Annotation[][] keys, Object[] values, Map<String, Object> attributes,
+                                       Map<String, String> transformAttributeMap) {
     if (keys == null || values == null) {
       return;
     }
     for (int i = 0, size = keys.length; i < size; i++) {
-      if (keys[0].length == 0) {
+      if (keys[i].length == 0) {
         continue;
       }
       Object value = values[i];
       Annotation annotation = keys[i][0];
       if (annotation instanceof Attribute) {
         Attribute attribute = (Attribute) annotation;
-        result.put(attribute.value(), value);
+        Object result = null;
+        if (value != null) {
+          result = value;
+        } else if (attribute.defaultValue().length() != 0) {
+          result = attribute.defaultValue();
+        }
+        attributes.put(attribute.value(), result);
+        if (attribute.isSuper()) {
+          superAttributes.put(attribute.value(), result);
+        }
       }
       if (annotation instanceof TrackableAttribute) {
         if (value instanceof Trackable) {
           Trackable trackable = (Trackable) value;
           Map<String, String> trackableValues = trackable.getTrackableAttributes();
           if (trackableValues != null) {
-            result.putAll(trackable.getTrackableAttributes());
+            attributes.putAll(trackable.getTrackableAttributes());
           }
         } else {
           throw new ClassCastException("Trackable interface must be implemented for the parameter type");
+        }
+      }
+      if (annotation instanceof TransformAttribute) {
+        if (transformAttributeMap == null) {
+          throw new IllegalStateException("Method must have TransformAttributeMap when TransformAttribute is used");
+        }
+        TransformAttribute transformAttribute = (TransformAttribute) annotation;
+        Object result = null;
+        if (value != null) {
+          result = transformAttributeMap.get(String.valueOf(value));
+        } else if (transformAttribute.defaultValue().length() != 0) {
+          result = transformAttribute.defaultValue();
+        }
+
+        attributes.put(transformAttribute.value(), result);
+        if (transformAttribute.isSuper()) {
+          superAttributes.put(transformAttribute.value(), result);
         }
       }
     }
