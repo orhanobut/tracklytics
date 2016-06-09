@@ -1,4 +1,6 @@
 ## CHANGELOG
+### 1.1.4-SNAPSHOT
+- Bug fix: Method parameters without annotation caused to crash. Fixed.
 
 ### 1.1.1-SNAPSHOT
 - TrackableAttribute annotation is added. Works with Trackable types.
