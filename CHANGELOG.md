@@ -1,5 +1,31 @@
 ## CHANGELOG
 
+### 1.1.7-SNAPSHOT
+- When Attribute is used for method parameters, isSuper and defaultValue are properly working now.
+- TransformAttribute have isSuper and defaultValue
+- TransformAttribute is available for method return value.
+
+### 1.1.6-SNAPSHOT
+- New: TransformAttribute and TransformAttributeMap added. Sometimes you might have some parameter values which
+represents another value or they are integer or enum. You may need to have the corresponding value in tracking.
+TransformAttribute helps you in this case. For example: In the following example, position is represented by integer
+and you want to have a String value which represent exact value such as menu item.
+
+```java
+class Foo {
+  @TrackEvent("event")
+  @TransformAttributeMap(
+    keys = {"0", "1"},
+    values = {"value0", "value1"}
+  )
+  public void foo(@TransformAttribute("key") int position) {
+  }
+}
+
+// foo(0) : event -> [{"key","value0}]
+// foo(1) : event -> [{"key","value1}]
+```
+
 ### 1.1.5-SNAPSHOT
 - Enclosing class attributes will be added to inner or anonymous class events.
 ```java
