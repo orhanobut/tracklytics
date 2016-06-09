@@ -1,4 +1,6 @@
 ## CHANGELOG
+### 1.1.8-SNAPSHOT
+- TransformAttributeMap keys type changed to int intead of String
 
 ### 1.1.7-SNAPSHOT
 - When Attribute is used for method parameters, isSuper and defaultValue are properly working now.

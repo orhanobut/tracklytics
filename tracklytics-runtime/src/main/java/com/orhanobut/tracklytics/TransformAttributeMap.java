@@ -5,7 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TransformAttributeMap {
-  String[] keys();
+  int[] keys();
 
   String[] values();
 }

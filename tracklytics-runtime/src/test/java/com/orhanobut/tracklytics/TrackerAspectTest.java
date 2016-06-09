@@ -448,7 +448,7 @@ public class TrackerAspectTest {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
-          keys = {"0", "1"},
+          keys = {0, 1},
           values = {"value1", "value2"}
       )
       public void foo(@TransformAttribute("key1") Integer type) {
@@ -466,7 +466,7 @@ public class TrackerAspectTest {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
-          keys = {"0", "1"},
+          keys = {0, 1},
           values = {"value1"}
       )
       public void foo(@TransformAttribute("key1") Integer type) {
@@ -502,7 +502,7 @@ public class TrackerAspectTest {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
-          keys = {"0", "1"},
+          keys = {0, 1},
           values = {"value1", "value2"}
       )
       @TransformAttribute("key1")
@@ -522,7 +522,7 @@ public class TrackerAspectTest {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
-          keys = {"0", "1"},
+          keys = {0, 1},
           values = {"value1", "value2"}
       )
       @TransformAttribute(value = "key1", isSuper = true)
@@ -546,17 +546,17 @@ public class TrackerAspectTest {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
-          keys = {"0", "1"},
+          keys = {0, 1},
           values = {"value1", "value2"}
       )
       @TransformAttribute(value = "key1", defaultValue = "default1")
-      public String foo(@TransformAttribute(value = "key2", defaultValue = "default2") String val) {
+      public String foo(@TransformAttribute(value = "key2", defaultValue = "default2") Integer val) {
         return null;
       }
     }
 
     when(joinPoint.getArgs()).thenReturn(new Object[]{null});
-    invokeMethod(Foo.class, "foo", String.class);
+    invokeMethod(Foo.class, "foo", Integer.class);
 
     verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
     assertThat(valueMapCaptor.getValue()).containsEntry("key1", "default1");
