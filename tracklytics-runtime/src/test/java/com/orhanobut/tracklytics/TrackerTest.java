@@ -106,9 +106,4 @@ public class TrackerTest {
 
     verify(subscriber, times(2)).onEventAdded(any(EventItem.class));
   }
-
-  @TrackEvent("Test Event")
-  @Test public void testAspectWeave() {
-
-  }
 }

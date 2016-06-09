@@ -28,7 +28,7 @@ class TracklyticsPlugin implements Plugin<Project> {
 
     project.dependencies {
       compile 'org.aspectj:aspectjrt:1.8.6'
-      compile 'com.orhanobut.tracklytics:tracklytics-runtime:1.1.4-SNAPSHOT@aar'
+      compile 'com.orhanobut.tracklytics:tracklytics-runtime:1.1.5-SNAPSHOT@aar'
     }
 
     variants.all { variant ->

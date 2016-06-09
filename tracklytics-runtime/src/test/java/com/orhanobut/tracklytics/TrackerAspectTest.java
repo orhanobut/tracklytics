@@ -445,4 +445,25 @@ public class TrackerAspectTest {
       fail("Method parameters without annotation should be accepted");
     }
   }
+
+  @Test public void testClassWideAttributeInAnonymousClass() throws Throwable {
+    @FixedAttribute(key = "key1", value = "value1")
+    class Foo {
+
+      @FixedAttribute(key = "key2", value = "value2")
+      class Inner {
+
+        @TrackEvent("title")
+        public void bar() {
+        }
+      }
+    }
+
+    initMethod(Foo.Inner.class, "bar");
+    aspect.weaveJoinPointTrackEvent(joinPoint);
+
+    verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key1", "value1");
+    assertThat(valueMapCaptor.getValue()).containsEntry("key2", "value2");
+  }
 }
