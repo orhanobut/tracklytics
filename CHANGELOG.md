@@ -1,4 +1,23 @@
 ## CHANGELOG
+
+### 1.1.5-SNAPSHOT
+- Enclosing class attributes will be added to inner or anonymous class events.
+```java
+@FixedAttribute(key="key1", value="value1")
+public class Enclosing {
+ 
+  @FixedAttribute(key="key2", value="value2")
+  static class Inner {
+  
+    @TrackEvent("Event")
+    public void bar(){
+    }
+  }
+}
+
+// Output: Event : [{key1,value1}, {key2,value2}]
+```
+
 ### 1.1.4-SNAPSHOT
 - Bug fix: Method parameters without annotation caused to crash. Fixed.
 
