@@ -17,7 +17,7 @@ and you want to have a String value which represent exact value such as menu ite
 class Foo {
   @TrackEvent("event")
   @TransformAttributeMap(
-    keys = {"0", "1"},
+    keys = {0, 1},
     values = {"value0", "value1"}
   )
   public void foo(@TransformAttribute("key") int position) {
