@@ -131,6 +131,24 @@ void something(@TrackableAttribute FooTrackable foo){}
 ```
 When Event A is triggered, Foo.getTrackableAttributes() will be added to this event's attributes.
 
+### TransformAttribute
+Sometimes you might have some values which can represented in String such Enums, IntDefs. You may need to have the corresponding value in tracking.TransformAttribute helps you in this case. For example: In the following example, position is represented by integer and you want to have a String value which represent exact value such as menu item.
+
+```java
+class Foo {
+  @TrackEvent("event")
+  @TransformAttributeMap(
+    keys = {0, 1},
+    values = {"value0", "value1"}
+  )
+  public void foo(@TransformAttribute("key") int position) {
+  }
+}
+
+// foo(0) : event -> [{"key","value0}]
+// foo(1) : event -> [{"key","value1}]
+```
+
 ### @TrackFilter(100, 200)
 Sometimes you may want to track an event for a specific tracker or trackers. TrackFilter will handle it for you. Each TrackingAdapter implementation will ask an id implementation. Tracklytics will use this an identifier to differentiate trackers. ie: Only Tracker id == 100 will track this event.
 ```java
@@ -243,11 +261,6 @@ Debugging monitor displays
 - each event for each tracker
 - an option to remove all
 - filter option to select tracker, time and keyword (in progress)
-
-### Removed
-- All internal tracker implementations are removed, they are up to client now. 
-- tracklytics gradle settings is removed
-- Track annotation is removed
 
 ### Licence
 <pre>
