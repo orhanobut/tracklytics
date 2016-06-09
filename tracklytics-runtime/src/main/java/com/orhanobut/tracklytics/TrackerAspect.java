@@ -108,11 +108,11 @@ public class TrackerAspect {
     Object[] fields = joinPoint.getArgs();
     Annotation[][] annotations = method.getParameterAnnotations();
 
-    Map<String, String> transformMap = null;
+    Map<Integer, String> transformMap = null;
     TransformAttributeMap transformAttributeMap = method.getAnnotation(TransformAttributeMap.class);
     if (transformAttributeMap != null) {
       transformMap = new HashMap<>();
-      String[] keys = transformAttributeMap.keys();
+      int[] keys = transformAttributeMap.keys();
       String[] values = transformAttributeMap.values();
       if (keys.length != values.length) {
         throw new IllegalStateException("TransformAttributeMap keys and values must have same length");
@@ -146,12 +146,12 @@ public class TrackerAspect {
   }
 
   private void addTransformAttribute(TransformAttribute attribute, Map<String, Object> values, Object methodResult,
-                                     Map<String, String> transformMap) {
+                                     Map<Integer, String> transformMap) {
     if (attribute == null) return;
 
     Object value = null;
     if (methodResult != null) {
-      value = transformMap.get(String.valueOf(methodResult));
+      value = transformMap.get(methodResult);
     } else if (attribute.defaultValue().length() != 0) {
       value = attribute.defaultValue();
     }
@@ -182,7 +182,7 @@ public class TrackerAspect {
   }
 
   private void generateAttributeValues(Annotation[][] keys, Object[] values, Map<String, Object> attributes,
-                                       Map<String, String> transformAttributeMap) {
+                                       Map<Integer, String> transformAttributeMap) {
     if (keys == null || values == null) {
       return;
     }
@@ -223,7 +223,7 @@ public class TrackerAspect {
         TransformAttribute transformAttribute = (TransformAttribute) annotation;
         Object result = null;
         if (value != null) {
-          result = transformAttributeMap.get(String.valueOf(value));
+          result = transformAttributeMap.get(value);
         } else if (transformAttribute.defaultValue().length() != 0) {
           result = transformAttribute.defaultValue();
         }
