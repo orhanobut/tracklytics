@@ -99,8 +99,11 @@ public class TrackerAspect {
     addFixedAttributes(method.getAnnotation(FixedAttributes.class), attributes);
 
     Class<?> declaringClass = method.getDeclaringClass();
-    addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class), attributes);
-    addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class), attributes);
+    while (declaringClass != null) {
+      addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class), attributes);
+      addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class), attributes);
+      declaringClass = declaringClass.getEnclosingClass();
+    }
 
     Object[] fields = joinPoint.getArgs();
     Annotation[][] annotations = method.getParameterAnnotations();
