@@ -1,4 +1,7 @@
 ## CHANGELOG
+### 1.1.11-SNAPSHOT
+- Bug fix: TrackEvent will only use Trackable.getTrackableAttributes() when TrackableAttribute presents
+
 ### 1.1.10-SNAPSHOT
 - TrackableAttribute for current class NPE fix
 
