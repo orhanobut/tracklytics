@@ -585,4 +585,23 @@ public class TrackerAspectTest {
     verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
     assertThat(valueMapCaptor.getValue()).containsEntry("key", "value");
   }
+
+  @Test public void ignoreNullValueOnTrackableAttributeForCurrentClass() throws Throwable {
+    class Foo implements Trackable {
+
+      @Override public Map<String, String> getTrackableAttributes() {
+        return null;
+      }
+
+      @TrackEvent("event")
+      @TrackableAttribute
+      public void foo() {
+      }
+    }
+
+    when(joinPoint.getThis()).thenReturn(new Foo());
+    invokeMethod(Foo.class, "foo");
+
+    verify(tracker).event(eq("event"), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+  }
 }
