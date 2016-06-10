@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+@SuppressWarnings("ALL")
 public class TrackerAspectTest {
 
   Tracker tracker;
@@ -47,8 +48,8 @@ public class TrackerAspectTest {
     aspect.init(tracker);
   }
 
-  private Method invokeMethod(Class<?> klass, String name, Class<?>... parameterTypes) throws Throwable {
-    Method method = initMethod(klass, name, parameterTypes);
+  private Method invokeMethod(Class<?> klass, String methodName, Class<?>... parameterTypes) throws Throwable {
+    Method method = initMethod(klass, methodName, parameterTypes);
     aspect.weaveJoinPointTrackEvent(joinPoint);
     return method;
   }
@@ -561,5 +562,27 @@ public class TrackerAspectTest {
     verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
     assertThat(valueMapCaptor.getValue()).containsEntry("key1", "default1");
     assertThat(valueMapCaptor.getValue()).containsEntry("key2", "default2");
+  }
+
+  @Test public void testTrackableAttributeForCurrentClass() throws Throwable {
+    class Foo implements Trackable {
+
+      @Override public Map<String, String> getTrackableAttributes() {
+        Map<String, String> map = new HashMap<>();
+        map.put("key", "value");
+        return map;
+      }
+
+      @TrackEvent("event")
+      @TrackableAttribute
+      public void foo() {
+      }
+    }
+
+    when(joinPoint.getThis()).thenReturn(new Foo());
+    invokeMethod(Foo.class, "foo");
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key", "value");
   }
 }

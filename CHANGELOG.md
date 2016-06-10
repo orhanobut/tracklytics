@@ -1,4 +1,24 @@
 ## CHANGELOG
+### 1.1.9-SNAPSHOT
+- TrackableAttribute is available for the current class now.
+```java
+class Foo implements Trackable {
+
+  @Override public Map<String, String> getTrackableAttributes() {
+    Map<String, String> map = new HashMap<>();
+    map.put("key", "value");
+    return map;
+  }
+
+  @TrackEvent("event")
+  @TrackableAttribute
+  public void foo() {
+  }
+}
+
+//OUTPUT: event->[{"key","value"}]
+```
+
 ### 1.1.8-SNAPSHOT
 - TransformAttributeMap keys type changed to int intead of String
 
