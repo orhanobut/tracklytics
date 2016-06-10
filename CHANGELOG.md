@@ -1,4 +1,7 @@
 ## CHANGELOG
+### 1.1.10-SNAPSHOT
+- TrackableAttribute for current class NPE fix
+
 ### 1.1.9-SNAPSHOT
 - TrackableAttribute is available for the current class now.
 ```java
