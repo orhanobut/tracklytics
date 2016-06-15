@@ -625,4 +625,27 @@ public class TrackerAspectTest {
 
     verify(tracker).event(eq("event"), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
   }
+
+  @Test public void overrideClassWideAttributeOnMethodWhenAttributesAreSame() throws Throwable {
+    @FixedAttribute(key = "key", value = "class")
+    @FixedAttributes(
+        @FixedAttribute(key = "key1", value = "class1")
+    )
+    class Foo {
+
+      @TrackEvent("event")
+      @FixedAttribute(key = "key", value = "method")
+      @FixedAttributes(
+          @FixedAttribute(key = "key1", value = "method1")
+      )
+      public void foo() {
+      }
+    }
+
+    invokeMethod(Foo.class, "foo");
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key", "method");
+    assertThat(valueMapCaptor.getValue()).containsEntry("key1", "method1");
+  }
 }
