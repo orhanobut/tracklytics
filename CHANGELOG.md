@@ -1,4 +1,8 @@
 ## CHANGELOG
+
+### 1.1.12-SNAPSHOT
+- FixedAttribute(s) declared on method will override class-wide FixedAttribute(s).
+
 ### 1.1.11-SNAPSHOT
 - Bug fix: TrackEvent will only use Trackable.getTrackableAttributes() when TrackableAttribute presents
 
