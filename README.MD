@@ -1,3 +1,5 @@
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Tracklytics-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/2891) [![](https://img.shields.io/badge/AndroidWeekly-%23183-blue.svg)](http://androidweekly.net/issues/issue-183)
+
 # Tracklytics
 
 Tracklytics is an annotation based analytic data delegator. It basically delegates all analytic/tracking data to a tunnel which you can decide what to do with them. 
