@@ -8,6 +8,3 @@ android:
 
 script:
  - ./gradlew checkstyle tracklytics-runtime:testDebugUnitTest
-
-notifications:
-  email: false
