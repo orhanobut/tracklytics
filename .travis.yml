@@ -2,10 +2,14 @@ language: android
 
 android:
   components:
+    - tools
+    - platform-tools
     - build-tools-24.0.0
     - android-23
     - android-24
-    - tools
+
+env:
+- GRADLE_OPTS="-Xmx512m -XX:MaxPermSize=512m"
 
 script:
- - ./gradlew checkstyle lint tracklytics-runtime:testDebugUnitTest
+ - ./gradlew tracklytics-runtime:check

@@ -14,34 +14,18 @@ buildscript {
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'checkstyle'
-
-check.dependsOn('checkstyle')
-
-task checkstyle(type: Checkstyle) {
-  configFile = rootProject.file('checkstyle.xml')
-  source 'src'
-  include '**/*.java'
-  exclude '**/gen/**'
-
-  classpath = files()
-}
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
   buildToolsVersion rootProject.ext.buildToolsVersion
 
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_7
-    targetCompatibility JavaVersion.VERSION_1_7
-  }
-
   defaultConfig {
-    minSdkVersion 10
+    minSdkVersion rootProject.ext.minSdkVersion
   }
 
   lintOptions {
-    abortOnError false
+    textReport true
+    textOutput 'stdout'
   }
 }
 

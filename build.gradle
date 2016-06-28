@@ -15,14 +15,41 @@ buildscript {
   }
 }
 
-allprojects {
-  version = VERSION_NAME
+subprojects { project ->
   group = GROUP
+  version = VERSION_NAME
+
+  apply plugin: 'checkstyle'
+  apply plugin: 'maven'
+
+  task checkstyle(type: Checkstyle) {
+    configFile rootProject.file('checkstyle.xml')
+    source 'src/main/java'
+    ignoreFailures false
+    showViolations true
+    include '**/*.java'
+
+    classpath = files()
+  }
+
+  afterEvaluate {
+    if (project.tasks.findByName('check')) {
+      check.dependsOn('checkstyle')
+    }
+  }
+
+  buildscript {
+    repositories {
+      mavenCentral()
+    }
+    dependencies {
+      classpath 'com.android.tools.build:gradle:2.1.2'
+    }
+  }
 
   repositories {
     jcenter()
   }
-  apply plugin: 'maven'
 }
 
 task clean(type: Delete) {
