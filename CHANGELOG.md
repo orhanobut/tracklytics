@@ -1,5 +1,23 @@
 ## CHANGELOG
 
+### 1.1.13-SNAPSHOT
+- Super class methods now can be used for tracking for the subclasses
+```java
+class Base {
+
+  @TrackEvent("event"
+  public void init(){}
+}
+
+@FixedAttribute(key="key", value="value")
+class Foo extends Base {
+}
+
+new Foo().init();
+
+//OUTPUT:  event->{key=value}
+```
+
 ### 1.1.12-SNAPSHOT
 - FixedAttribute(s) declared on method will override class-wide FixedAttribute(s).
 

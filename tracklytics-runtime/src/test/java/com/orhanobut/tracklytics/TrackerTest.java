@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import java.util.Collections;
 import java.util.HashSet;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
