@@ -30,10 +30,23 @@ task clean(type: Delete) {
 }
 
 ext {
+  minSdkVersion = 8
+  targetSdkVersion = 23
   compileSdkVersion = 23
-  buildToolsVersion = '23.0.1'
+  buildToolsVersion = '24.0.0'
+  sourceCompatibilityVersion = JavaVersion.VERSION_1_7
+  targetCompatibilityVersion = JavaVersion.VERSION_1_7
 }
 
-def isReleaseBuild() {
-  return version.contains("SNAPSHOT") == false
-}
+ext.deps = [
+
+    // AspectJ
+    aspectjRuntime: "org.aspectj:aspectjrt:1.8.6",
+    aspectjTools  : "org.aspectj:aspectjtools:1.8.6",
+
+    // Test dependencies
+    junit         : 'junit:junit:4.12',
+    truth         : 'com.google.truth:truth:0.28',
+    robolectric   : 'org.robolectric:robolectric:3.1',
+    mockito       : "org.mockito:mockito-core:1.10.19"
+]

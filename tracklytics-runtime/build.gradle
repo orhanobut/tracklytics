@@ -14,7 +14,6 @@ buildscript {
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply from: '../maven_push.gradle'
 apply plugin: 'checkstyle'
 
 check.dependsOn('checkstyle')
@@ -47,12 +46,12 @@ android {
 }
 
 dependencies {
-  provided 'org.aspectj:aspectjrt:1.8.6'
+  provided deps.aspectjRuntime
 
-  testCompile 'junit:junit:4.12'
-  testCompile "org.mockito:mockito-core:1.9.5"
-  testCompile 'org.assertj:assertj-core:1.7.0'
-  testCompile "org.robolectric:robolectric:3.0"
+  testCompile deps.junit
+  testCompile deps.truth
+  testCompile deps.robolectric
+  testCompile deps.mockito
 }
 
 android.libraryVariants.all { variant ->
@@ -91,3 +90,5 @@ android.libraryVariants.all { variant ->
     }
   }
 }
+
+apply from: rootProject.file('gradle/maven_push.gradle')

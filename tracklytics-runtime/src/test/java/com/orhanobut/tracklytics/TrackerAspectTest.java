@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static com.google.common.truth.Truth.assertThat;
+import static junit.framework.TestCase.fail;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -145,9 +145,7 @@ public class TrackerAspectTest {
 
     verify(tracker).event(eq("title"), argument.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
 
-    assertThat(argument.getValue()).containsOnlyKeys("key1", "key2");
-    assertThat(argument.getValue().get("key1")).isEqualTo("test");
-    assertThat(argument.getValue().get("key2")).isEqualTo("param");
+    assertThat(argument.getValue()).containsExactly("key1", "test", "key2", "param");
   }
 
   @Test public void useDefaultValueWhenThereIsNoReturnValue() throws Throwable {
@@ -368,7 +366,8 @@ public class TrackerAspectTest {
     invokeMethod(Foo.class, "foo", Bar.class);
 
     verify(tracker).event(eq("title"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
-    assertThat(valueMapCaptor.getValue()).containsKeys("key1", "key2");
+    assertThat(valueMapCaptor.getValue()).containsKey("key1");
+    assertThat(valueMapCaptor.getValue()).containsKey("key1");
   }
 
   @Test public void ignoreNullValuesOnTrackable() throws Throwable {

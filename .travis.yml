@@ -2,9 +2,10 @@ language: android
 
 android:
   components:
-    - build-tools-23.0.1
+    - build-tools-24.0.0
     - android-23
+    - android-24
     - tools
 
 script:
- - ./gradlew checkstyle tracklytics-runtime:testDebugUnitTest
+ - ./gradlew checkstyle lint tracklytics-runtime:testDebugUnitTest
