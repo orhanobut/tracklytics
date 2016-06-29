@@ -87,11 +87,14 @@ public class TrackerAspect {
     Object result = joinPoint.proceed();
 
     Method method = methodSignature.getMethod();
-    String eventName;
-    Map<String, Object> attributes = new HashMap<>();
 
     TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
-    eventName = trackEvent.value();
+    String eventName = trackEvent.value();
+
+    Map<String, Object> attributes = new HashMap<>();
+
+    ScreenNameAttribute screenNameAttribute = method.getDeclaringClass().getAnnotation(ScreenNameAttribute.class);
+    addScreenNameAttribute(screenNameAttribute, joinPoint.getThis().getClass().getSimpleName(), attributes);
 
     addAttribute(method.getAnnotation(Attribute.class), attributes, result);
 
@@ -139,6 +142,22 @@ public class TrackerAspect {
     trackEvent(eventName, attributes, superAttributes, method);
 
     return result;
+  }
+
+  private void addScreenNameAttribute(ScreenNameAttribute annotation, String className,
+                                      Map<String, Object> attributes) {
+    if (annotation == null) return;
+
+    String[] words = className.split("(?=\\p{Upper})");
+    int excludeLast = annotation.excludeLast();
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0, size = words.length - excludeLast; i < size; i++) {
+      builder.append(words[i]);
+      if (i < size - 1) {
+        builder.append(annotation.delimiter());
+      }
+    }
+    attributes.put(annotation.key(), builder.toString());
   }
 
   private void addAttribute(Attribute attribute, Map<String, Object> values, Object methodResult) {

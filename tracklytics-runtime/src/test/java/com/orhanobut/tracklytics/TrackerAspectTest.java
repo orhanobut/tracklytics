@@ -655,6 +655,7 @@ public class TrackerAspectTest {
   }
 
   @Test public void useThisClassWhenCalledFromSuperClass() throws Throwable {
+    @FixedAttribute(key = "key0", value = "value0")
     class Base {
 
       @TrackEvent("event")
@@ -674,7 +675,49 @@ public class TrackerAspectTest {
     aspect.weaveJoinPointTrackEvent(joinPoint);
 
     verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key0", "value0");
     assertThat(valueMapCaptor.getValue()).containsEntry("key", "value");
     assertThat(valueMapCaptor.getValue()).containsEntry("key2", "value2");
+  }
+
+  @Test public void testScreenNameAttribute() throws Throwable {
+    @ScreenNameAttribute(key = "name", excludeLast = 2, delimiter = "-")
+    class BasePresenter {
+
+      @TrackEvent("event")
+      public void base() {
+      }
+    }
+
+    class FooBarBasePresenter extends BasePresenter {
+    }
+
+    initMethod(FooBarBasePresenter.class, "base");
+    when(joinPoint.getThis()).thenReturn(new FooBarBasePresenter());
+    aspect.weaveJoinPointTrackEvent(joinPoint);
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("name", "Foo-Bar");
+  }
+
+  @Test public void subclassClassAttributeShouldOverrideScreenNameAttribute() throws Throwable {
+    @ScreenNameAttribute(key = "key", excludeLast = 2, delimiter = "-")
+    class BasePresenter {
+
+      @TrackEvent("event")
+      public void base() {
+      }
+    }
+
+    @FixedAttribute(key = "key", value = "value1")
+    class FooBarBasePresenter extends BasePresenter {
+    }
+
+    initMethod(FooBarBasePresenter.class, "base");
+    when(joinPoint.getThis()).thenReturn(new FooBarBasePresenter());
+    aspect.weaveJoinPointTrackEvent(joinPoint);
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key", "value1");
   }
 }
