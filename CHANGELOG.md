@@ -1,5 +1,21 @@
 ## CHANGELOG
 
+### 1.1.16-SNAPSHOT
+- ScreenNameAttribute annotation added. You can use this annotation to use the class name as value
+- Tracklytics init is changed. There is no backward compatibility unfortunately. Use the following approach:
+```java
+Tracker.init(trackingAdapters);
+```
+- TracklyticsLogger interface added for logging.
+```java
+Tracker tracker = Tracker.init(trackingAdapters);
+tracker.setLogger(new TracklyticsLogger(){
+   @Override public void log(String message){
+     // User your favorite log tool to log the message
+   }
+});
+```
+
 ### 1.1.13-SNAPSHOT
 - Super class methods now can be used for tracking for the subclasses
 ```java

@@ -4,9 +4,11 @@ import com.orhanobut.tracklytics.debugger.EventItem;
 import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,7 +33,7 @@ public class TrackerTest {
   @Before public void setup() {
     initMocks(this);
     tools = new TrackingAdapter[]{trackingAdapter, trackingAdapter2};
-    tracker = new Tracker.Default().init(tools);
+    tracker = Tracker.init(tools);
 
     when(trackingAdapter.id()).thenReturn(100);
     when(trackingAdapter2.id()).thenReturn(200);
