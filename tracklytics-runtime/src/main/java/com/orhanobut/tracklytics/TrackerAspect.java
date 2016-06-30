@@ -17,7 +17,7 @@ import java.util.Set;
 @Aspect
 public class TrackerAspect {
 
-  private final Map<String, Object> superAttributes = new HashMap<>();
+  private Map<String, Object> superAttributes;
 
   private static Tracker tracker;
 
@@ -39,15 +39,11 @@ public class TrackerAspect {
   @Around("methodAnnotatedWithTracklytics() || constructorAnnotatedTracklytics()")
   public Object weaveJointTracklytics(ProceedingJoinPoint joinPoint) throws Throwable {
     MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-    Object object = joinPoint.proceed();
 
     Method method = methodSignature.getMethod();
     Tracklytics tracklytics = method.getAnnotation(Tracklytics.class);
     TrackerAction trackerAction = tracklytics.value();
     switch (trackerAction) {
-      case INIT:
-        init(object);
-        break;
       case START:
         start();
         break;
@@ -59,10 +55,6 @@ public class TrackerAspect {
     }
 
     return tracker;
-  }
-
-  void init(Object result) {
-    tracker = (Tracker) result;
   }
 
   void start() {
@@ -83,15 +75,24 @@ public class TrackerAspect {
 
   @Around("methodAnnotatedWithTrackEvent() || constructorAnnotatedTrackEvent()")
   public Object weaveJoinPointTrackEvent(ProceedingJoinPoint joinPoint) throws Throwable {
-    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+    long startNanos = System.nanoTime();
     Object result = joinPoint.proceed();
+    long stopNanosMethod = System.nanoTime();
+
+    superAttributes = tracker.superAttributes;
+
+    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+
 
     Method method = methodSignature.getMethod();
-    String eventName;
-    Map<String, Object> attributes = new HashMap<>();
 
     TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
-    eventName = trackEvent.value();
+    String eventName = trackEvent.value();
+
+    Map<String, Object> attributes = new HashMap<>();
+
+    ScreenNameAttribute screenNameAttribute = method.getDeclaringClass().getAnnotation(ScreenNameAttribute.class);
+    addScreenNameAttribute(screenNameAttribute, joinPoint.getThis().getClass().getSimpleName(), attributes);
 
     addAttribute(method.getAnnotation(Attribute.class), attributes, result);
 
@@ -138,7 +139,25 @@ public class TrackerAspect {
 
     trackEvent(eventName, attributes, superAttributes, method);
 
+    long stopNanosTracking = System.nanoTime();
+    tracker.log(startNanos, stopNanosMethod, stopNanosTracking, eventName, attributes, superAttributes);
     return result;
+  }
+
+  private void addScreenNameAttribute(ScreenNameAttribute annotation, String className,
+                                      Map<String, Object> attributes) {
+    if (annotation == null) return;
+
+    String[] words = className.split("(?=\\p{Upper})");
+    int excludeLast = annotation.excludeLast();
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0, size = words.length - excludeLast; i < size; i++) {
+      builder.append(words[i]);
+      if (i < size - 1) {
+        builder.append(annotation.delimiter());
+      }
+    }
+    attributes.put(annotation.key(), builder.toString());
   }
 
   private void addAttribute(Attribute attribute, Map<String, Object> values, Object methodResult) {

@@ -4,71 +4,91 @@ import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-public interface Tracker {
+public class Tracker {
 
-  Tracker init(TrackingAdapter... tools);
+  final Map<String, Object> superAttributes = new HashMap<>();
 
-  void event(String title, Map<String, Object> values, Map<String, Object> superAttributes);
+  private final TrackingAdapter[] adapters;
 
-  void event(String title, Map<String, Object> attributes, Map<String, Object> superAttributes, Set<Integer> filter);
+  private boolean enabled = true;
+  private TracklyticsLogger logger;
 
-  Tracker enabled(boolean enabled);
+  private Tracker(TrackingAdapter[] adapters) {
+    this.adapters = adapters;
+  }
 
-  boolean isEnabled();
+  public static Tracker init(TrackingAdapter... adapters) {
+    Tracker tracker = new Tracker(adapters);
+    TrackerAspect.init(tracker);
+    return tracker;
+  }
 
-  void start();
+  public void event(String title, Map<String, Object> values, Map<String, Object> superAttributes) {
+    event(title, values, superAttributes, Collections.<Integer>emptySet());
+  }
 
-  void stop();
-
-  class Default implements Tracker {
-    private TrackingAdapter[] tools;
-    private boolean enabled = true;
-
-    @Override public Tracker init(TrackingAdapter... tools) {
-      this.tools = tools;
-      return this;
+  public void event(String title, Map<String, Object> attributes, Map<String, Object> superAttributes,
+                    Set<Integer> filter) {
+    if (!enabled) {
+      return;
     }
-
-    @Override public void event(String title, Map<String, Object> values, Map<String, Object> superAttributes) {
-      event(title, values, superAttributes, Collections.<Integer>emptySet());
-    }
-
-    @Override public void event(String title, Map<String, Object> attributes, Map<String, Object> superAttributes,
-                                Set<Integer> filter) {
-      if (!enabled) {
-        return;
-      }
-      for (TrackingAdapter tool : tools) {
-        if (filter.isEmpty() || filter.contains(tool.id())) {
-          tool.trackEvent(title, attributes, superAttributes);
-          EventQueue.add(tool.id(), tool.toString(), title, attributes);
-        }
-      }
-    }
-
-    @Override public Tracker enabled(boolean enabled) {
-      this.enabled = enabled;
-      return this;
-    }
-
-    @Override public boolean isEnabled() {
-      return enabled;
-    }
-
-    @Override public void start() {
-      for (TrackingAdapter tool : tools) {
-        tool.start();
-      }
-    }
-
-    @Override public void stop() {
-      for (TrackingAdapter tool : tools) {
-        tool.stop();
+    for (TrackingAdapter tool : adapters) {
+      if (filter.isEmpty() || filter.contains(tool.id())) {
+        tool.trackEvent(title, attributes, superAttributes);
+        EventQueue.add(tool.id(), tool.toString(), title, attributes);
       }
     }
   }
 
+  public Tracker enabled(boolean enabled) {
+    this.enabled = enabled;
+    return this;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void start() {
+    for (TrackingAdapter tool : adapters) {
+      tool.start();
+    }
+  }
+
+  public void stop() {
+    for (TrackingAdapter tool : adapters) {
+      tool.stop();
+    }
+  }
+
+  void log(long start, long stopMethod, long stopTracking, String event, Map<String, Object> attrs,
+           Map<String, Object> superAttrs) {
+    if (logger != null) {
+      long method = TimeUnit.NANOSECONDS.toMillis(stopMethod - start);
+      long total = TimeUnit.NANOSECONDS.toMillis(stopTracking - start);
+      StringBuilder builder = new StringBuilder()
+          .append("[")
+          .append(method)  // Method execution time
+          .append("+")
+          .append(total - method)  // Tracking execution time
+          .append("=")
+          .append(total)  // Total execution time
+          .append("ms] ")
+          .append(event)
+          .append("-> ")
+          .append(attrs.toString())
+          .append(", super attrs: ")
+          .append(superAttrs.toString());
+      logger.log(builder.toString());
+    }
+  }
+
+  public void setLogger(TracklyticsLogger logger) {
+    this.logger = logger;
+  }
 }

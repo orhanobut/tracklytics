@@ -6,6 +6,7 @@ dependencies {
   compile localGroovy()
   compile deps.aspectjTools
   compile deps.aspectjRuntime
+  compile 'com.android.tools.build:gradle:2.1.2'
 
   testCompile deps.junit
 }

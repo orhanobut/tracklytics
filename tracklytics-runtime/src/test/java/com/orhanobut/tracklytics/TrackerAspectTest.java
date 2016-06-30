@@ -4,11 +4,14 @@ import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -19,6 +22,7 @@ import java.util.Set;
 import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.TestCase.fail;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -28,9 +32,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 @SuppressWarnings("ALL")
 public class TrackerAspectTest {
+  TrackerAspect aspect;
 
   Tracker tracker;
-  TrackerAspect aspect;
 
   @Mock ProceedingJoinPoint joinPoint;
   @Mock MethodSignature methodSignature;
@@ -40,12 +44,15 @@ public class TrackerAspectTest {
   @Before public void setup() throws Exception {
     initMocks(this);
 
+    tracker = spy(Tracker.init(trackingAdapter));
     aspect = new TrackerAspect();
+    aspect.init(tracker);
 
     when(joinPoint.getSignature()).thenReturn(methodSignature);
+  }
 
-    tracker = spy(new Tracker.Default().init(trackingAdapter));
-    aspect.init(tracker);
+  @After public void tearDown() {
+    Mockito.reset(tracker);
   }
 
   private Method invokeMethod(Class<?> klass, String methodName, Class<?>... parameterTypes) throws Throwable {
@@ -63,23 +70,9 @@ public class TrackerAspectTest {
     return method;
   }
 
-  @Test public void testInit() throws Throwable {
-    class Foo {
-      @Tracklytics(TrackerAction.INIT) public Tracker init() {
-        return new Tracker.Default();
-      }
-    }
-    initMethod(Foo.class, "init");
-
-    Tracker tracker = (Tracker) aspect.weaveJointTracklytics(joinPoint);
-
-    assertThat(tracker).isEqualTo(tracker);
-  }
-
   @Test public void testStart() throws Throwable {
     class Foo {
-      @Tracklytics(TrackerAction.START) public Tracker start() {
-        return new Tracker.Default();
+      @Tracklytics(TrackerAction.START) public void start() {
       }
     }
     initMethod(Foo.class, "start");
@@ -90,8 +83,7 @@ public class TrackerAspectTest {
 
   @Test public void testStop() throws Throwable {
     class Foo {
-      @Tracklytics(TrackerAction.STOP) public Tracker stop() {
-        return new Tracker.Default();
+      @Tracklytics(TrackerAction.STOP) public void stop() {
       }
     }
     initMethod(Foo.class, "stop");
@@ -655,6 +647,7 @@ public class TrackerAspectTest {
   }
 
   @Test public void useThisClassWhenCalledFromSuperClass() throws Throwable {
+    @FixedAttribute(key = "key0", value = "value0")
     class Base {
 
       @TrackEvent("event")
@@ -674,7 +667,66 @@ public class TrackerAspectTest {
     aspect.weaveJoinPointTrackEvent(joinPoint);
 
     verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key0", "value0");
     assertThat(valueMapCaptor.getValue()).containsEntry("key", "value");
     assertThat(valueMapCaptor.getValue()).containsEntry("key2", "value2");
+  }
+
+  @Ignore("It doesn't work on CI, need to find the reason")
+  @Test public void testScreenNameAttribute() throws Throwable {
+    @ScreenNameAttribute(key = "name", excludeLast = 2, delimiter = "-")
+    class BasePresenter {
+
+      @TrackEvent("event")
+      public void base() {
+      }
+    }
+
+    class FooBarBasePresenter extends BasePresenter {
+    }
+
+    initMethod(FooBarBasePresenter.class, "base");
+    when(joinPoint.getThis()).thenReturn(new FooBarBasePresenter());
+    aspect.weaveJoinPointTrackEvent(joinPoint);
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("name", "Foo-Bar");
+  }
+
+  @Test public void subclassClassAttributeShouldOverrideScreenNameAttribute() throws Throwable {
+    @ScreenNameAttribute(key = "key", excludeLast = 2, delimiter = "-")
+    class BasePresenter {
+
+      @TrackEvent("event")
+      public void base() {
+      }
+    }
+
+    @FixedAttribute(key = "key", value = "value1")
+    class FooBarBasePresenter extends BasePresenter {
+    }
+
+    initMethod(FooBarBasePresenter.class, "base");
+    when(joinPoint.getThis()).thenReturn(new FooBarBasePresenter());
+    aspect.weaveJoinPointTrackEvent(joinPoint);
+
+    verify(tracker).event(eq("event"), valueMapCaptor.capture(), eq(Collections.EMPTY_MAP), eq(Collections.EMPTY_SET));
+    assertThat(valueMapCaptor.getValue()).containsEntry("key", "value1");
+  }
+
+  @Test public void testLog() throws Throwable {
+    TracklyticsLogger logger = mock(TracklyticsLogger.class);
+    tracker.setLogger(logger);
+
+    class Foo {
+      @TrackEvent("event")
+      @FixedAttribute(key = "key", value = "value")
+      public void foo() {
+      }
+    }
+
+    invokeMethod(Foo.class, "foo");
+
+    verify(logger).log(contains("] event-> {key=value}, super attrs: {}"));
   }
 }

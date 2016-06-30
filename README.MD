@@ -198,22 +198,29 @@ public class MixPanelTrackingAdapter implements TrackingAdapter {
 
 ### @Tracklytics
 
-Before using tracklytics, you must initialize it. Create a method which returns Tracker type and initialize all your trackers. All dependencies and other complex logic will be added/handled by tracklytics.
+#### INIT
+Before using tracklytics, you must initialize it.
 ```java
-class DefaultApplication extends Application{
-
-  @Tracklytics(TrackerAction.INIT) 
-  public Tracker init() {
-    return new Tracker.Default().init(
-        new MixPanelTrackingAdapter(context, "API_KEY")
-    );
-  }
-}
+Tracker.init(tracker);
 ```
 
-or use static method to init tracklytics
+#### LOG
+You can add your custom logger to fetch the logs.
 ```java
-TrackerAspect.init(tracker);
+Tracker tracker = Tracker.init(trackingAdapters);
+tracker.setLogger(new TracklyticsLogger(){
+   @Override public void log(String message){
+     // User your favorite log tool to log the message
+   }
+});
+
+//OUTPUT   [3+2=5ms] eventName:{key=value}, super attrs: {key=value}
+// 3 : Execution time for the method itself
+// 2 : Execution time for the tracking code
+// 5ms : Total execution time
+// eventName : Which event triggered
+// first key=value pairs: Normal attributes you defined
+// second key=value pairs: Super attributes
 ```
 
 For the best usage, use start and stop functions in your activities onStart/onStop or on any other entry/exit points
@@ -240,7 +247,7 @@ buildscript {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   }
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.13-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.16-SNAPSHOT'
   }
 }
 

@@ -8,8 +8,15 @@ android:
     - android-23
     - android-24
 
+addons:
+  apt_packages:
+    - pandoc
+
 env:
 - GRADLE_OPTS="-Xmx512m -XX:MaxPermSize=512m"
 
 script:
  - ./gradlew tracklytics-runtime:check
+
+after_failure:
+  - pandoc tracklytics-runtime/build/outputs/lint-results.html -t plain
