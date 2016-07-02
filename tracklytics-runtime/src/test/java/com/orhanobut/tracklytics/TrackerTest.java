@@ -4,11 +4,9 @@ import com.orhanobut.tracklytics.debugger.EventItem;
 import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,6 +17,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -26,6 +25,7 @@ public class TrackerTest {
 
   @Mock TrackingAdapter trackingAdapter;
   @Mock TrackingAdapter trackingAdapter2;
+  @Mock TrackEvent trackEvent;
 
   TrackingAdapter[] tools;
   Tracker tracker;
@@ -38,14 +38,18 @@ public class TrackerTest {
     when(trackingAdapter.id()).thenReturn(100);
     when(trackingAdapter2.id()).thenReturn(200);
     when(trackingAdapter.toString()).thenReturn("Tracker");
+
+    when(trackEvent.value()).thenReturn("event");
+    when(trackEvent.tags()).thenReturn(new int[]{1, 2});
   }
 
   @Test public void doNotTrackEventWhenDisabled() {
     tracker.enabled(false);
-    tracker.event("title", null, null);
+    tracker.event(trackEvent, null, null, null);
 
     assertThat(tracker.isEnabled()).isFalse();
-    verify(trackingAdapter, never()).trackEvent("title", null, null);
+
+    verifyZeroInteractions(trackingAdapter, trackingAdapter2);
   }
 
   @Test public void isEnabledShouldReturnTrueAsDefault() {
@@ -70,26 +74,27 @@ public class TrackerTest {
     HashSet<Integer> filter = new HashSet<>();
     filter.add(200);
 
-    tracker.event("title", null, null, filter);
+    tracker.event(trackEvent, null, null, filter);
 
-    verify(trackingAdapter, never()).trackEvent("title", null, null);
+    verify(trackingAdapter2).trackEvent(trackEvent, null, null);
+    verify(trackingAdapter, never()).trackEvent(trackEvent, null, null);
   }
 
   @Test public void onlyFilteredTrackersShouldCallTrackEvent() {
     HashSet<Integer> filter = new HashSet<>();
     filter.add(100);
 
-    tracker.event("title", null, null, filter);
+    tracker.event(trackEvent, null, null, filter);
 
-    verify(trackingAdapter).trackEvent("title", null, null);
-    verify(trackingAdapter2, never()).trackEvent("title", null, null);
+    verify(trackingAdapter).trackEvent(trackEvent, null, null);
+    verify(trackingAdapter2, never()).trackEvent(trackEvent, null, null);
   }
 
   @Test public void allTrackersShouldCallTrackEventWhenThereIsNoFilter() {
-    tracker.event("title", null, null, Collections.<Integer>emptySet());
+    tracker.event(trackEvent, null, null, Collections.<Integer>emptySet());
 
-    verify(trackingAdapter).trackEvent("title", null, null);
-    verify(trackingAdapter2).trackEvent("title", null, null);
+    verify(trackingAdapter).trackEvent(trackEvent, null, null);
+    verify(trackingAdapter2).trackEvent(trackEvent, null, null);
   }
 
   @Test public void trackEventShouldInvokeEventQueue() {
@@ -104,7 +109,7 @@ public class TrackerTest {
     Subscriber subscriber = spy(new Subscriber());
     EventQueue.subscribe(subscriber);
 
-    tracker.event("title", null, null);
+    tracker.event(trackEvent, null, null);
 
     verify(subscriber, times(2)).onEventAdded(any(EventItem.class));
   }

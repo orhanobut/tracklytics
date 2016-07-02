@@ -1,5 +1,6 @@
 package com.orhanobut.tracklytics;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -8,22 +9,19 @@ import org.aspectj.lang.reflect.MethodSignature;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Aspect
 public class TrackerAspect {
 
-  private Map<String, Object> superAttributes;
-
   private static Tracker tracker;
 
-  /**
-   * Init without aspect
-   */
+  private final Map<String, Object> attributes = new HashMap<>();
+  private final Map<String, Object> superAttributes = tracker.superAttributes;
+
+  private Map<Integer, String> transformMap;
+
   public static void init(Tracker tracker) {
     TrackerAspect.tracker = tracker;
   }
@@ -79,24 +77,36 @@ public class TrackerAspect {
     Object result = joinPoint.proceed();
     long stopNanosMethod = System.nanoTime();
 
-    superAttributes = tracker.superAttributes;
+    setup();
 
-    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+    Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
+    addClassAttributes(method, joinPoint);
 
-    Method method = methodSignature.getMethod();
+    addMethodAttributes(method, result);
 
+    addMethodParameterAttributes(method, joinPoint);
+
+    // send the results
     TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
-    String eventName = trackEvent.value();
 
-    Map<String, Object> attributes = new HashMap<>();
+    pushEvent(trackEvent);
 
-    ScreenNameAttribute screenNameAttribute = method.getDeclaringClass().getAnnotation(ScreenNameAttribute.class);
-    addScreenNameAttribute(screenNameAttribute, joinPoint.getThis().getClass().getSimpleName(), attributes);
+    long stopNanosTracking = System.nanoTime();
+    tracker.log(startNanos, stopNanosMethod, stopNanosTracking, trackEvent, attributes, superAttributes);
+    return result;
+  }
 
-    addAttribute(method.getAnnotation(Attribute.class), attributes, result);
+  private void setup() {
+    attributes.clear();
+    transformMap = null;
+  }
 
+  private void addClassAttributes(Method method, JoinPoint joinPoint) {
     Class<?> declaringClass = method.getDeclaringClass();
+
+    addScreenNameAttribute(declaringClass.getAnnotation(ScreenNameAttribute.class), joinPoint, attributes);
+
     if (method.isAnnotationPresent(TrackableAttribute.class) && Trackable.class.isAssignableFrom(declaringClass)) {
       Trackable trackable = (Trackable) joinPoint.getThis();
       if (trackable.getTrackableAttributes() != null) {
@@ -105,49 +115,56 @@ public class TrackerAspect {
     }
 
     while (declaringClass != null) {
-      addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class), attributes);
-      addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class), attributes);
+      addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class));
+      addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class));
       declaringClass = declaringClass.getEnclosingClass();
     }
 
     declaringClass = joinPoint.getThis().getClass();
-    addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class), attributes);
-    addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class), attributes);
-
-    addFixedAttribute(method.getAnnotation(FixedAttribute.class), attributes);
-    addFixedAttributes(method.getAnnotation(FixedAttributes.class), attributes);
-
-    Object[] fields = joinPoint.getArgs();
-    Annotation[][] annotations = method.getParameterAnnotations();
-
-    Map<Integer, String> transformMap = null;
-    TransformAttributeMap transformAttributeMap = method.getAnnotation(TransformAttributeMap.class);
-    if (transformAttributeMap != null) {
-      transformMap = new HashMap<>();
-      int[] keys = transformAttributeMap.keys();
-      String[] values = transformAttributeMap.values();
-      if (keys.length != values.length) {
-        throw new IllegalStateException("TransformAttributeMap keys and values must have same length");
-      }
-      for (int i = 0; i < keys.length; i++) {
-        transformMap.put(keys[i], values[i]);
-      }
-    }
-    addTransformAttribute(method.getAnnotation(TransformAttribute.class), attributes, result, transformMap);
-
-    generateAttributeValues(annotations, fields, attributes, transformMap);
-
-    trackEvent(eventName, attributes, superAttributes, method);
-
-    long stopNanosTracking = System.nanoTime();
-    tracker.log(startNanos, stopNanosMethod, stopNanosTracking, eventName, attributes, superAttributes);
-    return result;
+    addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class));
+    addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class));
   }
 
-  private void addScreenNameAttribute(ScreenNameAttribute annotation, String className,
+  private void addMethodAttributes(Method method, Object returnValue) {
+    Annotation[] annotations = method.getDeclaredAnnotations();
+    for (Annotation annotation : annotations) {
+      if (annotation instanceof Attribute) {
+        addAttribute((Attribute) annotation, returnValue);
+      }
+      if (annotation instanceof FixedAttribute) {
+        addFixedAttribute((FixedAttribute) annotation);
+      }
+      if (annotation instanceof FixedAttributes) {
+        addFixedAttributes((FixedAttributes) annotation);
+      }
+      if (annotation instanceof TransformAttributeMap) {
+        TransformAttributeMap transformAttributeMap = (TransformAttributeMap) annotation;
+        transformMap = new HashMap<>();
+        int[] keys = transformAttributeMap.keys();
+        String[] values = transformAttributeMap.values();
+        if (keys.length != values.length) {
+          throw new IllegalStateException("TransformAttributeMap keys and values must have same length");
+        }
+        for (int i = 0; i < keys.length; i++) {
+          transformMap.put(keys[i], values[i]);
+        }
+      }
+      if (annotation instanceof TransformAttribute) {
+        addTransformAttribute((TransformAttribute) annotation, returnValue, transformMap);
+      }
+    }
+  }
+
+  private void addMethodParameterAttributes(Method method, JoinPoint joinPoint) {
+    Object[] fields = joinPoint.getArgs();
+    Annotation[][] annotations = method.getParameterAnnotations();
+    generateAttributeValues(annotations, fields, transformMap);
+  }
+
+  private void addScreenNameAttribute(ScreenNameAttribute annotation, JoinPoint joinPoint,
                                       Map<String, Object> attributes) {
     if (annotation == null) return;
-
+    String className = joinPoint.getThis().getClass().getSimpleName();
     String[] words = className.split("(?=\\p{Upper})");
     int excludeLast = annotation.excludeLast();
     StringBuilder builder = new StringBuilder();
@@ -160,7 +177,7 @@ public class TrackerAspect {
     attributes.put(annotation.key(), builder.toString());
   }
 
-  private void addAttribute(Attribute attribute, Map<String, Object> values, Object methodResult) {
+  private void addAttribute(Attribute attribute, Object methodResult) {
     if (attribute == null) return;
 
     Object value = null;
@@ -169,49 +186,48 @@ public class TrackerAspect {
     } else if (attribute.defaultValue().length() != 0) {
       value = attribute.defaultValue();
     }
-    values.put(attribute.value(), value);
+    attributes.put(attribute.value(), value);
     if (attribute.isSuper()) {
       superAttributes.put(attribute.value(), value);
     }
   }
 
-  private void addTransformAttribute(TransformAttribute attribute, Map<String, Object> values, Object methodResult,
-                                     Map<Integer, String> transformMap) {
+  private void addTransformAttribute(TransformAttribute attribute, Object result, Map<Integer, String> transformMap) {
     if (attribute == null) return;
 
     Object value = null;
-    if (methodResult != null) {
-      value = transformMap.get(methodResult);
+    if (result != null) {
+      value = transformMap.get(result);
     } else if (attribute.defaultValue().length() != 0) {
       value = attribute.defaultValue();
     }
-    values.put(attribute.value(), value);
+    attributes.put(attribute.value(), value);
     if (attribute.isSuper()) {
       superAttributes.put(attribute.value(), value);
     }
   }
 
-  private void addFixedAttributes(FixedAttributes fixedAttributes, Map<String, Object> values) {
+  private void addFixedAttributes(FixedAttributes fixedAttributes) {
     if (fixedAttributes == null) return;
 
-    FixedAttribute[] attributes = fixedAttributes.value();
-    for (FixedAttribute attribute : attributes) {
-      values.put(attribute.key(), attribute.value());
+    FixedAttribute[] attributeList = fixedAttributes.value();
+    for (FixedAttribute attribute : attributeList) {
+      attributes.put(attribute.key(), attribute.value());
       if (attribute.isSuper()) {
         superAttributes.put(attribute.key(), attribute.value());
       }
     }
   }
 
-  private void addFixedAttribute(FixedAttribute attribute, Map<String, Object> values) {
+  private void addFixedAttribute(FixedAttribute attribute) {
     if (attribute == null) return;
-    values.put(attribute.key(), attribute.value());
+    attributes.put(attribute.key(), attribute.value());
     if (attribute.isSuper()) {
       superAttributes.put(attribute.key(), attribute.value());
     }
   }
 
-  private void generateAttributeValues(Annotation[][] keys, Object[] values, Map<String, Object> attributes,
+  private void generateAttributeValues(Annotation[][] keys, Object[] values,
                                        Map<Integer, String> transformAttributeMap) {
     if (keys == null || values == null) {
       return;
@@ -266,25 +282,9 @@ public class TrackerAspect {
     }
   }
 
-  private void trackEvent(String title, Map<String, Object> attributes, Map<String, Object> superAttributes,
-                          Method method) {
-    if (tracker == null) {
-      return;
-    }
-    TrackFilter trackFilter = method.getAnnotation(TrackFilter.class);
-    int[] filters = null;
-    if (trackFilter != null) {
-      filters = trackFilter.value();
-    }
-
-    Set<Integer> filter = Collections.emptySet();
-    if (filters != null) {
-      filter = new HashSet<>(filters.length);
-      for (int tracker : filters) {
-        filter.add(tracker);
-      }
-    }
-    tracker.event(title, attributes, superAttributes, filter);
+  private void pushEvent(TrackEvent trackEvent) {
+    if (tracker == null) return;
+    tracker.event(trackEvent, attributes, superAttributes);
   }
 
 }

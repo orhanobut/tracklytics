@@ -28,7 +28,14 @@ Trigger the event. This is required for each event. Otherwise nothing will be tr
 ```java
 @TrackEvent("title") 
 public void trackNoValues() {
-  // something
+}
+```
+
+### Tags
+TrackEvent also supports "tags". You can use tags for the situation like filtering tracking tools.
+```java
+@TrackEvent(value="event", tags={100,200})
+public void trackNoValues() {
 }
 ```
 
@@ -134,7 +141,7 @@ void something(@TrackableAttribute FooTrackable foo){}
 When Event A is triggered, Foo.getTrackableAttributes() will be added to this event's attributes.
 
 ### TransformAttribute
-Sometimes you might have some values which can represented in String such Enums, IntDefs. You may need to have the corresponding value in tracking.TransformAttribute helps you in this case. For example: In the following example, position is represented by integer and you want to have a String value which represent exact value such as menu item.
+You might have some values which can represented in String such Enums, IntDefs. You may need to have the corresponding value in tracking.TransformAttribute helps you in this case. For example: In the following example, position is represented by integer and you want to have a String value which represent exact value such as menu item.
 
 ```java
 class Foo {
@@ -151,76 +158,39 @@ class Foo {
 // foo(1) : event -> [{"key","value1}]
 ```
 
-### @TrackFilter(100, 200)
-Sometimes you may want to track an event for a specific tracker or trackers. TrackFilter will handle it for you. Each TrackingAdapter implementation will ask an id implementation. Tracklytics will use this an identifier to differentiate trackers. ie: Only Tracker id == 100 will track this event.
-```java
-@TrackFilter(100)
-@TrackEvent("title") 
-public void trackEventFilter() {
-  // something
-}
-```
-
-### Implement TrackingAdapter for any analytic/tracker tool
-Implement TrackingAdapter and initialize them in init method. ie: MixPanel implementation. This part is totally up to you. This is just an example.
-```java
-public class MixPanelTrackingAdapter implements TrackingAdapter {
-  private final MixpanelAPI mixpanelAPI;
-
-  public MixPanelTrackingAdapter(Context context, String apiKey) {
-    mixpanelAPI = MixpanelAPI.getInstance(context, apiKey);
-  }
-
-  // attributes and superAttributes are self explanatory 
-  @Override public void trackEvent(String eventName, Map<String, Object> attributes, Map<String, Object> superAttributes) {
-    mixpanelAPI.trackMap(eventName, attributes);
-  }
-
-  @Override public void start() {
-  }
-
-  @Override public void stop() {
-    mixpanelAPI.flush();
-  }
-
-  // This will be used as identifier for filter, use different id's for each tracker
-  @Override public int id() {
-    return 100;
-  }
-
-  // Used for debugging tool
-  @Override public String toString() {
-    return "MixPanel";
-  }
-
-}
-```
-
 ### @Tracklytics
 
 #### INIT
-Before using tracklytics, you must initialize it.
+Before using tracklytics, you must initialize it and add TrackingAdapter or use SimpleTrackingAdapter implementation to get event values
+trackEvent method will be called when the annotated method is invoked
+
 ```java
-Tracker.init(tracker);
+Tracker.init(new SimpleTrackingAdapter() {
+  @Override public void trackEvent(TrackEvent event, Map<String, Object> attributes,
+                                   Map<String, Object> superAttributes) {
+     // send event to your prefered tracking tool such as mixpanel, firebase analytics etc
+  }
+});
 ```
 
 #### LOG
 You can add your custom logger to fetch the logs.
 ```java
-Tracker tracker = Tracker.init(trackingAdapters);
+Tracker tracker = Tracker.init(...);
 tracker.setLogger(new TracklyticsLogger(){
    @Override public void log(String message){
      // User your favorite log tool to log the message
    }
 });
 
-//OUTPUT   [3+2=5ms] eventName:{key=value}, super attrs: {key=value}
+//OUTPUT   [3+2=5ms] eventName:{key=value}, super attrs: {key=value}, tags={100,200}
 // 3 : Execution time for the method itself
 // 2 : Execution time for the tracking code
 // 5ms : Total execution time
 // eventName : Which event triggered
 // first key=value pairs: Normal attributes you defined
 // second key=value pairs: Super attributes
+// tags: Which tags you defined for the event
 ```
 
 For the best usage, use start and stop functions in your activities onStart/onStop or on any other entry/exit points
@@ -247,7 +217,7 @@ buildscript {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   }
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.16-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.17-SNAPSHOT'
   }
 }
 

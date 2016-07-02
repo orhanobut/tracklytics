@@ -1,10 +1,12 @@
 package com.orhanobut.tracklytics.trackers;
 
+import com.orhanobut.tracklytics.TrackEvent;
+
 import java.util.Map;
 
 public interface TrackingAdapter {
 
-  void trackEvent(String title, Map<String, Object> values, Map<String, Object> superAttributes);
+  void trackEvent(TrackEvent event, Map<String, Object> attributes, Map<String, Object> superAttributes);
 
   void start();
 
