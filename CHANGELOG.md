@@ -1,5 +1,15 @@
 ## CHANGELOG
 
+### 1.1.17-SNAPSHOT
+- TrackFilter is removed
+- Small performance improvement
+- TrackEvent now accepts "tags". You can use it for different purposes. For instance: Tracking filter
+```java
+@TrackEvent(value="event", tags={100,200})
+public void foo(){}
+```
+- TrackingAdapter.trackEvent signature changed. It supports "tags" now.
+
 ### 1.1.16-SNAPSHOT
 - ScreenNameAttribute annotation added. You can use this annotation to use the class name as value
 - Tracklytics init is changed. There is no backward compatibility unfortunately. Use the following approach:
