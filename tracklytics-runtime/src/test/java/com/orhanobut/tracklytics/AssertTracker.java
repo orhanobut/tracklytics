@@ -2,7 +2,6 @@ package com.orhanobut.tracklytics;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Set;
@@ -22,30 +21,23 @@ public class AssertTracker {
   private final TrackEvent trackEvent;
   private final Map<String, Object> attributes;
   private final Map<String, Object> superAttributes;
-  private final Set<Integer> filters;
 
-  private AssertTracker(Tracker tracker, int times) {
+  private AssertTracker(Tracker tracker) {
     initMocks(this);
 
     verify(tracker, atLeastOnce()).event(
         captorTrackEvent.capture(),
         captorAttributes.capture(),
-        captorSuperAttributes.capture(),
-        captorFilters.capture()
+        captorSuperAttributes.capture()
     );
 
     trackEvent = captorTrackEvent.getValue();
     attributes = captorAttributes.getValue();
     superAttributes = captorSuperAttributes.getValue();
-    filters = captorFilters.getValue();
   }
 
   public static AssertTracker assertTrack(Tracker tracker) {
-    return assertTrack(tracker, 1);
-  }
-
-  public static AssertTracker assertTrack(Tracker tracker, int times) {
-    return new AssertTracker(tracker, times);
+    return new AssertTracker(tracker);
   }
 
   public AssertTracker event(String name) {
@@ -87,18 +79,6 @@ public class AssertTracker {
 
   public AssertTracker noSuperAttributes() {
     assertThat(superAttributes).isEmpty();
-    return this;
-  }
-
-  public AssertTracker filters(int... filters) {
-    for (int filter : filters) {
-      assertThat(this.filters).contains(filter);
-    }
-    return this;
-  }
-
-  public AssertTracker noFilters() {
-    assertThat(this.filters).isEmpty();
     return this;
   }
 

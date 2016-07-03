@@ -1,5 +1,8 @@
 ## CHANGELOG
 
+### 1.1.18-SNAPSHOT
+- Tracker.init bug fix
+
 ### 1.1.17-SNAPSHOT
 - TrackFilter is removed
 - Small performance improvement

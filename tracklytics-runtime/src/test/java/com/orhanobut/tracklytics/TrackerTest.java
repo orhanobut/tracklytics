@@ -8,12 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Collections;
-import java.util.HashSet;
-
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,7 +41,7 @@ public class TrackerTest {
 
   @Test public void doNotTrackEventWhenDisabled() {
     tracker.enabled(false);
-    tracker.event(trackEvent, null, null, null);
+    tracker.event(trackEvent, null, null);
 
     assertThat(tracker.isEnabled()).isFalse();
 
@@ -68,33 +64,6 @@ public class TrackerTest {
 
     verify(tools[0]).stop();
     verify(tools[1]).stop();
-  }
-
-  @Test public void doNotTrackEventWhenNotFiltered() {
-    HashSet<Integer> filter = new HashSet<>();
-    filter.add(200);
-
-    tracker.event(trackEvent, null, null, filter);
-
-    verify(trackingAdapter2).trackEvent(trackEvent, null, null);
-    verify(trackingAdapter, never()).trackEvent(trackEvent, null, null);
-  }
-
-  @Test public void onlyFilteredTrackersShouldCallTrackEvent() {
-    HashSet<Integer> filter = new HashSet<>();
-    filter.add(100);
-
-    tracker.event(trackEvent, null, null, filter);
-
-    verify(trackingAdapter).trackEvent(trackEvent, null, null);
-    verify(trackingAdapter2, never()).trackEvent(trackEvent, null, null);
-  }
-
-  @Test public void allTrackersShouldCallTrackEventWhenThereIsNoFilter() {
-    tracker.event(trackEvent, null, null, Collections.<Integer>emptySet());
-
-    verify(trackingAdapter).trackEvent(trackEvent, null, null);
-    verify(trackingAdapter2).trackEvent(trackEvent, null, null);
   }
 
   @Test public void trackEventShouldInvokeEventQueue() {
