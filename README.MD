@@ -34,7 +34,7 @@ public void trackNoValues() {
 ### Filters
 TrackEvent supports "filters". You can use this parameter to filter trackers
 ```java
-@TrackEvent(value="event", tags={100,200})
+@TrackEvent(value="event", filters={100,200})
 public void trackNoValues() {
 }
 ```
