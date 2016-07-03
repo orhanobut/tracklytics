@@ -7,5 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 public @interface TrackEvent {
   String value();
 
-  int[] tags() default {};
+  int[] filters() default {};
+
+  String[] tags() default {};
 }

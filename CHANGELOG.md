@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### 1.1.19-SNAPSHOT
+- tags type changed from int to String
+- filters parameter added to TrackEvent annotation as optional
+
 ### 1.1.18-SNAPSHOT
 - Tracker.init bug fix
 

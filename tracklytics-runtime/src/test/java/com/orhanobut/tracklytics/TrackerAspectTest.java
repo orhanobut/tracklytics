@@ -96,6 +96,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .noAttributes()
         .noSuperAttributes();
@@ -114,6 +115,7 @@ public class TrackerAspectTest {
     assertTrack(tracker)
         .event("title")
         .noTags()
+        .noFilters()
         .attribute("key", "test")
         .noSuperAttributes();
   }
@@ -131,6 +133,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "test")
         .attribute("key2", "param")
@@ -147,6 +150,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "defaultValue")
         .noSuperAttributes();
@@ -164,6 +168,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "returnValue")
         .noSuperAttributes();
@@ -180,6 +185,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "default")
         .noSuperAttributes();
@@ -196,6 +202,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "value")
         .noSuperAttributes();
@@ -217,6 +224,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
@@ -240,6 +248,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
@@ -261,6 +270,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
@@ -287,6 +297,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
@@ -296,7 +307,7 @@ public class TrackerAspectTest {
     invokeMethod(Foo.class, "foo2");
     assertTrack(tracker)
         .event("event2")
-        .noTags()
+        .noFilters()
         .noAttributes()
         .superAttribute("key1", "value1")
         .superAttribute("key2", "value2");
@@ -324,6 +335,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
@@ -335,6 +347,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event2")
+        .noFilters()
         .noTags()
         .noAttributes()
         .superAttribute("key2", "value2")
@@ -363,6 +376,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
@@ -388,6 +402,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .noAttributes()
         .noSuperAttributes();
@@ -445,6 +460,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("title")
+        .noFilters()
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
@@ -467,6 +483,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .attribute("key1", "value1")
         .noSuperAttributes();
@@ -526,6 +543,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .attribute("key1", "value2")
         .noSuperAttributes();
@@ -550,6 +568,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
@@ -575,6 +594,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .attribute("key1", "default1")
         .attribute("key2", "default2")
@@ -602,6 +622,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .attribute("key", "value")
         .noSuperAttributes();
@@ -626,6 +647,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .noAttributes()
         .noSuperAttributes();
@@ -650,6 +672,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .noAttributes()
         .noSuperAttributes();
@@ -675,6 +698,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .attribute("key", "method")
         .attribute("key1", "method1")
@@ -703,6 +727,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .attribute("key0", "value0")
         .attribute("key", "value")
@@ -729,6 +754,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .attribute("name", "Foo-Bar")
         .noSuperAttributes();
@@ -753,6 +779,7 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
+        .noFilters()
         .noTags()
         .attribute("key", "value1")
         .noSuperAttributes();
@@ -771,12 +798,12 @@ public class TrackerAspectTest {
 
     invokeMethod(Foo.class, "foo");
 
-    verify(logger).log(contains("] event-> {key=value}, super attrs: {}, tags: []"));
+    verify(logger).log(contains("] event-> {key=value}, super attrs: {}, filters: []"));
   }
 
-  @Test public void testTags() throws Throwable {
+  @Test public void testFilters() throws Throwable {
     class Foo {
-      @TrackEvent(value = "event", tags = {100, 200})
+      @TrackEvent(value = "event", filters = {100, 200})
       public void foo() {
       }
     }
@@ -787,7 +814,27 @@ public class TrackerAspectTest {
 
     assertTrack(tracker)
         .event("event")
-        .tags(100, 200)
+        .noTags()
+        .filters(100, 200)
+        .noAttributes()
+        .noSuperAttributes();
+  }
+
+  @Test public void testTagss() throws Throwable {
+    class Foo {
+      @TrackEvent(value = "event", tags = {"abc", "123"})
+      public void foo() {
+      }
+    }
+
+    invokeMethod(Foo.class, "foo");
+
+    int[] tags = {100, 200};
+
+    assertTrack(tracker)
+        .event("event")
+        .noFilters()
+        .tags("abc", "123")
         .noAttributes()
         .noSuperAttributes();
   }
