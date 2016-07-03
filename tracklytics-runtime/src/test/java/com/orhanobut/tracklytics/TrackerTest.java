@@ -36,7 +36,7 @@ public class TrackerTest {
     when(trackingAdapter.toString()).thenReturn("Tracker");
 
     when(trackEvent.value()).thenReturn("event");
-    when(trackEvent.tags()).thenReturn(new int[]{1, 2});
+    when(trackEvent.filters()).thenReturn(new int[]{1, 2});
   }
 
   @Test public void doNotTrackEventWhenDisabled() {

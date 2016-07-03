@@ -75,8 +75,8 @@ public class Tracker {
           .append(attrs.toString())
           .append(", super attrs: ")
           .append(superAttrs.toString())
-          .append(", tags: ")
-          .append(Arrays.toString(event.tags()));
+          .append(", filters: ")
+          .append(Arrays.toString(event.filters()));
       logger.log(builder.toString());
     }
   }

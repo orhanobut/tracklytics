@@ -31,10 +31,18 @@ public void trackNoValues() {
 }
 ```
 
-### Tags
-TrackEvent also supports "tags". You can use tags for the situation like filtering tracking tools.
+### Filters
+TrackEvent supports "filters". You can use this parameter to filter trackers
 ```java
 @TrackEvent(value="event", tags={100,200})
+public void trackNoValues() {
+}
+```
+
+### Tags
+TrackEvent also supports "tags". You can use tags for the situation like Adjust event tokens.
+```java
+@TrackEvent(value="event",filters=100 tags="abc123")
 public void trackNoValues() {
 }
 ```
@@ -217,7 +225,7 @@ buildscript {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   }
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.18-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.19-SNAPSHOT'
   }
 }
 

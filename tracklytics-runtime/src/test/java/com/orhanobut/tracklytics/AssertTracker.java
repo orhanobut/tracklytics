@@ -45,8 +45,20 @@ public class AssertTracker {
     return this;
   }
 
-  public AssertTracker tags(int... tags) {
+  public AssertTracker filters(int... tags) {
     for (int tag : tags) {
+      assertThat(trackEvent.filters()).asList().contains(tag);
+    }
+    return this;
+  }
+
+  public AssertTracker noFilters() {
+    assertThat(trackEvent.filters()).isEmpty();
+    return this;
+  }
+
+  public AssertTracker tags(String... tags) {
+    for (String tag : tags) {
       assertThat(trackEvent.tags()).asList().contains(tag);
     }
     return this;
