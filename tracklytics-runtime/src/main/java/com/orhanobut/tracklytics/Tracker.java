@@ -4,10 +4,8 @@ import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class Tracker {
@@ -29,20 +27,12 @@ public class Tracker {
     return tracker;
   }
 
-  void event(TrackEvent trackEvent, Map<String, Object> values, Map<String, Object> superAttributes) {
-    event(trackEvent, values, superAttributes, Collections.<Integer>emptySet());
-  }
+  void event(TrackEvent trackEvent, Map<String, Object> attributes, Map<String, Object> superAttributes) {
+    if (!enabled) return;
 
-  void event(TrackEvent trackEvent, Map<String, Object> attributes,
-             Map<String, Object> superAttributes, Set<Integer> filter) {
-    if (!enabled) {
-      return;
-    }
     for (TrackingAdapter tool : adapters) {
-      if (filter.isEmpty() || filter.contains(tool.id())) {
-        tool.trackEvent(trackEvent, attributes, superAttributes);
-        EventQueue.add(tool.id(), tool.toString(), trackEvent.value(), attributes);
-      }
+      tool.trackEvent(trackEvent, attributes, superAttributes);
+      EventQueue.add(tool.id(), tool.toString(), trackEvent.value(), attributes);
     }
   }
 

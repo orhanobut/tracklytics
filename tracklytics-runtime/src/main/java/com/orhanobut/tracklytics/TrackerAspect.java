@@ -18,8 +18,8 @@ public class TrackerAspect {
   private static Tracker tracker;
 
   private final Map<String, Object> attributes = new HashMap<>();
-  private final Map<String, Object> superAttributes = tracker.superAttributes;
 
+  private Map<String, Object> superAttributes;
   private Map<Integer, String> transformMap;
 
   public static void init(Tracker tracker) {
@@ -100,6 +100,7 @@ public class TrackerAspect {
   private void setup() {
     attributes.clear();
     transformMap = null;
+    superAttributes = tracker.superAttributes;
   }
 
   private void addClassAttributes(Method method, JoinPoint joinPoint) {

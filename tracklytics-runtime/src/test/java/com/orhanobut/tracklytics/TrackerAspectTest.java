@@ -4,13 +4,11 @@ import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -21,7 +19,6 @@ import static com.orhanobut.tracklytics.AssertTracker.assertTrack;
 import static junit.framework.TestCase.fail;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,8 +34,6 @@ public class TrackerAspectTest {
   @Mock MethodSignature methodSignature;
   @Mock TrackingAdapter trackingAdapter;
 
-  int[] defaultTags = {};
-
   @Before public void setup() throws Exception {
     initMocks(this);
 
@@ -47,16 +42,6 @@ public class TrackerAspectTest {
     aspect.init(tracker);
 
     when(joinPoint.getSignature()).thenReturn(methodSignature);
-  }
-
-  private void resetTracker() {
-    tracker = spy(Tracker.init(trackingAdapter));
-    aspect.init(tracker);
-    Mockito.reset(tracker);
-  }
-
-  @After public void tearDown() {
-    reset(tracker);
   }
 
   private Method invokeMethod(Class<?> klass, String methodName, Class<?>... parameterTypes) throws Throwable {
@@ -72,6 +57,10 @@ public class TrackerAspectTest {
     Method method = klass.getMethod(name, parameterTypes);
     when(methodSignature.getMethod()).thenReturn(method);
     return method;
+  }
+
+  @Ignore("Add a test to make sure it works")
+  @Test public void testInit() {
   }
 
   @Test public void testStart() throws Throwable {
@@ -109,8 +98,7 @@ public class TrackerAspectTest {
         .event("title")
         .noTags()
         .noAttributes()
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void useReturnValueAsAttribute() throws Throwable {
@@ -127,8 +115,7 @@ public class TrackerAspectTest {
         .event("title")
         .noTags()
         .attribute("key", "test")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void useReturnValueAndParametersAsAttributes() throws Throwable {
@@ -147,8 +134,7 @@ public class TrackerAspectTest {
         .noTags()
         .attribute("key1", "test")
         .attribute("key2", "param")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void useDefaultValueWhenThereIsNoReturnValue() throws Throwable {
@@ -163,8 +149,7 @@ public class TrackerAspectTest {
         .event("title")
         .noTags()
         .attribute("key1", "defaultValue")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void useReturnValueWhenItIsNotNull() throws Throwable {
@@ -181,8 +166,7 @@ public class TrackerAspectTest {
         .event("title")
         .noTags()
         .attribute("key1", "returnValue")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void useDefaultValueWhenParameterValueIsNull() throws Throwable {
@@ -198,8 +182,7 @@ public class TrackerAspectTest {
         .event("title")
         .noTags()
         .attribute("key1", "default")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testFixedAttributeOnMethodScope() throws Throwable {
@@ -215,8 +198,7 @@ public class TrackerAspectTest {
         .event("title")
         .noTags()
         .attribute("key1", "value")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testFixedAttributeOnClassScope() throws Throwable {
@@ -240,8 +222,7 @@ public class TrackerAspectTest {
         .attribute("key2", "value2")
         .attribute("key3", "value3")
         .attribute("key4", "value4")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testFixedAttributeAndAttributeAtSameTime() throws Throwable {
@@ -262,8 +243,7 @@ public class TrackerAspectTest {
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testFixedAttributes() throws Throwable {
@@ -285,8 +265,7 @@ public class TrackerAspectTest {
         .attribute("key1", "value1")
         .attribute("key2", "value2")
         .attribute("key3", "value3")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testSuperAttribute() throws Throwable {
@@ -312,8 +291,7 @@ public class TrackerAspectTest {
         .attribute("key1", "value1")
         .attribute("key2", "value2")
         .superAttribute("key1", "value1")
-        .superAttribute("key2", "value2")
-        .noFilters();
+        .superAttribute("key2", "value2");
 
     invokeMethod(Foo.class, "foo2");
     assertTrack(tracker)
@@ -321,8 +299,7 @@ public class TrackerAspectTest {
         .noTags()
         .noAttributes()
         .superAttribute("key1", "value1")
-        .superAttribute("key2", "value2")
-        .noFilters();
+        .superAttribute("key2", "value2");
   }
 
   @Test public void testSuperFixedAttribute() throws Throwable {
@@ -352,8 +329,7 @@ public class TrackerAspectTest {
         .attribute("key2", "value2")
         .attribute("key3", "value3")
         .superAttribute("key2", "value2")
-        .superAttribute("key3", "value3")
-        .noFilters();
+        .superAttribute("key3", "value3");
 
     invokeMethod(Foo.class, "foo2");
 
@@ -362,8 +338,7 @@ public class TrackerAspectTest {
         .noTags()
         .noAttributes()
         .superAttribute("key2", "value2")
-        .superAttribute("key3", "value3")
-        .noFilters();
+        .superAttribute("key3", "value3");
   }
 
   @Test public void testTrackable() throws Throwable {
@@ -391,8 +366,7 @@ public class TrackerAspectTest {
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void ignoreNullValuesOnTrackable() throws Throwable {
@@ -416,8 +390,7 @@ public class TrackerAspectTest {
         .event("title")
         .noTags()
         .noAttributes()
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void throwExceptionWhenTrackableAnnotationNotMatchWithValue() throws Throwable {
@@ -475,8 +448,7 @@ public class TrackerAspectTest {
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testTransformAttributeForParameters() throws Throwable {
@@ -497,8 +469,7 @@ public class TrackerAspectTest {
         .event("event")
         .noTags()
         .attribute("key1", "value1")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testTransformAttributeMapInvalidState() throws Throwable {
@@ -557,8 +528,7 @@ public class TrackerAspectTest {
         .event("event")
         .noTags()
         .attribute("key1", "value2")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testSuperTransformAttribute() throws Throwable {
@@ -584,8 +554,7 @@ public class TrackerAspectTest {
         .attribute("key1", "value1")
         .attribute("key2", "value2")
         .superAttribute("key1", "value1")
-        .superAttribute("key2", "value2")
-        .noFilters();
+        .superAttribute("key2", "value2");
   }
 
   @Test public void testTransformAttributeDefaultValue() throws Throwable {
@@ -609,8 +578,7 @@ public class TrackerAspectTest {
         .noTags()
         .attribute("key1", "default1")
         .attribute("key2", "default2")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testTrackableAttributeForCurrentClass() throws Throwable {
@@ -636,8 +604,7 @@ public class TrackerAspectTest {
         .event("event")
         .noTags()
         .attribute("key", "value")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void doNotUseTrackableAttributesWhenTrackableAttributeNotExists() throws Throwable {
@@ -661,8 +628,7 @@ public class TrackerAspectTest {
         .event("event")
         .noTags()
         .noAttributes()
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void ignoreNullValueOnTrackableAttributeForCurrentClass() throws Throwable {
@@ -686,8 +652,7 @@ public class TrackerAspectTest {
         .event("event")
         .noTags()
         .noAttributes()
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void overrideClassWideAttributeOnMethodWhenAttributesAreSame() throws Throwable {
@@ -713,8 +678,7 @@ public class TrackerAspectTest {
         .noTags()
         .attribute("key", "method")
         .attribute("key1", "method1")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void useThisClassWhenCalledFromSuperClass() throws Throwable {
@@ -743,8 +707,7 @@ public class TrackerAspectTest {
         .attribute("key0", "value0")
         .attribute("key", "value")
         .attribute("key2", "value2")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Ignore("It doesn't work on CI, need to find the reason")
@@ -768,8 +731,7 @@ public class TrackerAspectTest {
         .event("event")
         .noTags()
         .attribute("name", "Foo-Bar")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void subclassClassAttributeShouldOverrideScreenNameAttribute() throws Throwable {
@@ -793,8 +755,7 @@ public class TrackerAspectTest {
         .event("event")
         .noTags()
         .attribute("key", "value1")
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 
   @Test public void testLog() throws Throwable {
@@ -828,7 +789,6 @@ public class TrackerAspectTest {
         .event("event")
         .tags(100, 200)
         .noAttributes()
-        .noSuperAttributes()
-        .noFilters();
+        .noSuperAttributes();
   }
 }
