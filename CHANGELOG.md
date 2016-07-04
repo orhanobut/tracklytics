@@ -1,4 +1,12 @@
 ## CHANGELOG
+### 1.1.23-SNAPSHOT
+- TrackSuperAttribute annotation added. It can be used to set super attributes without TrackEvent.
+```java
+@TrackSuperAttribute
+public void foo(@Attribute("key") String value){
+}
+```
+
 ### 1.1.20-SNAPSHOT
 - Trackable Map<String,String> second type changed to Object. (Map<String,Object>)
 

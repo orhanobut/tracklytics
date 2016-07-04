@@ -166,6 +166,14 @@ class Foo {
 // foo(1) : event -> [{"key","value1}]
 ```
 
+### SuperAttribute
+It can be used to set super attributes without TrackEvent. No track event will be triggered. You can use it only with parameter attribute
+```java
+@TrackSuperAttribute
+public void foo(@Attribute("key") String value){
+}
+```
+
 ### @Tracklytics
 
 #### INIT
@@ -225,7 +233,7 @@ buildscript {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   }
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.20-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.23-SNAPSHOT'
   }
 }
 
