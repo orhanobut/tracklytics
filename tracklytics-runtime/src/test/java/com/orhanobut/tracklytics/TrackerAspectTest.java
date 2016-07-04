@@ -21,6 +21,7 @@ import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -837,5 +838,21 @@ public class TrackerAspectTest {
         .tags("abc", "123")
         .noAttributes()
         .noSuperAttributes();
+  }
+
+  @Test public void testSuperAttributeWithoutTrackEvent() throws Throwable {
+    class Foo {
+      @TrackSuperAttribute
+      public void foo(@Attribute("key3") String value) {
+      }
+    }
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{"value3"});
+    initMethod(Foo.class, "foo", String.class);
+
+    aspect.weaveJoinPointSuperAttribute(joinPoint);
+
+    assertThat(tracker.superAttributes).containsEntry("key3", "value3");
+    verifyZeroInteractions(tracker);
   }
 }

@@ -55,6 +55,55 @@ public class TrackerAspect {
     return tracker;
   }
 
+  @Pointcut("execution(@com.orhanobut.tracklytics.TrackSuperAttribute * *(..))")
+  public void methodAnnotatedWithSuperAttribute() {
+  }
+
+  @Pointcut("execution(@com.orhanobut.tracklytics.TrackSuperAttribute *.new(..))")
+  public void constructorAnnotatedWithSuperAttribute() {
+  }
+
+  @Around("methodAnnotatedWithSuperAttribute() || constructorAnnotatedWithSuperAttribute()")
+  public void weaveJoinPointSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
+    superAttributes = tracker.superAttributes;
+
+    // method attributes
+    Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+//    Object methodReturn = joinPoint.proceed();
+
+//    Attribute attribute = method.getAnnotation(Attribute.class);
+    // TODO: 04/07/16 add method attributes
+
+    // method parameters
+    Object[] fields = joinPoint.getArgs();
+    Annotation[][] annotations = method.getParameterAnnotations();
+    addSuperAttributesFromParameters(annotations, fields);
+  }
+
+  private void addSuperAttributesFromParameters(Annotation[][] keys, Object[] values) {
+    if (keys == null || values == null) {
+      return;
+    }
+    for (int i = 0, size = keys.length; i < size; i++) {
+      if (keys[i].length == 0) {
+        continue;
+      }
+      Object value = values[i];
+      Annotation annotation = keys[i][0];
+      if (annotation instanceof Attribute) {
+        Attribute attribute = (Attribute) annotation;
+        Object result = null;
+        if (value != null) {
+          result = value;
+        } else if (attribute.defaultValue().length() != 0) {
+          result = attribute.defaultValue();
+        }
+        superAttributes.put(attribute.value(), result);
+      }
+    }
+  }
+
+
   void start() {
     tracker.start();
   }
@@ -159,7 +208,7 @@ public class TrackerAspect {
   private void addMethodParameterAttributes(Method method, JoinPoint joinPoint) {
     Object[] fields = joinPoint.getArgs();
     Annotation[][] annotations = method.getParameterAnnotations();
-    generateAttributeValues(annotations, fields, transformMap);
+    checkParameters(annotations, fields, transformMap);
   }
 
   private void addScreenNameAttribute(ScreenNameAttribute annotation, JoinPoint joinPoint,
@@ -228,8 +277,7 @@ public class TrackerAspect {
     }
   }
 
-  private void generateAttributeValues(Annotation[][] keys, Object[] values,
-                                       Map<Integer, String> transformAttributeMap) {
+  private void checkParameters(Annotation[][] keys, Object[] values, Map<Integer, String> transformAttributeMap) {
     if (keys == null || values == null) {
       return;
     }
