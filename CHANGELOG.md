@@ -1,4 +1,6 @@
 ## CHANGELOG
+### 1.1.20-SNAPSHOT
+- Trackable Map<String,String> second type changed to Object. (Map<String,Object>)
 
 ### 1.1.19-SNAPSHOT
 - tags type changed from int to String

@@ -8,5 +8,5 @@ import java.util.Map;
  */
 public interface Trackable {
 
-  Map<String, String> getTrackableAttributes();
+  Map<String, Object> getTrackableAttributes();
 }
