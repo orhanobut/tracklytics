@@ -357,8 +357,8 @@ public class TrackerAspectTest {
   @Test public void testTrackable() throws Throwable {
     class Bar implements Trackable {
 
-      @Override public Map<String, String> getTrackableAttributes() {
-        Map<String, String> values = new HashMap<>();
+      @Override public Map<String, Object> getTrackableAttributes() {
+        Map<String, Object> values = new HashMap<>();
         values.put("key1", "value1");
         values.put("key2", "value2");
         return values;
@@ -386,7 +386,7 @@ public class TrackerAspectTest {
   @Test public void ignoreNullValuesOnTrackable() throws Throwable {
     class Bar implements Trackable {
 
-      @Override public Map<String, String> getTrackableAttributes() {
+      @Override public Map<String, Object> getTrackableAttributes() {
         return null;
       }
     }
@@ -604,8 +604,8 @@ public class TrackerAspectTest {
   @Test public void testTrackableAttributeForCurrentClass() throws Throwable {
     class Foo implements Trackable {
 
-      @Override public Map<String, String> getTrackableAttributes() {
-        Map<String, String> map = new HashMap<>();
+      @Override public Map<String, Object> getTrackableAttributes() {
+        Map<String, Object> map = new HashMap<>();
         map.put("key", "value");
         return map;
       }
@@ -631,8 +631,8 @@ public class TrackerAspectTest {
   @Test public void doNotUseTrackableAttributesWhenTrackableAttributeNotExists() throws Throwable {
     class Foo implements Trackable {
 
-      @Override public Map<String, String> getTrackableAttributes() {
-        Map<String, String> map = new HashMap<>();
+      @Override public Map<String, Object> getTrackableAttributes() {
+        Map<String, Object> map = new HashMap<>();
         map.put("key", "value");
         return map;
       }
@@ -656,7 +656,7 @@ public class TrackerAspectTest {
   @Test public void ignoreNullValueOnTrackableAttributeForCurrentClass() throws Throwable {
     class Foo implements Trackable {
 
-      @Override public Map<String, String> getTrackableAttributes() {
+      @Override public Map<String, Object> getTrackableAttributes() {
         return null;
       }
 

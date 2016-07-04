@@ -255,7 +255,7 @@ public class TrackerAspect {
       if (annotation instanceof TrackableAttribute) {
         if (value instanceof Trackable) {
           Trackable trackable = (Trackable) value;
-          Map<String, String> trackableValues = trackable.getTrackableAttributes();
+          Map<String, Object> trackableValues = trackable.getTrackableAttributes();
           if (trackableValues != null) {
             attributes.putAll(trackable.getTrackableAttributes());
           }

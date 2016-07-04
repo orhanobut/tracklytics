@@ -225,7 +225,7 @@ buildscript {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   }
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.19-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.20-SNAPSHOT'
   }
 }
 
