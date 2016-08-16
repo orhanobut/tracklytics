@@ -82,4 +82,10 @@ public class TrackerTest {
 
     verify(subscriber, times(2)).onEventAdded(any(EventItem.class));
   }
+
+  @Test public void addSuperAttributeWithoutAnnotation() {
+    tracker.addSuperAttribute("key", "value");
+
+    assertThat(tracker.superAttributes).containsEntry("key", "value");
+  }
 }
