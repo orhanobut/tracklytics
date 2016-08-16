@@ -84,4 +84,12 @@ public class Tracker {
   public void setLogger(TracklyticsLogger logger) {
     this.logger = logger;
   }
+
+  /**
+   * Allows you to add super attribute without requiring to use annotation
+   */
+  public void addSuperAttribute(String key, Object value) {
+    this.superAttributes.put(key, value);
+  }
+
 }

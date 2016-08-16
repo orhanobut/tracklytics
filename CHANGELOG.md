@@ -1,4 +1,11 @@
 ## CHANGELOG
+
+### 1.1.24-SNAPSHOT
+- Tracker.addSuperAttribute allows you to add any super attribute without requiring annotation
+```java
+tracker.addSuperAttribute("key", "value");
+```
+
 ### 1.1.23-SNAPSHOT
 - TrackSuperAttribute annotation added. It can be used to set super attributes without TrackEvent.
 ```java

@@ -173,6 +173,10 @@ It can be used to set super attributes without TrackEvent. No track event will b
 public void foo(@Attribute("key") String value){
 }
 ```
+Add super attributes without requiring annotation
+```java
+tracker.addSuperAttribute("key","value");
+```
 
 ### @Tracklytics
 
@@ -233,7 +237,7 @@ buildscript {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   }
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.23-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.24-SNAPSHOT'
   }
 }
 
