@@ -1,4 +1,5 @@
 ## CHANGELOG
+### 1.2.0 released
 
 ### 1.1.24-SNAPSHOT
 - Tracker.addSuperAttribute allows you to add any super attribute without requiring annotation

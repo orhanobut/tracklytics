@@ -232,12 +232,9 @@ class MainActivity extends Activity {
 Add the following code block to in your app/build.gradle. 
 ```groovy
 buildscript {
-  repositories {
-    jcenter()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-  }
+  ...
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.1.24-SNAPSHOT'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.2.0'
   }
 }
 
