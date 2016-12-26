@@ -88,4 +88,11 @@ public class TrackerTest {
 
     assertThat(tracker.superAttributes).containsEntry("key", "value");
   }
+
+  @Test public void removeSuperAttributeWithoutAnnotation() {
+    tracker.superAttributes.put("key", "value");
+    tracker.removeSuperAttribute("key");
+
+    assertThat(tracker.superAttributes).doesNotContainKey("key");
+  }
 }

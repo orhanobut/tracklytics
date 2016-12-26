@@ -103,6 +103,20 @@ public class TrackerAspect {
     }
   }
 
+  @Pointcut("execution(@com.orhanobut.tracklytics.RemoveSuperAttribute * *(..))")
+  public void methodAnnotatedWithRemoveSuperAttribute() {
+  }
+
+  @Pointcut("execution(@com.orhanobut.tracklytics.RemoveSuperAttribute *.new(..))")
+  public void constructorAnnotatedWithRemoveSuperAttribute() {
+  }
+
+  @Around("methodAnnotatedWithRemoveSuperAttribute() || constructorAnnotatedWithRemoveSuperAttribute()")
+  public void weaveJoinPointRemoveSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
+    Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+    RemoveSuperAttribute removeSuperAttribute = method.getAnnotation(RemoveSuperAttribute.class);
+    tracker.removeSuperAttribute(removeSuperAttribute.value());
+  }
 
   void start() {
     tracker.start();
