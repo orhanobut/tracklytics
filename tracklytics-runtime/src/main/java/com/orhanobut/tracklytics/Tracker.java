@@ -92,4 +92,11 @@ public class Tracker {
     this.superAttributes.put(key, value);
   }
 
+  /**
+   * Allows you to remove super attribute without requiring to use annotation
+   */
+  public void removeSuperAttribute(String key) {
+    this.superAttributes.remove(key);
+  }
+
 }

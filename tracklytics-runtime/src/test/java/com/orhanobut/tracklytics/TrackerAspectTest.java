@@ -855,4 +855,19 @@ public class TrackerAspectTest {
     assertThat(tracker.superAttributes).containsEntry("key3", "value3");
     verifyZeroInteractions(tracker);
   }
+
+  @Test public void testRemoveSuperAttribute() throws Throwable {
+    tracker.superAttributes.put("key", "value");
+
+    class Foo {
+      @RemoveSuperAttribute("key")
+      public void foo() {
+      }
+    }
+
+    initMethod(Foo.class, "foo");
+    aspect.weaveJoinPointRemoveSuperAttribute(joinPoint);
+
+    assertThat(tracker.superAttributes).doesNotContainKey("key");
+  }
 }

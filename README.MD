@@ -178,6 +178,17 @@ Add super attributes without requiring annotation
 tracker.addSuperAttribute("key","value");
 ```
 
+You can remove an added super attribute
+```java
+@RemoveSuperAttribute("key")
+public void foo() {
+}
+```
+Remove super attributes without the annotation
+```java
+tracker.removeSuperAttribute("key");
+```
+
 ### @Tracklytics
 
 #### INIT
