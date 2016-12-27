@@ -245,7 +245,7 @@ Add the following code block to in your app/build.gradle.
 buildscript {
   ...
   dependencies {
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.2.0'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.3.0'
   }
 }
 

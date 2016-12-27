@@ -1,4 +1,15 @@
 ## CHANGELOG
+### 1.3.0
+- Remove super attribute is added.
+```java
+@RemoveSuperAttribute("key")
+public void foo(){}
+```
+or
+```java
+tracker.removeSuperAttribute("key")
+```
+
 ### 1.2.0 released
 
 ### 1.1.24-SNAPSHOT
