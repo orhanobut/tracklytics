@@ -1,4 +1,7 @@
 ## CHANGELOG
+### 1.4.0
+
+
 ### 1.3.0
 - Remove super attribute is added.
 ```java
