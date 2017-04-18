@@ -8,7 +8,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'org.aspectj:aspectjtools:1.8.6'
+    classpath 'org.aspectj:aspectjtools:1.8.10'
   }
 }
 
@@ -27,10 +27,11 @@ android {
     textReport true
     textOutput 'stdout'
   }
+  buildToolsVersion '25.0.2'
 }
 
 dependencies {
-  provided deps.aspectjRuntime
+  provided "org.aspectj:aspectjrt:1.8.10"
 
   testCompile deps.junit
   testCompile deps.truth
@@ -39,17 +40,19 @@ dependencies {
 }
 
 android.libraryVariants.all { variant ->
+  println "tracklytics runtime library variant"
   LibraryPlugin plugin = project.plugins.getPlugin(LibraryPlugin)
   JavaCompile javaCompile = variant.javaCompile
   javaCompile.doLast {
+    println "tracklytics runtime javaCompile.doLast"
     String[] args = [
         "-showWeaveInfo",
-        "-1.5",
+        "-1.7",
         "-inpath", javaCompile.destinationDir.toString(),
         "-aspectpath", javaCompile.classpath.asPath,
         "-d", javaCompile.destinationDir.toString(),
         "-classpath", javaCompile.classpath.asPath,
-        "-bootclasspath", plugin.project.android.bootClasspath.join(File.pathSeparator)
+        "-bootclasspath",  project.android.bootClasspath.join(File.pathSeparator)
     ]
 
     MessageHandler handler = new MessageHandler(true);

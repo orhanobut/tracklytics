@@ -27,8 +27,14 @@ public class MainActivity extends Activity {
       }
     });
 
-    new Tracking().trackScreenDisplayed();
+
 
     new Foo().trackFoo();
+  }
+
+  @Override protected void onResume() {
+    super.onResume();
+
+    new Tracking().trackScreenDisplayed();
   }
 }

@@ -27,16 +27,18 @@ class TracklyticsPlugin implements Plugin<Project> {
     }
 
     project.dependencies {
-      compile 'org.aspectj:aspectjrt:1.8.6'
-      compile 'com.orhanobut.tracklytics:tracklytics-runtime:1.3.0@aar'
+      compile 'org.aspectj:aspectjrt:1.8.10'
+      compile 'com.orhanobut.tracklytics:tracklytics-runtime:1.3.5@aar'
     }
 
     variants.all { variant ->
+      println "tracklytics plugin variants.all"
       JavaCompile javaCompile = variant.javaCompile
       javaCompile.doLast {
+        println "tracklytics plugin javaCompile.doLast"
         String[] args = [
             "-showWeaveInfo",
-            "-1.5",
+            "-1.7",
             "-inpath", javaCompile.destinationDir.toString(),
             "-aspectpath", javaCompile.classpath.asPath,
             "-d", javaCompile.destinationDir.toString(),
