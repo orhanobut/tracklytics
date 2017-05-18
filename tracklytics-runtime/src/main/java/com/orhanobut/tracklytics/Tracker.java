@@ -31,8 +31,17 @@ public class Tracker {
     if (!enabled) return;
 
     for (TrackingAdapter tool : adapters) {
-      tool.trackEvent(trackEvent, attributes, superAttributes);
+      tool.trackEvent(new Event(trackEvent, attributes), superAttributes);
       EventQueue.add(tool.id(), tool.toString(), trackEvent.value(), attributes);
+    }
+  }
+
+  public void trackEvent(Event event) {
+    if (!enabled) return;
+
+    for (TrackingAdapter tool : adapters) {
+      tool.trackEvent(event, superAttributes);
+      EventQueue.add(tool.id(), tool.toString(), event.eventName, event.attributes);
     }
   }
 

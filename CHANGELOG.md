@@ -1,6 +1,7 @@
 ## CHANGELOG
 ### 1.4.0
-
+- TrackingAdapter trackEvent signature is changed
+- Public trackEvent method is added
 
 ### 1.3.0
 - Remove super attribute is added.
