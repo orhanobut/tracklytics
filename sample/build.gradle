@@ -10,7 +10,7 @@ buildscript {
   }
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.1"
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.3.5'
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.4.2-SNAPSHOT'
   }
 }
 

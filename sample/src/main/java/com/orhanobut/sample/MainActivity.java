@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.orhanobut.tracklytics.Event;
 import com.orhanobut.tracklytics.TrackEvent;
 import com.orhanobut.tracklytics.Tracker;
 import com.orhanobut.tracklytics.trackers.SimpleTrackingAdapter;
@@ -19,15 +20,11 @@ public class MainActivity extends Activity {
     setContentView(R.layout.activity_main);
 
     Tracker.init(new SimpleTrackingAdapter() {
-      @Override public void trackEvent(TrackEvent event, Map<String, Object> attributes,
-                                       Map<String, Object> superAttributes) {
-        super.trackEvent(event, attributes, superAttributes);
-
-        Log.d("TrackingSample", event.value());
+      @Override public void trackEvent(Event event, Map<String, Object> superAttributes) {
+        super.trackEvent(event, superAttributes);
+        Log.d("TrackingSample", event.eventName);
       }
     });
-
-
 
     new Foo().trackFoo();
   }
