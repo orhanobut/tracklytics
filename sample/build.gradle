@@ -9,8 +9,8 @@ buildscript {
     mavenLocal()
   }
   dependencies {
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.1"
-    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.4.2-SNAPSHOT'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.2-3"
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:1.4.3-SNAPSHOT'
   }
 }
 
@@ -24,6 +24,11 @@ repositories {
 android {
   compileSdkVersion 25
   buildToolsVersion "25.0.2"
+
+  compileOptions {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+  }
 
   defaultConfig {
     applicationId "com.orhanobut.sample"
@@ -41,7 +46,8 @@ android {
 }
 
 dependencies {
-  testCompile 'junit:junit:4.12'
+  testCompile deps.junit
+  testCompile deps.truth
 
   compile "org.jetbrains.kotlin:kotlin-stdlib:1.1.0"
 }

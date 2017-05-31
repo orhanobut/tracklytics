@@ -13,7 +13,6 @@ import java.util.Map;
 
 public class MainActivity extends Activity {
 
-
   @Override @TrackEvent("Event Java")
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -22,7 +21,8 @@ public class MainActivity extends Activity {
     Tracker.init(new SimpleTrackingAdapter() {
       @Override public void trackEvent(Event event, Map<String, Object> superAttributes) {
         super.trackEvent(event, superAttributes);
-        Log.d("TrackingSample", event.eventName);
+        Log.d("Tracker", event.eventName);
+
       }
     });
 
@@ -32,6 +32,6 @@ public class MainActivity extends Activity {
   @Override protected void onResume() {
     super.onResume();
 
-    new Tracking().trackScreenDisplayed();
+    new FooKotlin().trackFoo();
   }
 }

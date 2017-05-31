@@ -4,7 +4,7 @@ import com.orhanobut.tracklytics.TrackEvent;
 
 public class Foo {
 
-  @TrackEvent("Foo Track")
+  @TrackEvent("event_java")
   public void trackFoo() {
 
   }
