@@ -13,7 +13,7 @@ class TracklyticsPlugin implements Plugin<Project> {
 
     project.dependencies {
       compile 'org.aspectj:aspectjrt:1.8.10'
-      compile 'com.orhanobut.tracklytics:tracklytics-runtime:1.4.3-SNAPSHOT@aar'
+      compile 'com.orhanobut.tracklytics:tracklytics-runtime:1.4.4-SNAPSHOT@aar'
     }
 
     project.android.applicationVariants.all { variant ->

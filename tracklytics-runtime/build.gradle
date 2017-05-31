@@ -29,11 +29,10 @@ android {
 }
 
 dependencies {
-  provided "org.aspectj:aspectjrt:1.8.10"
+  provided deps.aspectjRuntime
 
   testCompile deps.junit
   testCompile deps.truth
-  testCompile deps.robolectric
   testCompile deps.mockito
 }
 
@@ -51,7 +50,10 @@ android.libraryVariants.all { variant ->
     ]
 
     new Main().run(args, new MessageHandler(true));
-    println('tracklytics-runtime aspect weave')
+    println("----------------------------------------------")
+    println("---------Tracklytics-runtime Weave------------")
+    println("----------------------------------------------")
   }
 }
+
 apply from: rootProject.file('gradle/maven_push.gradle')

@@ -1,6 +1,5 @@
 package com.orhanobut.tracklytics;
 
-import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
 import java.util.Arrays;
@@ -32,7 +31,6 @@ public class Tracker {
 
     for (TrackingAdapter tool : adapters) {
       tool.trackEvent(new Event(trackEvent, attributes), superAttributes);
-      EventQueue.add(tool.id(), tool.toString(), trackEvent.value(), attributes);
     }
   }
 
@@ -41,7 +39,6 @@ public class Tracker {
 
     for (TrackingAdapter tool : adapters) {
       tool.trackEvent(event, superAttributes);
-      EventQueue.add(tool.id(), tool.toString(), event.eventName, event.attributes);
     }
   }
 

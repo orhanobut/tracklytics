@@ -1,7 +1,5 @@
 package com.orhanobut.tracklytics;
 
-import com.orhanobut.tracklytics.debugger.EventItem;
-import com.orhanobut.tracklytics.debugger.EventQueue;
 import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 
 import org.junit.Before;
@@ -9,9 +7,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -64,23 +59,6 @@ public class TrackerTest {
 
     verify(tools[0]).stop();
     verify(tools[1]).stop();
-  }
-
-  @Test public void trackEventShouldInvokeEventQueue() {
-    class Subscriber implements TrackEventSubscriber {
-      EventItem item;
-
-      @Override public void onEventAdded(EventItem item) {
-        this.item = item;
-      }
-    }
-
-    Subscriber subscriber = spy(new Subscriber());
-    EventQueue.subscribe(subscriber);
-
-    tracker.event(trackEvent, null, null);
-
-    verify(subscriber, times(2)).onEventAdded(any(EventItem.class));
   }
 
   @Test public void addSuperAttributeWithoutAnnotation() {
