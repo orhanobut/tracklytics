@@ -60,32 +60,6 @@ public class TrackerAspectTest {
     return method;
   }
 
-  @Ignore("Add a test to make sure it works")
-  @Test public void testInit() {
-  }
-
-  @Test public void testStart() throws Throwable {
-    class Foo {
-      @Tracklytics(TrackerAction.START) public void start() {
-      }
-    }
-    initMethod(Foo.class, "start");
-
-    Tracker tracker = (Tracker) aspect.weaveJointTracklytics(joinPoint);
-    verify(tracker).start();
-  }
-
-  @Test public void testStop() throws Throwable {
-    class Foo {
-      @Tracklytics(TrackerAction.STOP) public void stop() {
-      }
-    }
-    initMethod(Foo.class, "stop");
-    Tracker tracker = (Tracker) aspect.weaveJointTracklytics(joinPoint);
-
-    verify(tracker).stop();
-  }
-
   @Test public void trackEventWithoutAttributes() throws Throwable {
     class Foo {
       @TrackEvent("title") public void foo() {

@@ -26,35 +26,6 @@ public class TrackerAspect {
     TrackerAspect.tracker = tracker;
   }
 
-  @Pointcut("execution(@com.orhanobut.tracklytics.Tracklytics * *(..))")
-  public void methodAnnotatedWithTracklytics() {
-  }
-
-  @Pointcut("execution(@com.orhanobut.tracklytics.Tracklytics *.new(..))")
-  public void constructorAnnotatedTracklytics() {
-  }
-
-  @Around("methodAnnotatedWithTracklytics() || constructorAnnotatedTracklytics()")
-  public Object weaveJointTracklytics(ProceedingJoinPoint joinPoint) throws Throwable {
-    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-
-    Method method = methodSignature.getMethod();
-    Tracklytics tracklytics = method.getAnnotation(Tracklytics.class);
-    TrackerAction trackerAction = tracklytics.value();
-    switch (trackerAction) {
-      case START:
-        start();
-        break;
-      case STOP:
-        stop();
-        break;
-      default:
-        throw new Exception("This should not happen");
-    }
-
-    return tracker;
-  }
-
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackSuperAttribute * *(..))")
   public void methodAnnotatedWithSuperAttribute() {
   }

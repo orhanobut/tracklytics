@@ -189,8 +189,6 @@ Remove super attributes without the annotation
 tracker.removeSuperAttribute("key");
 ```
 
-### @Tracklytics
-
 #### INIT
 Before using tracklytics, you must initialize it and add TrackingAdapter or use SimpleTrackingAdapter implementation to get event values
 trackEvent method will be called when the annotated method is invoked
@@ -255,19 +253,7 @@ apply plugin: 'com.orhanobut.tracklytics'
 ```
 
 ### Event Debugging Monitor
-<img src='https://github.com/orhanobut/tracklytics/blob/master/art/image1.png' height='400'/> <img src='https://github.com/orhanobut/tracklytics/blob/master/art/image2.png' height='400'/>
-
-To be able to use debugging monitor, you need to inject it in the activity class.
-```java
- TracklyticsDebugger.inject(this);
-```
-
-By clicking "hand" icon, monitor will be displayed and each event will be updated in the list.
-
-Debugging monitor displays
-- each event for each tracker
-- an option to remove all
-- filter option to select tracker, time and keyword (in progress)
+Use Bee
 
 ### Licence
 <pre>
