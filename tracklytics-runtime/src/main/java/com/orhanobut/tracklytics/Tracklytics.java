@@ -12,16 +12,16 @@ public class Tracklytics {
 
   final Map<String, Object> superAttributes = new HashMap<>();
 
-  private final TrackingAdapter[] adapters;
+  private final EventSubscriber[] eventSubscribers;
 
   private boolean enabled = true;
   private EventLogListener logger;
 
-  private Tracklytics(TrackingAdapter[] adapters) {
-    this.adapters = adapters;
+  private Tracklytics(EventSubscriber[] eventSubscribers) {
+    this.eventSubscribers = eventSubscribers;
   }
 
-  public static Tracklytics init(TrackingAdapter... adapters) {
+  public static Tracklytics init(EventSubscriber... adapters) {
     Tracklytics tracklytics = new Tracklytics(adapters);
     TracklyticsAspect.init(tracklytics);
     return tracklytics;
@@ -30,16 +30,16 @@ public class Tracklytics {
   void event(TrackEvent trackEvent, Map<String, Object> attributes, Map<String, Object> superAttributes) {
     if (!enabled) return;
 
-    for (TrackingAdapter tool : adapters) {
-      tool.trackEvent(new Event(trackEvent, attributes), superAttributes);
+    for (EventSubscriber tool : eventSubscribers) {
+      tool.onEvent(new Event(trackEvent, attributes), superAttributes);
     }
   }
 
   public void trackEvent(Event event) {
     if (!enabled) return;
 
-    for (TrackingAdapter tool : adapters) {
-      tool.trackEvent(event, superAttributes);
+    for (EventSubscriber tool : eventSubscribers) {
+      tool.onEvent(event, superAttributes);
     }
   }
 

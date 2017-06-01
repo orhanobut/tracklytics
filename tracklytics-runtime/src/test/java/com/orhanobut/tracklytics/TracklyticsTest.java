@@ -12,8 +12,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TracklyticsTest {
 
-  @Mock TrackingAdapter trackingAdapter;
-  @Mock TrackingAdapter trackingAdapter2;
+  @Mock EventSubscriber eventSubscriber;
+  @Mock EventSubscriber eventSubscriber2;
   @Mock TrackEvent trackEvent;
 
   private Tracklytics tracklytics;
@@ -21,10 +21,10 @@ public class TracklyticsTest {
   @Before public void setup() {
     initMocks(this);
 
-    TrackingAdapter[] adapters = new TrackingAdapter[]{trackingAdapter, trackingAdapter2};
+    EventSubscriber[] adapters = new EventSubscriber[]{eventSubscriber, eventSubscriber2};
     tracklytics = Tracklytics.init(adapters);
 
-    when(trackingAdapter.toString()).thenReturn("Tracklytics");
+    when(eventSubscriber.toString()).thenReturn("Tracklytics");
 
     when(trackEvent.value()).thenReturn("event");
     when(trackEvent.filters()).thenReturn(new int[]{1, 2});
@@ -36,7 +36,7 @@ public class TracklyticsTest {
 
     assertThat(tracklytics.isEnabled()).isFalse();
 
-    verifyZeroInteractions(trackingAdapter, trackingAdapter2);
+    verifyZeroInteractions(eventSubscriber, eventSubscriber2);
   }
 
   @Test public void isEnabledShouldReturnTrueAsDefault() {
@@ -61,7 +61,7 @@ public class TracklyticsTest {
 
     tracklytics.trackEvent(event);
 
-    verify(trackingAdapter).trackEvent(event, tracklytics.superAttributes);
-    verify(trackingAdapter2).trackEvent(event, tracklytics.superAttributes);
+    verify(eventSubscriber).onEvent(event, tracklytics.superAttributes);
+    verify(eventSubscriber2).onEvent(event, tracklytics.superAttributes);
   }
 }

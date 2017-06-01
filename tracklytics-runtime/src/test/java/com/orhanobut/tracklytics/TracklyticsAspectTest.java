@@ -30,12 +30,12 @@ public class TracklyticsAspectTest {
 
   @Mock ProceedingJoinPoint joinPoint;
   @Mock MethodSignature methodSignature;
-  @Mock TrackingAdapter trackingAdapter;
+  @Mock EventSubscriber eventSubscriber;
 
   @Before public void setup() throws Exception {
     initMocks(this);
 
-    tracklytics = spy(Tracklytics.init(trackingAdapter));
+    tracklytics = spy(Tracklytics.init(eventSubscriber));
     aspect = new TracklyticsAspect();
     aspect.init(tracklytics);
 
