@@ -2,9 +2,14 @@ package com.orhanobut.tracklytics;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -41,10 +46,16 @@ public class TracklyticsTest {
   }
 
   @Test public void trackWithoutAnnotation() {
-    Event event = new Event("event_name", null, null, null);
+    Map<String, Object> attributes = new HashMap<>();
+    attributes.put("key", "value");
 
-    tracklytics.trackEvent(event);
+    tracklytics.trackEvent("event_name", attributes);
 
-    verify(eventSubscriber).onEvent(event, tracklytics.superAttributes);
+    ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+    verify(eventSubscriber).onEvent(eventCaptor.capture(), eq(tracklytics.superAttributes));
+
+    assertThat(eventCaptor.getValue().eventName).isEqualTo("event_name");
+    assertThat(eventCaptor.getValue().attributes).containsEntry("key", "value");
   }
 }

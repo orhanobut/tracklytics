@@ -33,10 +33,10 @@ public class Tracklytics {
     eventSubscriber.onEvent(new Event(trackEvent, attributes), superAttributes);
   }
 
-  public void trackEvent(Event event) {
+  public void trackEvent(String eventName, Map<String, Object> attributes) {
     if (!enabled) return;
 
-    eventSubscriber.onEvent(event, superAttributes);
+    eventSubscriber.onEvent(new Event(eventName, null, null, attributes), superAttributes);
   }
 
   void log(long start, long stopMethod, long stopTracking, TrackEvent event, Map<String, Object> attrs,

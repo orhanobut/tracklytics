@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.orhanobut.tracklytics.Event;
+import com.orhanobut.tracklytics.EventSubscriber;
 import com.orhanobut.tracklytics.TrackEvent;
-import com.orhanobut.tracklytics.TrackingAdapter;
 import com.orhanobut.tracklytics.Tracklytics;
 
 import java.util.Map;
@@ -18,8 +18,8 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    Tracklytics.init(new TrackingAdapter() {
-      @Override public void trackEvent(Event event, Map<String, Object> superAttributes) {
+    Tracklytics.init(new EventSubscriber() {
+      @Override public void onEvent(Event event, Map<String, Object> superAttributes) {
         Log.d("Tracker", event.eventName);
       }
     });
