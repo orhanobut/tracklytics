@@ -13,7 +13,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class TracklyticsTest {
 
   @Mock EventSubscriber eventSubscriber;
-  @Mock EventSubscriber eventSubscriber2;
   @Mock TrackEvent trackEvent;
 
   private Tracklytics tracklytics;
@@ -21,8 +20,7 @@ public class TracklyticsTest {
   @Before public void setup() {
     initMocks(this);
 
-    EventSubscriber[] adapters = new EventSubscriber[]{eventSubscriber, eventSubscriber2};
-    tracklytics = Tracklytics.init(adapters);
+    tracklytics = Tracklytics.init(eventSubscriber);
 
     when(eventSubscriber.toString()).thenReturn("Tracklytics");
 
@@ -36,7 +34,7 @@ public class TracklyticsTest {
 
     assertThat(tracklytics.isEnabled()).isFalse();
 
-    verifyZeroInteractions(eventSubscriber, eventSubscriber2);
+    verifyZeroInteractions(eventSubscriber);
   }
 
   @Test public void isEnabledShouldReturnTrueAsDefault() {
@@ -62,6 +60,5 @@ public class TracklyticsTest {
     tracklytics.trackEvent(event);
 
     verify(eventSubscriber).onEvent(event, tracklytics.superAttributes);
-    verify(eventSubscriber2).onEvent(event, tracklytics.superAttributes);
   }
 }

@@ -1,8 +1,8 @@
 package com.orhanobut.sample;
 
 import com.orhanobut.tracklytics.Event;
-import com.orhanobut.tracklytics.Tracker;
-import com.orhanobut.tracklytics.trackers.SimpleTrackingAdapter;
+import com.orhanobut.tracklytics.TrackingAdapter;
+import com.orhanobut.tracklytics.Tracklytics;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,10 +19,8 @@ public class TrackingTest {
   private final Map<String, Event> triggeredEvents = new HashMap<>();
 
   @Before public void setup() {
-    Tracker.init(new SimpleTrackingAdapter() {
+    Tracklytics.init(new TrackingAdapter() {
       @Override public void trackEvent(Event event, Map<String, Object> superAttributes) {
-        super.trackEvent(event, superAttributes);
-
         triggeredEvents.put(event.eventName, event);
       }
     });
