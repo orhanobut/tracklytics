@@ -6,7 +6,6 @@ import org.mockito.Mock;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -26,19 +25,6 @@ public class TracklyticsTest {
 
     when(trackEvent.value()).thenReturn("event");
     when(trackEvent.filters()).thenReturn(new int[]{1, 2});
-  }
-
-  @Test public void doNotTrackEventWhenDisabled() {
-    tracklytics.enabled(false);
-    tracklytics.event(trackEvent, null, null);
-
-    assertThat(tracklytics.isEnabled()).isFalse();
-
-    verifyZeroInteractions(eventSubscriber);
-  }
-
-  @Test public void isEnabledShouldReturnTrueAsDefault() {
-    assertThat(tracklytics.isEnabled()).isTrue();
   }
 
   @Test public void addSuperAttributeWithoutAnnotation() {

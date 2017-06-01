@@ -39,14 +39,6 @@ public class Tracklytics {
     eventSubscriber.onEvent(event, superAttributes);
   }
 
-  void enabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  boolean isEnabled() {
-    return enabled;
-  }
-
   void log(long start, long stopMethod, long stopTracking, TrackEvent event, Map<String, Object> attrs,
            Map<String, Object> superAttrs) {
     if (logger != null) {
