@@ -22,7 +22,7 @@ public class Tracklytics {
 
   public static Tracklytics init(TrackingAdapter... adapters) {
     Tracklytics tracklytics = new Tracklytics(adapters);
-    TrackerAspect.init(tracklytics);
+    TracklyticsAspect.init(tracklytics);
     return tracklytics;
   }
 

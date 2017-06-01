@@ -26,7 +26,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 @SuppressWarnings("ALL")
 public class TracklyticsAspectTest {
-  TrackerAspect aspect;
+  TracklyticsAspect aspect;
 
   Tracklytics tracklytics;
 
@@ -38,7 +38,7 @@ public class TracklyticsAspectTest {
     initMocks(this);
 
     tracklytics = spy(Tracklytics.init(trackingAdapter));
-    aspect = new TrackerAspect();
+    aspect = new TracklyticsAspect();
     aspect.init(tracklytics);
 
     when(joinPoint.getSignature()).thenReturn(methodSignature);

@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Aspect
-public class TrackerAspect {
+public class TracklyticsAspect {
 
   private static Tracklytics tracklytics;
 
@@ -22,8 +22,8 @@ public class TrackerAspect {
   private Map<String, Object> superAttributes;
   private Map<Integer, String> transformMap;
 
-  public static void init(Tracklytics tracklytics) {
-    TrackerAspect.tracklytics = tracklytics;
+  static void init(Tracklytics tracklytics) {
+    TracklyticsAspect.tracklytics = tracklytics;
   }
 
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackSuperAttribute * *(..))")
