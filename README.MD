@@ -175,7 +175,7 @@ public void foo(@Attribute("key") String value){
 ```
 Add super attributes without requiring annotation
 ```java
-tracker.addSuperAttribute("key","value");
+tracklytics.addSuperAttribute("key","value");
 ```
 
 You can remove an added super attribute
@@ -186,7 +186,7 @@ public void foo() {
 ```
 Remove super attributes without the annotation
 ```java
-tracker.removeSuperAttribute("key");
+tracklytics.removeSuperAttribute("key");
 ```
 
 #### INIT
@@ -205,8 +205,8 @@ Tracker.init(new SimpleTrackingAdapter() {
 #### LOG
 You can add your custom logger to fetch the logs.
 ```java
-Tracker tracker = Tracker.init(...);
-tracker.setLogger(new TracklyticsLogger(){
+Tracker tracklytics = Tracker.init(...);
+tracklytics.setLogger(new TracklyticsLogger(){
    @Override public void log(String message){
      // User your favorite log tool to log the message
    }

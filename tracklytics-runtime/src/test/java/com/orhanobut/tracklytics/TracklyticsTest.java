@@ -12,65 +12,65 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class TrackerTest {
+public class TracklyticsTest {
 
   @Mock TrackingAdapter trackingAdapter;
   @Mock TrackingAdapter trackingAdapter2;
   @Mock TrackEvent trackEvent;
 
   TrackingAdapter[] tools;
-  Tracker tracker;
+  Tracklytics tracklytics;
 
   @Before public void setup() {
     initMocks(this);
     tools = new TrackingAdapter[]{trackingAdapter, trackingAdapter2};
-    tracker = Tracker.init(tools);
+    tracklytics = Tracklytics.init(tools);
 
     when(trackingAdapter.id()).thenReturn(100);
     when(trackingAdapter2.id()).thenReturn(200);
-    when(trackingAdapter.toString()).thenReturn("Tracker");
+    when(trackingAdapter.toString()).thenReturn("Tracklytics");
 
     when(trackEvent.value()).thenReturn("event");
     when(trackEvent.filters()).thenReturn(new int[]{1, 2});
   }
 
   @Test public void doNotTrackEventWhenDisabled() {
-    tracker.enabled(false);
-    tracker.event(trackEvent, null, null);
+    tracklytics.enabled(false);
+    tracklytics.event(trackEvent, null, null);
 
-    assertThat(tracker.isEnabled()).isFalse();
+    assertThat(tracklytics.isEnabled()).isFalse();
 
     verifyZeroInteractions(trackingAdapter, trackingAdapter2);
   }
 
   @Test public void isEnabledShouldReturnTrueAsDefault() {
-    assertThat(tracker.isEnabled()).isTrue();
+    assertThat(tracklytics.isEnabled()).isTrue();
   }
 
   @Test public void startShouldInvokeStartForeachTrackingTool() {
-    tracker.start();
+    tracklytics.start();
 
     verify(tools[0]).start();
     verify(tools[1]).start();
   }
 
   @Test public void stopShouldInvokeStopForeachTrackingTool() {
-    tracker.stop();
+    tracklytics.stop();
 
     verify(tools[0]).stop();
     verify(tools[1]).stop();
   }
 
   @Test public void addSuperAttributeWithoutAnnotation() {
-    tracker.addSuperAttribute("key", "value");
+    tracklytics.addSuperAttribute("key", "value");
 
-    assertThat(tracker.superAttributes).containsEntry("key", "value");
+    assertThat(tracklytics.superAttributes).containsEntry("key", "value");
   }
 
   @Test public void removeSuperAttributeWithoutAnnotation() {
-    tracker.superAttributes.put("key", "value");
-    tracker.removeSuperAttribute("key");
+    tracklytics.superAttributes.put("key", "value");
+    tracklytics.removeSuperAttribute("key");
 
-    assertThat(tracker.superAttributes).doesNotContainKey("key");
+    assertThat(tracklytics.superAttributes).doesNotContainKey("key");
   }
 }

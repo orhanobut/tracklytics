@@ -25,10 +25,10 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @SuppressWarnings("ALL")
-public class TrackerAspectTest {
+public class TracklyticsAspectTest {
   TrackerAspect aspect;
 
-  Tracker tracker;
+  Tracklytics tracklytics;
 
   @Mock ProceedingJoinPoint joinPoint;
   @Mock MethodSignature methodSignature;
@@ -37,9 +37,9 @@ public class TrackerAspectTest {
   @Before public void setup() throws Exception {
     initMocks(this);
 
-    tracker = spy(Tracker.init(trackingAdapter));
+    tracklytics = spy(Tracklytics.init(trackingAdapter));
     aspect = new TrackerAspect();
-    aspect.init(tracker);
+    aspect.init(tracklytics);
 
     when(joinPoint.getSignature()).thenReturn(methodSignature);
   }
@@ -68,7 +68,7 @@ public class TrackerAspectTest {
 
     ArgumentCaptor<Map> argument = ArgumentCaptor.forClass(Map.class);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -86,7 +86,7 @@ public class TrackerAspectTest {
     when(joinPoint.proceed()).thenReturn("test");
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noTags()
         .noFilters()
@@ -105,7 +105,7 @@ public class TrackerAspectTest {
     when(joinPoint.getArgs()).thenReturn(new Object[]{"param"});
     invokeMethod(Foo.class, "foo", String.class);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -122,7 +122,7 @@ public class TrackerAspectTest {
     }
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -140,7 +140,7 @@ public class TrackerAspectTest {
     when(joinPoint.proceed()).thenReturn("returnValue");
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -157,7 +157,7 @@ public class TrackerAspectTest {
     when(joinPoint.getArgs()).thenReturn(new Object[]{null});
     invokeMethod(Foo.class, "foo", String.class);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -174,7 +174,7 @@ public class TrackerAspectTest {
     }
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -196,7 +196,7 @@ public class TrackerAspectTest {
     }
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -220,7 +220,7 @@ public class TrackerAspectTest {
     when(joinPoint.proceed()).thenReturn("value1");
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -242,7 +242,7 @@ public class TrackerAspectTest {
     }
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -269,7 +269,7 @@ public class TrackerAspectTest {
     when(joinPoint.getArgs()).thenReturn(new Object[]{"value2"});
     invokeMethod(Foo.class, "foo", String.class);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -279,7 +279,7 @@ public class TrackerAspectTest {
         .superAttribute("key2", "value2");
 
     invokeMethod(Foo.class, "foo2");
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event2")
         .noFilters()
         .noAttributes()
@@ -307,7 +307,7 @@ public class TrackerAspectTest {
     when(joinPoint.proceed()).thenReturn("value1");
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -319,7 +319,7 @@ public class TrackerAspectTest {
 
     invokeMethod(Foo.class, "foo2");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event2")
         .noFilters()
         .noTags()
@@ -348,7 +348,7 @@ public class TrackerAspectTest {
 
     invokeMethod(Foo.class, "foo", Bar.class);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -374,7 +374,7 @@ public class TrackerAspectTest {
 
     invokeMethod(Foo.class, "foo", Bar.class);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -432,7 +432,7 @@ public class TrackerAspectTest {
 
     invokeMethod(Foo.Inner.class, "bar");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("title")
         .noFilters()
         .noTags()
@@ -455,7 +455,7 @@ public class TrackerAspectTest {
     when(joinPoint.getArgs()).thenReturn(new Object[]{0});
     invokeMethod(Foo.class, "foo", Integer.class);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .noTags()
@@ -515,7 +515,7 @@ public class TrackerAspectTest {
     when(joinPoint.proceed()).thenReturn(1);
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .noTags()
@@ -540,7 +540,7 @@ public class TrackerAspectTest {
     when(joinPoint.getArgs()).thenReturn(new Object[]{1});
     invokeMethod(Foo.class, "foo", Integer.class);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .noTags()
@@ -566,7 +566,7 @@ public class TrackerAspectTest {
     when(joinPoint.getArgs()).thenReturn(new Object[]{null});
     invokeMethod(Foo.class, "foo", Integer.class);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .noTags()
@@ -594,7 +594,7 @@ public class TrackerAspectTest {
     when(joinPoint.getThis()).thenReturn(new Foo());
     aspect.weaveJoinPointTrackEvent(joinPoint);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .noTags()
@@ -619,7 +619,7 @@ public class TrackerAspectTest {
     when(joinPoint.getThis()).thenReturn(new Foo());
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .noTags()
@@ -644,7 +644,7 @@ public class TrackerAspectTest {
     when(joinPoint.getThis()).thenReturn(new Foo());
     aspect.weaveJoinPointTrackEvent(joinPoint);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .noTags()
@@ -670,7 +670,7 @@ public class TrackerAspectTest {
 
     invokeMethod(Foo.class, "foo");
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .noTags()
@@ -699,7 +699,7 @@ public class TrackerAspectTest {
     when(joinPoint.getThis()).thenReturn(new Foo());
     aspect.weaveJoinPointTrackEvent(joinPoint);
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .noTags()
@@ -711,7 +711,7 @@ public class TrackerAspectTest {
 
   @Test public void testLog() throws Throwable {
     TracklyticsLogger logger = mock(TracklyticsLogger.class);
-    tracker.setLogger(logger);
+    tracklytics.setLogger(logger);
 
     class Foo {
       @TrackEvent("event")
@@ -736,7 +736,7 @@ public class TrackerAspectTest {
 
     int[] tags = {100, 200};
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noTags()
         .filters(100, 200)
@@ -755,7 +755,7 @@ public class TrackerAspectTest {
 
     int[] tags = {100, 200};
 
-    assertTrack(tracker)
+    assertTrack(tracklytics)
         .event("event")
         .noFilters()
         .tags("abc", "123")
@@ -775,12 +775,12 @@ public class TrackerAspectTest {
 
     aspect.weaveJoinPointSuperAttribute(joinPoint);
 
-    assertThat(tracker.superAttributes).containsEntry("key3", "value3");
-    verifyZeroInteractions(tracker);
+    assertThat(tracklytics.superAttributes).containsEntry("key3", "value3");
+    verifyZeroInteractions(tracklytics);
   }
 
   @Test public void testRemoveSuperAttribute() throws Throwable {
-    tracker.superAttributes.put("key", "value");
+    tracklytics.superAttributes.put("key", "value");
 
     class Foo {
       @RemoveSuperAttribute("key")
@@ -791,6 +791,6 @@ public class TrackerAspectTest {
     initMethod(Foo.class, "foo");
     aspect.weaveJoinPointRemoveSuperAttribute(joinPoint);
 
-    assertThat(tracker.superAttributes).doesNotContainKey("key");
+    assertThat(tracklytics.superAttributes).doesNotContainKey("key");
   }
 }

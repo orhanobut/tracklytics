@@ -22,10 +22,10 @@ public class AssertTracker {
   private final Map<String, Object> attributes;
   private final Map<String, Object> superAttributes;
 
-  private AssertTracker(Tracker tracker) {
+  private AssertTracker(Tracklytics tracklytics) {
     initMocks(this);
 
-    verify(tracker, atLeastOnce()).event(
+    verify(tracklytics, atLeastOnce()).event(
         captorTrackEvent.capture(),
         captorAttributes.capture(),
         captorSuperAttributes.capture()
@@ -36,8 +36,8 @@ public class AssertTracker {
     superAttributes = captorSuperAttributes.getValue();
   }
 
-  public static AssertTracker assertTrack(Tracker tracker) {
-    return new AssertTracker(tracker);
+  public static AssertTracker assertTrack(Tracklytics tracklytics) {
+    return new AssertTracker(tracklytics);
   }
 
   public AssertTracker event(String name) {

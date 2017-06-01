@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class Tracker {
+public class Tracklytics {
 
   final Map<String, Object> superAttributes = new HashMap<>();
 
@@ -16,14 +16,14 @@ public class Tracker {
   private boolean enabled = true;
   private TracklyticsLogger logger;
 
-  private Tracker(TrackingAdapter[] adapters) {
+  private Tracklytics(TrackingAdapter[] adapters) {
     this.adapters = adapters;
   }
 
-  public static Tracker init(TrackingAdapter... adapters) {
-    Tracker tracker = new Tracker(adapters);
-    TrackerAspect.init(tracker);
-    return tracker;
+  public static Tracklytics init(TrackingAdapter... adapters) {
+    Tracklytics tracklytics = new Tracklytics(adapters);
+    TrackerAspect.init(tracklytics);
+    return tracklytics;
   }
 
   void event(TrackEvent trackEvent, Map<String, Object> attributes, Map<String, Object> superAttributes) {
@@ -42,7 +42,7 @@ public class Tracker {
     }
   }
 
-  Tracker enabled(boolean enabled) {
+  Tracklytics enabled(boolean enabled) {
     this.enabled = enabled;
     return this;
   }

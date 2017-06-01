@@ -15,15 +15,15 @@ import java.util.Map;
 @Aspect
 public class TrackerAspect {
 
-  private static Tracker tracker;
+  private static Tracklytics tracklytics;
 
   private final Map<String, Object> attributes = new HashMap<>();
 
   private Map<String, Object> superAttributes;
   private Map<Integer, String> transformMap;
 
-  public static void init(Tracker tracker) {
-    TrackerAspect.tracker = tracker;
+  public static void init(Tracklytics tracklytics) {
+    TrackerAspect.tracklytics = tracklytics;
   }
 
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackSuperAttribute * *(..))")
@@ -36,7 +36,7 @@ public class TrackerAspect {
 
   @Around("methodAnnotatedWithSuperAttribute() || constructorAnnotatedWithSuperAttribute()")
   public void weaveJoinPointSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
-    superAttributes = tracker.superAttributes;
+    superAttributes = tracklytics.superAttributes;
 
     // method attributes
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
@@ -86,15 +86,7 @@ public class TrackerAspect {
   public void weaveJoinPointRemoveSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     RemoveSuperAttribute removeSuperAttribute = method.getAnnotation(RemoveSuperAttribute.class);
-    tracker.removeSuperAttribute(removeSuperAttribute.value());
-  }
-
-  void start() {
-    tracker.start();
-  }
-
-  void stop() {
-    tracker.stop();
+    tracklytics.removeSuperAttribute(removeSuperAttribute.value());
   }
 
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackEvent * *(..))")
@@ -127,14 +119,14 @@ public class TrackerAspect {
     pushEvent(trackEvent);
 
     long stopNanosTracking = System.nanoTime();
-    tracker.log(startNanos, stopNanosMethod, stopNanosTracking, trackEvent, attributes, superAttributes);
+    tracklytics.log(startNanos, stopNanosMethod, stopNanosTracking, trackEvent, attributes, superAttributes);
     return result;
   }
 
   private void setup() {
     attributes.clear();
     transformMap = null;
-    superAttributes = tracker.superAttributes;
+    superAttributes = tracklytics.superAttributes;
   }
 
   private void addClassAttributes(Method method, JoinPoint joinPoint) {
@@ -299,8 +291,8 @@ public class TrackerAspect {
   }
 
   private void pushEvent(TrackEvent trackEvent) {
-    if (tracker == null) return;
-    tracker.event(trackEvent, attributes, superAttributes);
+    if (tracklytics == null) return;
+    tracklytics.event(trackEvent, attributes, superAttributes);
   }
 
 }
