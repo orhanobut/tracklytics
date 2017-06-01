@@ -74,11 +74,6 @@ class AssertTracker {
     return this;
   }
 
-  AssertTracker doesNotContainAttribute(String key, Object value) {
-    assertThat(attributes).doesNotContainEntry(key, value);
-    return this;
-  }
-
   AssertTracker noAttributes() {
     assertThat(attributes).isEmpty();
     return this;
@@ -89,9 +84,8 @@ class AssertTracker {
     return this;
   }
 
-  AssertTracker noSuperAttributes() {
+  void noSuperAttributes() {
     assertThat(superAttributes).isEmpty();
-    return this;
   }
 
 }

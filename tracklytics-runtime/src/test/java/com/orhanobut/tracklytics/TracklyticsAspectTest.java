@@ -709,7 +709,7 @@ public class TracklyticsAspectTest {
 
   @Test public void log() throws Throwable {
     EventLogListener logger = mock(EventLogListener.class);
-    tracklytics.setLogger(logger);
+    tracklytics.setEventLogListener(logger);
 
     class Foo {
       @TrackEvent("event")

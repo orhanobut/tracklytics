@@ -6,8 +6,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Annotation based tracking event delegator.
- * Triggers event and gathers all the defined data
+ * Annotation based tracking event handler.
  */
 public class Tracklytics {
 
@@ -44,9 +43,8 @@ public class Tracklytics {
     }
   }
 
-  Tracklytics enabled(boolean enabled) {
+  void enabled(boolean enabled) {
     this.enabled = enabled;
-    return this;
   }
 
   boolean isEnabled() {
@@ -58,6 +56,8 @@ public class Tracklytics {
     if (logger != null) {
       long method = TimeUnit.NANOSECONDS.toMillis(stopMethod - start);
       long total = TimeUnit.NANOSECONDS.toMillis(stopTracking - start);
+
+      @SuppressWarnings("StringBufferReplaceableByString")
       StringBuilder builder = new StringBuilder()
           .append("[")
           .append(method)  // Method execution time
@@ -77,7 +77,7 @@ public class Tracklytics {
     }
   }
 
-  public void setLogger(EventLogListener logger) {
+  public void setEventLogListener(EventLogListener logger) {
     this.logger = logger;
   }
 

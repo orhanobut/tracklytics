@@ -6,13 +6,13 @@ import java.util.Map;
  * This is the container for the triggered tracking event.
  * All related information is kept in here.
  */
+@SuppressWarnings("WeakerAccess")
 public class Event {
 
   public final String eventName;
   public final int[] filters;
   public final String[] tags;
   public final Map<String, Object> attributes;
-
 
   public Event(String eventName, int[] filters, String[] tags, Map<String, Object> attributes) {
     this.eventName = eventName;

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Aspect
+@SuppressWarnings("WeakerAccess")
 public class TracklyticsAspect {
 
   private static Tracklytics tracklytics;
@@ -26,14 +27,19 @@ public class TracklyticsAspect {
     TracklyticsAspect.tracklytics = tracklytics;
   }
 
+  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackSuperAttribute * *(..))")
   public void methodAnnotatedWithSuperAttribute() {
+    // No implementation is needed
   }
 
+  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackSuperAttribute *.new(..))")
   public void constructorAnnotatedWithSuperAttribute() {
+    // No implementation is needed
   }
 
+  @SuppressWarnings("RedundantThrows")
   @Around("methodAnnotatedWithSuperAttribute() || constructorAnnotatedWithSuperAttribute()")
   public void weaveJoinPointSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
     superAttributes = tracklytics.superAttributes;
@@ -74,14 +80,19 @@ public class TracklyticsAspect {
     }
   }
 
+  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.RemoveSuperAttribute * *(..))")
   public void methodAnnotatedWithRemoveSuperAttribute() {
+    // No implementation is needed
   }
 
+  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.RemoveSuperAttribute *.new(..))")
   public void constructorAnnotatedWithRemoveSuperAttribute() {
+    // No implementation is needed
   }
 
+  @SuppressWarnings("RedundantThrows")
   @Around("methodAnnotatedWithRemoveSuperAttribute() || constructorAnnotatedWithRemoveSuperAttribute()")
   public void weaveJoinPointRemoveSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
@@ -89,14 +100,19 @@ public class TracklyticsAspect {
     tracklytics.removeSuperAttribute(removeSuperAttribute.value());
   }
 
+  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackEvent * *(..))")
   public void methodAnnotatedWithTrackEvent() {
+    // No implementation is needed
   }
 
+  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackEvent *.new(..))")
   public void constructorAnnotatedTrackEvent() {
+    // No implementation is needed
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   @Around("methodAnnotatedWithTrackEvent() || constructorAnnotatedTrackEvent()")
   public Object weaveJoinPointTrackEvent(ProceedingJoinPoint joinPoint) throws Throwable {
     long startNanos = System.nanoTime();
