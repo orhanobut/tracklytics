@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -15,13 +16,13 @@ public class TracklyticsTest {
   @Mock TrackingAdapter trackingAdapter2;
   @Mock TrackEvent trackEvent;
 
-  TrackingAdapter[] tools;
-  Tracklytics tracklytics;
+  private Tracklytics tracklytics;
 
   @Before public void setup() {
     initMocks(this);
-    tools = new TrackingAdapter[]{trackingAdapter, trackingAdapter2};
-    tracklytics = Tracklytics.init(tools);
+
+    TrackingAdapter[] adapters = new TrackingAdapter[]{trackingAdapter, trackingAdapter2};
+    tracklytics = Tracklytics.init(adapters);
 
     when(trackingAdapter.toString()).thenReturn("Tracklytics");
 
@@ -53,5 +54,14 @@ public class TracklyticsTest {
     tracklytics.removeSuperAttribute("key");
 
     assertThat(tracklytics.superAttributes).doesNotContainKey("key");
+  }
+
+  @Test public void trackWithoutAnnotation() {
+    Event event = new Event("event_name", null, null, null);
+
+    tracklytics.trackEvent(event);
+
+    verify(trackingAdapter).trackEvent(event, tracklytics.superAttributes);
+    verify(trackingAdapter2).trackEvent(event, tracklytics.superAttributes);
   }
 }
