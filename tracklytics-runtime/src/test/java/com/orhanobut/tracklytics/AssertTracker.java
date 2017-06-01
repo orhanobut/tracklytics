@@ -11,7 +11,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class AssertTracker {
+class AssertTracker {
 
   @Captor ArgumentCaptor<Map<String, Object>> captorAttributes;
   @Captor ArgumentCaptor<Map<String, Object>> captorSuperAttributes;
@@ -36,60 +36,60 @@ public class AssertTracker {
     superAttributes = captorSuperAttributes.getValue();
   }
 
-  public static AssertTracker assertTrack(Tracklytics tracklytics) {
+  static AssertTracker assertTrack(Tracklytics tracklytics) {
     return new AssertTracker(tracklytics);
   }
 
-  public AssertTracker event(String name) {
+  AssertTracker event(String name) {
     assertThat(trackEvent.value()).isEqualTo(name);
     return this;
   }
 
-  public AssertTracker filters(int... tags) {
+  AssertTracker filters(int... tags) {
     for (int tag : tags) {
       assertThat(trackEvent.filters()).asList().contains(tag);
     }
     return this;
   }
 
-  public AssertTracker noFilters() {
+  AssertTracker noFilters() {
     assertThat(trackEvent.filters()).isEmpty();
     return this;
   }
 
-  public AssertTracker tags(String... tags) {
+  AssertTracker tags(String... tags) {
     for (String tag : tags) {
       assertThat(trackEvent.tags()).asList().contains(tag);
     }
     return this;
   }
 
-  public AssertTracker noTags() {
+  AssertTracker noTags() {
     assertThat(trackEvent.tags()).isEmpty();
     return this;
   }
 
-  public AssertTracker attribute(String key, Object value) {
+  AssertTracker attribute(String key, Object value) {
     assertThat(attributes).containsEntry(key, value);
     return this;
   }
 
-  public AssertTracker doesNotContainAttribute(String key, Object value) {
+  AssertTracker doesNotContainAttribute(String key, Object value) {
     assertThat(attributes).doesNotContainEntry(key, value);
     return this;
   }
 
-  public AssertTracker noAttributes() {
+  AssertTracker noAttributes() {
     assertThat(attributes).isEmpty();
     return this;
   }
 
-  public AssertTracker superAttribute(String key, Object value) {
+  AssertTracker superAttribute(String key, Object value) {
     assertThat(superAttributes).containsEntry(key, value);
     return this;
   }
 
-  public AssertTracker noSuperAttributes() {
+  AssertTracker noSuperAttributes() {
     assertThat(superAttributes).isEmpty();
     return this;
   }

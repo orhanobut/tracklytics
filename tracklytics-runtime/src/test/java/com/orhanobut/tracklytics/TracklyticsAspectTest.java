@@ -24,9 +24,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 @SuppressWarnings("ALL")
 public class TracklyticsAspectTest {
-  TracklyticsAspect aspect;
 
-  Tracklytics tracklytics;
+  private TracklyticsAspect aspect;
+  private Tracklytics tracklytics;
 
   @Mock ProceedingJoinPoint joinPoint;
   @Mock MethodSignature methodSignature;
