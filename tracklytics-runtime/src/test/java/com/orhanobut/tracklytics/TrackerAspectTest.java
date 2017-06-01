@@ -5,7 +5,6 @@ import com.orhanobut.tracklytics.trackers.TrackingAdapter;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -707,56 +706,6 @@ public class TrackerAspectTest {
         .attribute("key0", "value0")
         .attribute("key", "value")
         .attribute("key2", "value2")
-        .noSuperAttributes();
-  }
-
-  @Ignore("It doesn't work on CI, need to find the reason")
-  @Test public void testScreenNameAttribute() throws Throwable {
-    @ScreenNameAttribute(key = "name", excludeLast = 2, delimiter = "-")
-    class BasePresenter {
-
-      @TrackEvent("event")
-      public void base() {
-      }
-    }
-
-    class FooBarBasePresenter extends BasePresenter {
-    }
-
-    initMethod(FooBarBasePresenter.class, "base");
-    when(joinPoint.getThis()).thenReturn(new FooBarBasePresenter());
-    aspect.weaveJoinPointTrackEvent(joinPoint);
-
-    assertTrack(tracker)
-        .event("event")
-        .noFilters()
-        .noTags()
-        .attribute("name", "Foo-Bar")
-        .noSuperAttributes();
-  }
-
-  @Test public void subclassClassAttributeShouldOverrideScreenNameAttribute() throws Throwable {
-    @ScreenNameAttribute(key = "key", excludeLast = 2, delimiter = "-")
-    class BasePresenter {
-
-      @TrackEvent("event")
-      public void base() {
-      }
-    }
-
-    @FixedAttribute(key = "key", value = "value1")
-    class FooBarBasePresenter extends BasePresenter {
-    }
-
-    initMethod(FooBarBasePresenter.class, "base");
-    when(joinPoint.getThis()).thenReturn(new FooBarBasePresenter());
-    aspect.weaveJoinPointTrackEvent(joinPoint);
-
-    assertTrack(tracker)
-        .event("event")
-        .noFilters()
-        .noTags()
-        .attribute("key", "value1")
         .noSuperAttributes();
   }
 

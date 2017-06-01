@@ -140,8 +140,6 @@ public class TrackerAspect {
   private void addClassAttributes(Method method, JoinPoint joinPoint) {
     Class<?> declaringClass = method.getDeclaringClass();
 
-    addScreenNameAttribute(declaringClass.getAnnotation(ScreenNameAttribute.class), joinPoint, attributes);
-
     if (method.isAnnotationPresent(TrackableAttribute.class) && Trackable.class.isAssignableFrom(declaringClass)) {
       Trackable trackable = (Trackable) joinPoint.getThis();
       if (trackable.getTrackableAttributes() != null) {
@@ -194,22 +192,6 @@ public class TrackerAspect {
     Object[] fields = joinPoint.getArgs();
     Annotation[][] annotations = method.getParameterAnnotations();
     checkParameters(annotations, fields, transformMap);
-  }
-
-  private void addScreenNameAttribute(ScreenNameAttribute annotation, JoinPoint joinPoint,
-                                      Map<String, Object> attributes) {
-    if (annotation == null) return;
-    String className = joinPoint.getThis().getClass().getSimpleName();
-    String[] words = className.split("(?=\\p{Upper})");
-    int excludeLast = annotation.excludeLast();
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0, size = words.length - excludeLast; i < size; i++) {
-      builder.append(words[i]);
-      if (i < size - 1) {
-        builder.append(annotation.delimiter());
-      }
-    }
-    attributes.put(annotation.key(), builder.toString());
   }
 
   private void addAttribute(Attribute attribute, Object methodResult) {
