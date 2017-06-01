@@ -16,7 +16,7 @@ public class Tracklytics {
   private final TrackingAdapter[] adapters;
 
   private boolean enabled = true;
-  private TracklyticsLogger logger;
+  private EventLogListener logger;
 
   private Tracklytics(TrackingAdapter[] adapters) {
     this.adapters = adapters;
@@ -77,7 +77,7 @@ public class Tracklytics {
     }
   }
 
-  public void setLogger(TracklyticsLogger logger) {
+  public void setLogger(EventLogListener logger) {
     this.logger = logger;
   }
 

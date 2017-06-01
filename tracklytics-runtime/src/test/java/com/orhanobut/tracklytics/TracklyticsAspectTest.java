@@ -708,7 +708,7 @@ public class TracklyticsAspectTest {
   }
 
   @Test public void testLog() throws Throwable {
-    TracklyticsLogger logger = mock(TracklyticsLogger.class);
+    EventLogListener logger = mock(EventLogListener.class);
     tracklytics.setLogger(logger);
 
     class Foo {
