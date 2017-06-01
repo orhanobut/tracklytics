@@ -163,7 +163,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testFixedAttributeOnMethodScope() throws Throwable {
+  @Test public void fixedAttributeOnMethodScope() throws Throwable {
     class Foo {
       @TrackEvent("title")
       @FixedAttribute(key = "key1", value = "value") public String foo() {
@@ -180,7 +180,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testFixedAttributeOnClassScope() throws Throwable {
+  @Test public void fixedAttributeOnClassScope() throws Throwable {
     @FixedAttributes({
         @FixedAttribute(key = "key1", value = "value1"),
         @FixedAttribute(key = "key2", value = "value2")
@@ -205,7 +205,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testFixedAttributeAndAttributeAtSameTime() throws Throwable {
+  @Test public void fixedAttributeAndAttributeAtSameTime() throws Throwable {
     class Foo {
       @TrackEvent("title")
       @Attribute("key1")
@@ -227,7 +227,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testFixedAttributes() throws Throwable {
+  @Test public void fixedAttributes() throws Throwable {
     class Foo {
       @TrackEvent("title")
       @FixedAttributes({
@@ -250,7 +250,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testSuperAttribute() throws Throwable {
+  @Test public void superAttribute() throws Throwable {
     class Foo {
       @TrackEvent("title")
       @Attribute(value = "key1", isSuper = true)
@@ -285,7 +285,7 @@ public class TracklyticsAspectTest {
         .superAttribute("key2", "value2");
   }
 
-  @Test public void testSuperFixedAttribute() throws Throwable {
+  @Test public void superFixedAttribute() throws Throwable {
     class Foo {
       @TrackEvent("title")
       @FixedAttributes({
@@ -326,7 +326,7 @@ public class TracklyticsAspectTest {
         .superAttribute("key3", "value3");
   }
 
-  @Test public void testTrackable() throws Throwable {
+  @Test public void trackable() throws Throwable {
     class Bar implements Trackable {
 
       @Override public Map<String, Object> getTrackableAttributes() {
@@ -398,7 +398,7 @@ public class TracklyticsAspectTest {
     }
   }
 
-  @Test public void testMethodParameterWithoutAnnotation() throws Throwable {
+  @Test public void methodParameterWithoutAnnotation() throws Throwable {
     class Foo {
       @TrackEvent("title") public void foo(@Attribute("Key") String bar, String param2) {
       }
@@ -415,7 +415,7 @@ public class TracklyticsAspectTest {
     }
   }
 
-  @Test public void testClassWideAttributeInAnonymousClass() throws Throwable {
+  @Test public void classWideAttributeInAnonymousClass() throws Throwable {
     @FixedAttribute(key = "key1", value = "value1")
     class Foo {
 
@@ -439,7 +439,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testTransformAttributeForParameters() throws Throwable {
+  @Test public void transformAttributeForParameters() throws Throwable {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
@@ -461,7 +461,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testTransformAttributeMapInvalidState() throws Throwable {
+  @Test public void transformAttributeMapInvalidState() throws Throwable {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
@@ -481,7 +481,7 @@ public class TracklyticsAspectTest {
     }
   }
 
-  @Test public void testTransformAttributeWithoutTransformAttributeMap() throws Throwable {
+  @Test public void transformAttributeWithoutTransformAttributeMap() throws Throwable {
     class Foo {
       @TrackEvent("event")
       public void foo(@TransformAttribute("key1") Integer type) {
@@ -497,7 +497,7 @@ public class TracklyticsAspectTest {
     }
   }
 
-  @Test public void testTransformAttributeForReturnValue() throws Throwable {
+  @Test public void transformAttributeForReturnValue() throws Throwable {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
@@ -521,7 +521,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testSuperTransformAttribute() throws Throwable {
+  @Test public void superTransformAttribute() throws Throwable {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
@@ -548,7 +548,7 @@ public class TracklyticsAspectTest {
         .superAttribute("key2", "value2");
   }
 
-  @Test public void testTransformAttributeDefaultValue() throws Throwable {
+  @Test public void transformAttributeDefaultValue() throws Throwable {
     class Foo {
       @TrackEvent("event")
       @TransformAttributeMap(
@@ -573,7 +573,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testTrackableAttributeForCurrentClass() throws Throwable {
+  @Test public void trackableAttributeForCurrentClass() throws Throwable {
     class Foo implements Trackable {
 
       @Override public Map<String, Object> getTrackableAttributes() {
@@ -707,7 +707,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testLog() throws Throwable {
+  @Test public void log() throws Throwable {
     EventLogListener logger = mock(EventLogListener.class);
     tracklytics.setLogger(logger);
 
@@ -723,7 +723,7 @@ public class TracklyticsAspectTest {
     verify(logger).log(contains("] event-> {key=value}, super attrs: {}, filters: []"));
   }
 
-  @Test public void testFilters() throws Throwable {
+  @Test public void filters() throws Throwable {
     class Foo {
       @TrackEvent(value = "event", filters = {100, 200})
       public void foo() {
@@ -742,7 +742,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testTagss() throws Throwable {
+  @Test public void tags() throws Throwable {
     class Foo {
       @TrackEvent(value = "event", tags = {"abc", "123"})
       public void foo() {
@@ -761,7 +761,7 @@ public class TracklyticsAspectTest {
         .noSuperAttributes();
   }
 
-  @Test public void testSuperAttributeWithoutTrackEvent() throws Throwable {
+  @Test public void superAttributeWithoutTrackEvent() throws Throwable {
     class Foo {
       @TrackSuperAttribute
       public void foo(@Attribute("key3") String value) {
@@ -777,7 +777,7 @@ public class TracklyticsAspectTest {
     verifyZeroInteractions(tracklytics);
   }
 
-  @Test public void testRemoveSuperAttribute() throws Throwable {
+  @Test public void removeSuperAttribute() throws Throwable {
     tracklytics.superAttributes.put("key", "value");
 
     class Foo {
