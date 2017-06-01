@@ -14,7 +14,6 @@ public class Tracklytics {
 
   private final EventSubscriber eventSubscriber;
 
-  private boolean enabled = true;
   private EventLogListener logger;
 
   private Tracklytics(EventSubscriber eventSubscriber) {
@@ -28,14 +27,10 @@ public class Tracklytics {
   }
 
   void event(TrackEvent trackEvent, Map<String, Object> attributes, Map<String, Object> superAttributes) {
-    if (!enabled) return;
-
     eventSubscriber.onEvent(new Event(trackEvent, attributes), superAttributes);
   }
 
   public void trackEvent(String eventName, Map<String, Object> attributes) {
-    if (!enabled) return;
-
     eventSubscriber.onEvent(new Event(eventName, null, null, attributes), superAttributes);
   }
 
