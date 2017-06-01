@@ -4,7 +4,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * This doesn't triggered an actual track
+ * This doesn't trigger any tracking event.
  * Set the attribute as super attribute. Subsequent tracking events will use this value
  */
 @Retention(RetentionPolicy.RUNTIME)
