@@ -2,6 +2,10 @@ package com.orhanobut.tracklytics;
 
 import java.util.Map;
 
+/**
+ * This is the container for the triggered tracking event.
+ * All related information is kept in here.
+ */
 public class Event {
 
   public final String eventName;

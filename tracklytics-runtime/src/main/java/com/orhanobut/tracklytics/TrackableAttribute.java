@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used along with {@link Trackable}. Trackable.getTrackableAttributes will be invoked when an event triggered
+ * Used along with {@link Trackable} interface
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER, ElementType.METHOD})

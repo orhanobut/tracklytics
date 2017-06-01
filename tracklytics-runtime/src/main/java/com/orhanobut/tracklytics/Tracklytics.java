@@ -1,12 +1,14 @@
 package com.orhanobut.tracklytics;
 
-import com.orhanobut.tracklytics.trackers.TrackingAdapter;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Annotation based tracking event delegator.
+ * Triggers event and gathers all the defined data
+ */
 public class Tracklytics {
 
   final Map<String, Object> superAttributes = new HashMap<>();
@@ -49,18 +51,6 @@ public class Tracklytics {
 
   boolean isEnabled() {
     return enabled;
-  }
-
-  void start() {
-    for (TrackingAdapter tool : adapters) {
-      tool.start();
-    }
-  }
-
-  void stop() {
-    for (TrackingAdapter tool : adapters) {
-      tool.stop();
-    }
   }
 
   void log(long start, long stopMethod, long stopTracking, TrackEvent event, Map<String, Object> attrs,

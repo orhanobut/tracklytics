@@ -1,7 +1,5 @@
 package com.orhanobut.tracklytics;
 
-import com.orhanobut.tracklytics.trackers.TrackingAdapter;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;

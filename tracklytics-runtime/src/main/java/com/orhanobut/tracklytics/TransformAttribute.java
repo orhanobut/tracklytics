@@ -3,8 +3,12 @@ package com.orhanobut.tracklytics;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+/**
+ * Should be used with {@link TransformAttributeMap}
+ */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TransformAttribute {
+
   String value();
 
   String defaultValue() default "";
