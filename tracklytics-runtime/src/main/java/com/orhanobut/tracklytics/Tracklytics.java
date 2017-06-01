@@ -27,11 +27,11 @@ public class Tracklytics {
   }
 
   void event(TrackEvent trackEvent, Map<String, Object> attributes, Map<String, Object> superAttributes) {
-    eventSubscriber.onEvent(new Event(trackEvent, attributes), superAttributes);
+    eventSubscriber.onEvent(new Event(trackEvent, attributes, superAttributes));
   }
 
   public void trackEvent(String eventName, Map<String, Object> attributes) {
-    eventSubscriber.onEvent(new Event(eventName, null, null, attributes), superAttributes);
+    eventSubscriber.onEvent(new Event(eventName, null, null, attributes, superAttributes));
   }
 
   void log(long start, long stopMethod, long stopTracking, TrackEvent event, Map<String, Object> attrs,

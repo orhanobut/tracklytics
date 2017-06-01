@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -53,7 +52,7 @@ public class TracklyticsTest {
 
     ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-    verify(eventSubscriber).onEvent(eventCaptor.capture(), eq(tracklytics.superAttributes));
+    verify(eventSubscriber).onEvent(eventCaptor.capture());
 
     assertThat(eventCaptor.getValue().eventName).isEqualTo("event_name");
     assertThat(eventCaptor.getValue().attributes).containsEntry("key", "value");
