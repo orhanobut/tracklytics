@@ -18,9 +18,6 @@ public class TracklyticsAspect {
 
   private static Tracklytics tracklytics;
 
-  private Map<String, Object> superAttributes;
-  private Map<Integer, String> transformMap;
-
   static void init(Tracklytics tracklytics) {
     TracklyticsAspect.tracklytics = tracklytics;
   }
@@ -40,8 +37,6 @@ public class TracklyticsAspect {
   @SuppressWarnings("RedundantThrows")
   @Around("methodAnnotatedWithSuperAttribute() || constructorAnnotatedWithSuperAttribute()")
   public void weaveJoinPointSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
-    superAttributes = tracklytics.superAttributes;
-
     // method attributes
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 //    Object methodReturn = joinPoint.proceed();
@@ -73,7 +68,7 @@ public class TracklyticsAspect {
         } else if (attribute.defaultValue().length() != 0) {
           result = attribute.defaultValue();
         }
-        superAttributes.put(attribute.value(), result);
+        tracklytics.superAttributes.put(attribute.value(), result);
       }
     }
   }
@@ -117,8 +112,6 @@ public class TracklyticsAspect {
     Object result = joinPoint.proceed();
     long stopNanosMethod = System.nanoTime();
 
-    setup();
-
     // Local attributes
     final Map<String, Object> attributes = new HashMap<>();
 
@@ -126,9 +119,10 @@ public class TracklyticsAspect {
 
     addClassAttributes(method, joinPoint, attributes);
 
-    addMethodAttributes(method, result, attributes);
-
-    addMethodParameterAttributes(method, joinPoint, attributes);
+    // TODO: This creation is most of the time redundant. Find a way to avoid redundant map creation
+    Map<Integer, String> transformMap = new HashMap<>();
+    addMethodAttributes(method, result, attributes, transformMap);
+    addMethodParameterAttributes(method, joinPoint, attributes, transformMap);
 
     // send the results
     TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
@@ -136,13 +130,8 @@ public class TracklyticsAspect {
     pushEvent(trackEvent, attributes);
 
     long stopNanosTracking = System.nanoTime();
-    tracklytics.log(startNanos, stopNanosMethod, stopNanosTracking, trackEvent, attributes, superAttributes);
+    tracklytics.log(startNanos, stopNanosMethod, stopNanosTracking, trackEvent, attributes);
     return result;
-  }
-
-  private void setup() {
-    transformMap = null;
-    superAttributes = tracklytics.superAttributes;
   }
 
   private void addClassAttributes(Method method, JoinPoint joinPoint, Map<String, Object> attributes) {
@@ -166,7 +155,8 @@ public class TracklyticsAspect {
     addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class), attributes);
   }
 
-  private void addMethodAttributes(Method method, Object returnValue, Map<String, Object> attributes) {
+  private void addMethodAttributes(Method method, Object returnValue, Map<String, Object> attributes,
+                                   Map<Integer, String> transformMap) {
     Annotation[] annotations = method.getDeclaredAnnotations();
     for (Annotation annotation : annotations) {
       if (annotation instanceof Attribute) {
@@ -180,7 +170,6 @@ public class TracklyticsAspect {
       }
       if (annotation instanceof TransformAttributeMap) {
         TransformAttributeMap transformAttributeMap = (TransformAttributeMap) annotation;
-        transformMap = new HashMap<>();
         int[] keys = transformAttributeMap.keys();
         String[] values = transformAttributeMap.values();
         if (keys.length != values.length) {
@@ -196,7 +185,8 @@ public class TracklyticsAspect {
     }
   }
 
-  private void addMethodParameterAttributes(Method method, JoinPoint joinPoint, Map<String, Object> attributes) {
+  private void addMethodParameterAttributes(Method method, JoinPoint joinPoint, Map<String, Object> attributes,
+                                            Map<Integer, String> transformMap) {
     Object[] fields = joinPoint.getArgs();
     Annotation[][] annotations = method.getParameterAnnotations();
     checkParameters(annotations, fields, transformMap, attributes);
@@ -213,7 +203,7 @@ public class TracklyticsAspect {
     }
     attributes.put(attribute.value(), value);
     if (attribute.isSuper()) {
-      superAttributes.put(attribute.value(), value);
+      tracklytics.superAttributes.put(attribute.value(), value);
     }
   }
 
@@ -229,7 +219,7 @@ public class TracklyticsAspect {
     }
     attributes.put(attribute.value(), value);
     if (attribute.isSuper()) {
-      superAttributes.put(attribute.value(), value);
+      tracklytics.superAttributes.put(attribute.value(), value);
     }
   }
 
@@ -240,7 +230,7 @@ public class TracklyticsAspect {
     for (FixedAttribute attribute : attributeList) {
       attributes.put(attribute.key(), attribute.value());
       if (attribute.isSuper()) {
-        superAttributes.put(attribute.key(), attribute.value());
+        tracklytics.superAttributes.put(attribute.key(), attribute.value());
       }
     }
   }
@@ -249,7 +239,7 @@ public class TracklyticsAspect {
     if (attribute == null) return;
     attributes.put(attribute.key(), attribute.value());
     if (attribute.isSuper()) {
-      superAttributes.put(attribute.key(), attribute.value());
+      tracklytics.superAttributes.put(attribute.key(), attribute.value());
     }
   }
 
@@ -274,7 +264,7 @@ public class TracklyticsAspect {
         }
         attributes.put(attribute.value(), result);
         if (attribute.isSuper()) {
-          superAttributes.put(attribute.value(), result);
+          tracklytics.superAttributes.put(attribute.value(), result);
         }
       }
       if (annotation instanceof TrackableAttribute) {
@@ -302,7 +292,7 @@ public class TracklyticsAspect {
 
         attributes.put(transformAttribute.value(), result);
         if (transformAttribute.isSuper()) {
-          superAttributes.put(transformAttribute.value(), result);
+          tracklytics.superAttributes.put(transformAttribute.value(), result);
         }
       }
     }
@@ -310,7 +300,7 @@ public class TracklyticsAspect {
 
   private void pushEvent(TrackEvent trackEvent, Map<String, Object> attributes) {
     if (tracklytics == null) return;
-    tracklytics.event(trackEvent, attributes, superAttributes);
+    tracklytics.event(trackEvent, attributes);
   }
 
 }

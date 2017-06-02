@@ -26,7 +26,7 @@ public class Tracklytics {
     return tracklytics;
   }
 
-  void event(TrackEvent trackEvent, Map<String, Object> attributes, Map<String, Object> superAttributes) {
+  void event(TrackEvent trackEvent, Map<String, Object> attributes) {
     eventSubscriber.onEvent(new Event(trackEvent, attributes, superAttributes));
   }
 
@@ -34,8 +34,7 @@ public class Tracklytics {
     eventSubscriber.onEvent(new Event(eventName, null, null, attributes, superAttributes));
   }
 
-  void log(long start, long stopMethod, long stopTracking, TrackEvent event, Map<String, Object> attrs,
-           Map<String, Object> superAttrs) {
+  void log(long start, long stopMethod, long stopTracking, TrackEvent event, Map<String, Object> attrs) {
     if (logger != null) {
       long method = TimeUnit.NANOSECONDS.toMillis(stopMethod - start);
       long total = TimeUnit.NANOSECONDS.toMillis(stopTracking - start);
@@ -53,7 +52,7 @@ public class Tracklytics {
           .append("-> ")
           .append(attrs.toString())
           .append(", super attrs: ")
-          .append(superAttrs.toString())
+          .append(superAttributes.toString())
           .append(", filters: ")
           .append(Arrays.toString(event.filters()));
       logger.log(builder.toString());
