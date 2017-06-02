@@ -3,7 +3,6 @@ package com.orhanobut.tracklytics;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Annotation based tracking event handler.
@@ -27,36 +26,30 @@ public class Tracklytics {
   }
 
   void event(TrackEvent trackEvent, Map<String, Object> attributes) {
-    eventSubscriber.onEvent(new Event(trackEvent, attributes, superAttributes));
+    Event event = new Event(trackEvent, attributes, superAttributes);
+    eventSubscriber.onEvent(event);
+    log(event);
   }
 
   public void trackEvent(String eventName, Map<String, Object> attributes) {
-    eventSubscriber.onEvent(new Event(eventName, null, null, attributes, superAttributes));
+    Event event = new Event(eventName, null, null, attributes, superAttributes);
+    eventSubscriber.onEvent(event);
+    log(event);
   }
 
-  void log(long start, long stopMethod, long stopTracking, TrackEvent event, Map<String, Object> attrs) {
-    if (logger != null) {
-      long method = TimeUnit.NANOSECONDS.toMillis(stopMethod - start);
-      long total = TimeUnit.NANOSECONDS.toMillis(stopTracking - start);
+  private void log(Event event) {
+    if (logger == null) return;
 
-      @SuppressWarnings("StringBufferReplaceableByString")
-      StringBuilder builder = new StringBuilder()
-          .append("[")
-          .append(method)  // Method execution time
-          .append("+")
-          .append(total - method)  // Tracking execution time
-          .append("=")
-          .append(total)  // Total execution time
-          .append("ms] ")
-          .append(event.value())
-          .append("-> ")
-          .append(attrs.toString())
-          .append(", super attrs: ")
-          .append(superAttributes.toString())
-          .append(", filters: ")
-          .append(Arrays.toString(event.filters()));
-      logger.log(builder.toString());
-    }
+    @SuppressWarnings("StringBufferReplaceableByString")
+    StringBuilder builder = new StringBuilder()
+        .append(event.eventName)
+        .append("-> ")
+        .append(event.attributes.toString())
+        .append(", super attrs: ")
+        .append(superAttributes.toString())
+        .append(", filters: ")
+        .append(Arrays.toString(event.filters));
+    logger.log(builder.toString());
   }
 
   public void setEventLogListener(EventLogListener logger) {

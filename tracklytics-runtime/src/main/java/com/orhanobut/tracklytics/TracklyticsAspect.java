@@ -108,9 +108,7 @@ public class TracklyticsAspect {
   @SuppressWarnings("UnusedReturnValue")
   @Around("methodAnnotatedWithTrackEvent() || constructorAnnotatedTrackEvent()")
   public Object weaveJoinPointTrackEvent(ProceedingJoinPoint joinPoint) throws Throwable {
-    long startNanos = System.nanoTime();
     Object result = joinPoint.proceed();
-    long stopNanosMethod = System.nanoTime();
 
     // Local attributes
     final Map<String, Object> attributes = new HashMap<>();
@@ -128,9 +126,6 @@ public class TracklyticsAspect {
     TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
 
     pushEvent(trackEvent, attributes);
-
-    long stopNanosTracking = System.nanoTime();
-    tracklytics.log(startNanos, stopNanosMethod, stopNanosTracking, trackEvent, attributes);
     return result;
   }
 

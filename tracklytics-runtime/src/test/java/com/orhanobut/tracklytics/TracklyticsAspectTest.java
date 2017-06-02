@@ -725,7 +725,7 @@ public class TracklyticsAspectTest {
 
     invokeMethod(Foo.class, "foo");
 
-    verify(logger).log(contains("] event-> {key=value}, super attrs: {}, filters: []"));
+    verify(logger).log("event-> {key=value}, super attrs: {}, filters: []");
   }
 
   @Test public void filters() throws Throwable {
