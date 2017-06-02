@@ -1,5 +1,7 @@
 package com.orhanobut.tracklytics;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +31,7 @@ public class Tracklytics {
     trackEvent(new Event(trackEvent, attributes, superAttributes));
   }
 
-  public void trackEvent(String eventName, Map<String, Object> attributes) {
+  public void trackEvent(String eventName, @Nullable Map<String, Object> attributes) {
     trackEvent(new Event(eventName, null, null, attributes, superAttributes));
   }
 

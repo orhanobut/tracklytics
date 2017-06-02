@@ -1,5 +1,6 @@
 package com.orhanobut.tracklytics;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,5 +31,12 @@ public class Event {
     this.tags = trackEvent.tags();
     this.attributes = attributes;
     this.superAttributes = superAttributes;
+  }
+
+  public Map<String, Object> getAllAttributes() {
+    Map<String, Object> allAttributes = new HashMap<>();
+    allAttributes.putAll(attributes);
+    allAttributes.putAll(superAttributes);
+    return allAttributes;
   }
 }

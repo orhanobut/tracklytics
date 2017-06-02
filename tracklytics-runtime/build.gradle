@@ -31,6 +31,8 @@ android {
 dependencies {
   provided deps.aspectjRuntime
 
+  compile 'com.intellij:annotations:12.0'
+
   testCompile deps.junit
   testCompile deps.truth
   testCompile deps.mockito

@@ -24,4 +24,17 @@ public class EventTest {
     assertThat(event.attributes).isEqualTo(attributes);
     assertThat(event.superAttributes).isEqualTo(superAttributes);
   }
+
+  @Test public void getAllAttributes() {
+    Map<String, Object> attributes = new HashMap<>();
+    attributes.put("key", "value");
+
+    Map<String, Object> superAttributes = new HashMap<>();
+    superAttributes.put("key1", "value1");
+
+    Event event = new Event("event_name", null, null, attributes, superAttributes);
+
+    assertThat(event.getAllAttributes()).containsEntry("key", "value");
+    assertThat(event.getAllAttributes()).containsEntry("key1", "value1");
+  }
 }
