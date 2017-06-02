@@ -9,8 +9,6 @@ import com.orhanobut.tracklytics.EventSubscriber;
 import com.orhanobut.tracklytics.TrackEvent;
 import com.orhanobut.tracklytics.Tracklytics;
 
-import java.util.Map;
-
 public class MainActivity extends Activity {
 
   @Override @TrackEvent("Event Java")
@@ -19,7 +17,7 @@ public class MainActivity extends Activity {
     setContentView(R.layout.activity_main);
 
     Tracklytics.init(new EventSubscriber() {
-      @Override public void onEvent(Event event, Map<String, Object> superAttributes) {
+      @Override public void onEvent(Event event) {
         Log.d("Tracker", event.eventName);
       }
     });
