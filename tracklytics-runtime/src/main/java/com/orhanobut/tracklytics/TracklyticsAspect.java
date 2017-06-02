@@ -18,8 +18,6 @@ public class TracklyticsAspect {
 
   private static Tracklytics tracklytics;
 
-  private final Map<String, Object> attributes = new HashMap<>();
-
   private Map<String, Object> superAttributes;
   private Map<Integer, String> transformMap;
 
@@ -121,18 +119,21 @@ public class TracklyticsAspect {
 
     setup();
 
+    // Local attributes
+    final Map<String, Object> attributes = new HashMap<>();
+
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
-    addClassAttributes(method, joinPoint);
+    addClassAttributes(method, joinPoint, attributes);
 
-    addMethodAttributes(method, result);
+    addMethodAttributes(method, result, attributes);
 
-    addMethodParameterAttributes(method, joinPoint);
+    addMethodParameterAttributes(method, joinPoint, attributes);
 
     // send the results
     TrackEvent trackEvent = method.getAnnotation(TrackEvent.class);
 
-    pushEvent(trackEvent);
+    pushEvent(trackEvent, attributes);
 
     long stopNanosTracking = System.nanoTime();
     tracklytics.log(startNanos, stopNanosMethod, stopNanosTracking, trackEvent, attributes, superAttributes);
@@ -140,12 +141,11 @@ public class TracklyticsAspect {
   }
 
   private void setup() {
-    attributes.clear();
     transformMap = null;
     superAttributes = tracklytics.superAttributes;
   }
 
-  private void addClassAttributes(Method method, JoinPoint joinPoint) {
+  private void addClassAttributes(Method method, JoinPoint joinPoint, Map<String, Object> attributes) {
     Class<?> declaringClass = method.getDeclaringClass();
 
     if (method.isAnnotationPresent(TrackableAttribute.class) && Trackable.class.isAssignableFrom(declaringClass)) {
@@ -156,27 +156,27 @@ public class TracklyticsAspect {
     }
 
     while (declaringClass != null) {
-      addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class));
-      addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class));
+      addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class), attributes);
+      addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class), attributes);
       declaringClass = declaringClass.getEnclosingClass();
     }
 
     declaringClass = joinPoint.getThis().getClass();
-    addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class));
-    addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class));
+    addFixedAttribute(declaringClass.getAnnotation(FixedAttribute.class), attributes);
+    addFixedAttributes(declaringClass.getAnnotation(FixedAttributes.class), attributes);
   }
 
-  private void addMethodAttributes(Method method, Object returnValue) {
+  private void addMethodAttributes(Method method, Object returnValue, Map<String, Object> attributes) {
     Annotation[] annotations = method.getDeclaredAnnotations();
     for (Annotation annotation : annotations) {
       if (annotation instanceof Attribute) {
-        addAttribute((Attribute) annotation, returnValue);
+        addAttribute((Attribute) annotation, returnValue, attributes);
       }
       if (annotation instanceof FixedAttribute) {
-        addFixedAttribute((FixedAttribute) annotation);
+        addFixedAttribute((FixedAttribute) annotation, attributes);
       }
       if (annotation instanceof FixedAttributes) {
-        addFixedAttributes((FixedAttributes) annotation);
+        addFixedAttributes((FixedAttributes) annotation, attributes);
       }
       if (annotation instanceof TransformAttributeMap) {
         TransformAttributeMap transformAttributeMap = (TransformAttributeMap) annotation;
@@ -191,18 +191,18 @@ public class TracklyticsAspect {
         }
       }
       if (annotation instanceof TransformAttribute) {
-        addTransformAttribute((TransformAttribute) annotation, returnValue, transformMap);
+        addTransformAttribute((TransformAttribute) annotation, returnValue, transformMap, attributes);
       }
     }
   }
 
-  private void addMethodParameterAttributes(Method method, JoinPoint joinPoint) {
+  private void addMethodParameterAttributes(Method method, JoinPoint joinPoint, Map<String, Object> attributes) {
     Object[] fields = joinPoint.getArgs();
     Annotation[][] annotations = method.getParameterAnnotations();
-    checkParameters(annotations, fields, transformMap);
+    checkParameters(annotations, fields, transformMap, attributes);
   }
 
-  private void addAttribute(Attribute attribute, Object methodResult) {
+  private void addAttribute(Attribute attribute, Object methodResult, Map<String, Object> attributes) {
     if (attribute == null) return;
 
     Object value = null;
@@ -217,7 +217,8 @@ public class TracklyticsAspect {
     }
   }
 
-  private void addTransformAttribute(TransformAttribute attribute, Object result, Map<Integer, String> transformMap) {
+  private void addTransformAttribute(TransformAttribute attribute, Object result, Map<Integer, String> transformMap,
+                                     Map<String, Object> attributes) {
     if (attribute == null) return;
 
     Object value = null;
@@ -232,7 +233,7 @@ public class TracklyticsAspect {
     }
   }
 
-  private void addFixedAttributes(FixedAttributes fixedAttributes) {
+  private void addFixedAttributes(FixedAttributes fixedAttributes, Map<String, Object> attributes) {
     if (fixedAttributes == null) return;
 
     FixedAttribute[] attributeList = fixedAttributes.value();
@@ -244,7 +245,7 @@ public class TracklyticsAspect {
     }
   }
 
-  private void addFixedAttribute(FixedAttribute attribute) {
+  private void addFixedAttribute(FixedAttribute attribute, Map<String, Object> attributes) {
     if (attribute == null) return;
     attributes.put(attribute.key(), attribute.value());
     if (attribute.isSuper()) {
@@ -252,7 +253,8 @@ public class TracklyticsAspect {
     }
   }
 
-  private void checkParameters(Annotation[][] keys, Object[] values, Map<Integer, String> transformAttributeMap) {
+  private void checkParameters(Annotation[][] keys, Object[] values, Map<Integer, String> transformAttributeMap,
+                               Map<String, Object> attributes) {
     if (keys == null || values == null) {
       return;
     }
@@ -306,7 +308,7 @@ public class TracklyticsAspect {
     }
   }
 
-  private void pushEvent(TrackEvent trackEvent) {
+  private void pushEvent(TrackEvent trackEvent, Map<String, Object> attributes) {
     if (tracklytics == null) return;
     tracklytics.event(trackEvent, attributes, superAttributes);
   }
