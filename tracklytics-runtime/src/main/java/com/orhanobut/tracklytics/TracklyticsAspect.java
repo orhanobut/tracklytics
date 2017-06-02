@@ -295,7 +295,7 @@ public class TracklyticsAspect {
 
   private void pushEvent(TrackEvent trackEvent, Map<String, Object> attributes) {
     if (tracklytics == null) return;
-    tracklytics.event(trackEvent, attributes);
+    tracklytics.trackEvent(trackEvent, attributes);
   }
 
 }

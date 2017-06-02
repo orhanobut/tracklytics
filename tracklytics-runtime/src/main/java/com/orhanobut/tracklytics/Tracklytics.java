@@ -25,14 +25,16 @@ public class Tracklytics {
     return tracklytics;
   }
 
-  void event(TrackEvent trackEvent, Map<String, Object> attributes) {
-    Event event = new Event(trackEvent, attributes, superAttributes);
-    eventSubscriber.onEvent(event);
-    log(event);
+  void trackEvent(TrackEvent trackEvent, Map<String, Object> attributes) {
+    trackEvent(new Event(trackEvent, attributes, superAttributes));
   }
 
   public void trackEvent(String eventName, Map<String, Object> attributes) {
-    Event event = new Event(eventName, null, null, attributes, superAttributes);
+    trackEvent(new Event(eventName, null, null, attributes, superAttributes));
+  }
+
+  // TODO: For now keep it private
+  private void trackEvent(Event event) {
     eventSubscriber.onEvent(event);
     log(event);
   }
