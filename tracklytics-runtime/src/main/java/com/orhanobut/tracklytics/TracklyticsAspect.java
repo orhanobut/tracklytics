@@ -22,19 +22,16 @@ public class TracklyticsAspect {
     TracklyticsAspect.aspectListener = listener;
   }
 
-  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackSuperAttribute * *(..))")
   public void methodAnnotatedWithSuperAttribute() {
     // No implementation is needed
   }
 
-  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackSuperAttribute *.new(..))")
   public void constructorAnnotatedWithSuperAttribute() {
     // No implementation is needed
   }
 
-  @SuppressWarnings("RedundantThrows")
   @Around("methodAnnotatedWithSuperAttribute() || constructorAnnotatedWithSuperAttribute()")
   public void weaveJoinPointSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
     // method attributes
@@ -73,19 +70,16 @@ public class TracklyticsAspect {
     }
   }
 
-  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.RemoveSuperAttribute * *(..))")
   public void methodAnnotatedWithRemoveSuperAttribute() {
     // No implementation is needed
   }
 
-  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.RemoveSuperAttribute *.new(..))")
   public void constructorAnnotatedWithRemoveSuperAttribute() {
     // No implementation is needed
   }
 
-  @SuppressWarnings("RedundantThrows")
   @Around("methodAnnotatedWithRemoveSuperAttribute() || constructorAnnotatedWithRemoveSuperAttribute()")
   public void weaveJoinPointRemoveSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
@@ -93,19 +87,16 @@ public class TracklyticsAspect {
     removeSuperAttribute(removeSuperAttribute.value());
   }
 
-  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackEvent * *(..))")
   public void methodAnnotatedWithTrackEvent() {
     // No implementation is needed
   }
 
-  @SuppressWarnings("unused")
   @Pointcut("execution(@com.orhanobut.tracklytics.TrackEvent *.new(..))")
   public void constructorAnnotatedTrackEvent() {
     // No implementation is needed
   }
 
-  @SuppressWarnings("UnusedReturnValue")
   @Around("methodAnnotatedWithTrackEvent() || constructorAnnotatedTrackEvent()")
   public Object weaveJoinPointTrackEvent(ProceedingJoinPoint joinPoint) throws Throwable {
     Object result = joinPoint.proceed();
