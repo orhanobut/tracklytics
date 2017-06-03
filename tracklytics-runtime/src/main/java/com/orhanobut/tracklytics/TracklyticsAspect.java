@@ -34,12 +34,7 @@ public class TracklyticsAspect {
 
   @Around("methodAnnotatedWithSuperAttribute() || constructorAnnotatedWithSuperAttribute()")
   public void weaveJoinPointSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
-    // method attributes
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-//    Object methodReturn = joinPoint.proceed();
-
-//    Attribute attribute = method.getAnnotation(Attribute.class);
-    // TODO: 04/07/16 add method attributes
 
     // method parameters
     Object[] fields = joinPoint.getArgs();
