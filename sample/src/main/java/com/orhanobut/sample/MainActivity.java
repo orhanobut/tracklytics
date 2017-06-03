@@ -18,7 +18,7 @@ public class MainActivity extends Activity {
 
     Tracklytics.init(new EventSubscriber() {
       @Override public void onEvent(Event event) {
-        Log.d("Tracker", event.eventName);
+        Log.d("Tracker", event.name);
       }
     });
 

@@ -7,10 +7,9 @@ import java.util.Map;
 /**
  * Annotation based tracking event handler.
  */
-public class Tracklytics {
+public class Tracklytics implements AspectListener {
 
-  final Map<String, Object> superAttributes = new HashMap<>();
-
+  private final Map<String, Object> superAttributes = new HashMap<>();
   private final EventSubscriber eventSubscriber;
 
   private EventLogListener logger;
@@ -19,14 +18,10 @@ public class Tracklytics {
     this.eventSubscriber = eventSubscriber;
   }
 
-  public static Tracklytics init(EventSubscriber subscriber) {
-    Tracklytics tracklytics = new Tracklytics(subscriber);
-    TracklyticsAspect.init(tracklytics);
+  public static Tracklytics init(EventSubscriber eventSubscriber) {
+    Tracklytics tracklytics = new Tracklytics(eventSubscriber);
+    TracklyticsAspect.subscribe(tracklytics);
     return tracklytics;
-  }
-
-  void trackEvent(TrackEvent trackEvent, Map<String, Object> attributes) {
-    trackEvent(new Event(trackEvent, attributes, superAttributes));
   }
 
   public void trackEvent(String eventName) {
@@ -39,7 +34,7 @@ public class Tracklytics {
 
   // TODO: For now keep it private
   private void trackEvent(Event event) {
-    eventSubscriber.onEvent(event);
+    eventSubscriber.onEventTracked(event);
     log(event);
   }
 
@@ -76,4 +71,15 @@ public class Tracklytics {
     this.superAttributes.remove(key);
   }
 
+  @Override public void onAspectEventTriggered(TrackEvent trackEvent, Map<String, Object> attributes) {
+    trackEvent(new Event(trackEvent, attributes, superAttributes));
+  }
+
+  @Override public void onAspectSuperAttributeAdded(String key, Object value) {
+    addSuperAttribute(key, value);
+  }
+
+  @Override public void onAspectSuperAttributeRemoved(String key) {
+    removeSuperAttribute(key);
+  }
 }

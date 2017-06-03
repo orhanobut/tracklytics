@@ -13,36 +13,42 @@ import java.util.Map;
 
 import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.TestCase.fail;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @SuppressWarnings("ALL")
 public class TracklyticsAspectTest {
 
-  private TracklyticsAspect aspect;
-  private Tracklytics tracklytics;
-
   @Mock ProceedingJoinPoint joinPoint;
   @Mock MethodSignature methodSignature;
-  EventSubscriber eventSubscriber;
 
-  private Event event;
+  private final Map<String, Object> superAttributes = new HashMap<>();
+
+  private TracklyticsAspect aspect;
+  private TrackEvent trackEvent;
+  private Map<String, Object> attributes;
+  private AspectListener aspectListener;
 
   @Before public void setup() throws Exception {
     initMocks(this);
 
-    tracklytics = spy(Tracklytics.init(new EventSubscriber() {
-      @Override public void onEvent(Event event) {
-        TracklyticsAspectTest.this.event = event;
+    aspectListener = new AspectListener() {
+      @Override public void onAspectEventTriggered(TrackEvent trackEvent, Map<String, Object> attributes) {
+        TracklyticsAspectTest.this.trackEvent = trackEvent;
+        TracklyticsAspectTest.this.attributes = attributes;
       }
-    }));
+
+      @Override public void onAspectSuperAttributeAdded(String key, Object value) {
+        superAttributes.put(key, value);
+      }
+
+      @Override public void onAspectSuperAttributeRemoved(String key) {
+        superAttributes.remove(key);
+      }
+    };
+
     aspect = new TracklyticsAspect();
-    aspect.init(tracklytics);
+    aspect.subscribe(aspectListener);
 
     when(joinPoint.getSignature()).thenReturn(methodSignature);
   }
@@ -75,8 +81,7 @@ public class TracklyticsAspectTest {
         .event("title")
         .noFilters()
         .noTags()
-        .noAttributes()
-        .noSuperAttributes();
+        .noAttributes();
   }
 
   @Test public void useReturnValueAsAttribute() throws Throwable {
@@ -93,8 +98,7 @@ public class TracklyticsAspectTest {
         .event("title")
         .noTags()
         .noFilters()
-        .attribute("key", "test")
-        .noSuperAttributes();
+        .attribute("key", "test");
   }
 
   @Test public void useReturnValueAndParametersAsAttributes() throws Throwable {
@@ -113,8 +117,7 @@ public class TracklyticsAspectTest {
         .noFilters()
         .noTags()
         .attribute("key1", "test")
-        .attribute("key2", "param")
-        .noSuperAttributes();
+        .attribute("key2", "param");
   }
 
   @Test public void useDefaultValueWhenThereIsNoReturnValue() throws Throwable {
@@ -129,8 +132,7 @@ public class TracklyticsAspectTest {
         .event("title")
         .noFilters()
         .noTags()
-        .attribute("key1", "defaultValue")
-        .noSuperAttributes();
+        .attribute("key1", "defaultValue");
   }
 
   @Test public void useReturnValueWhenItIsNotNull() throws Throwable {
@@ -147,8 +149,7 @@ public class TracklyticsAspectTest {
         .event("title")
         .noFilters()
         .noTags()
-        .attribute("key1", "returnValue")
-        .noSuperAttributes();
+        .attribute("key1", "returnValue");
   }
 
   @Test public void useDefaultValueWhenParameterValueIsNull() throws Throwable {
@@ -164,8 +165,7 @@ public class TracklyticsAspectTest {
         .event("title")
         .noFilters()
         .noTags()
-        .attribute("key1", "default")
-        .noSuperAttributes();
+        .attribute("key1", "default");
   }
 
   @Test public void fixedAttributeOnMethodScope() throws Throwable {
@@ -181,8 +181,7 @@ public class TracklyticsAspectTest {
         .event("title")
         .noFilters()
         .noTags()
-        .attribute("key1", "value")
-        .noSuperAttributes();
+        .attribute("key1", "value");
   }
 
   @Test public void fixedAttributeOnClassScope() throws Throwable {
@@ -206,8 +205,7 @@ public class TracklyticsAspectTest {
         .attribute("key1", "value1")
         .attribute("key2", "value2")
         .attribute("key3", "value3")
-        .attribute("key4", "value4")
-        .noSuperAttributes();
+        .attribute("key4", "value4");
   }
 
   @Test public void fixedAttributeAndAttributeAtSameTime() throws Throwable {
@@ -228,8 +226,7 @@ public class TracklyticsAspectTest {
         .noFilters()
         .noTags()
         .attribute("key1", "value1")
-        .attribute("key2", "value2")
-        .noSuperAttributes();
+        .attribute("key2", "value2");
   }
 
   @Test public void fixedAttributes() throws Throwable {
@@ -251,8 +248,7 @@ public class TracklyticsAspectTest {
         .noTags()
         .attribute("key1", "value1")
         .attribute("key2", "value2")
-        .attribute("key3", "value3")
-        .noSuperAttributes();
+        .attribute("key3", "value3");
   }
 
   @Test public void superAttribute() throws Throwable {
@@ -262,32 +258,14 @@ public class TracklyticsAspectTest {
       public String foo(@Attribute(value = "key2", isSuper = true) String value) {
         return "value1";
       }
-
-      @TrackEvent("event2")
-      public void foo2() {
-      }
     }
 
     when(joinPoint.proceed()).thenReturn("value1");
     when(joinPoint.getArgs()).thenReturn(new Object[]{"value2"});
+
     invokeMethod(Foo.class, "foo", String.class);
 
-    assertTrack()
-        .event("title")
-        .noFilters()
-        .noTags()
-        .attribute("key1", "value1")
-        .attribute("key2", "value2")
-        .superAttribute("key1", "value1")
-        .superAttribute("key2", "value2");
-
-    invokeMethod(Foo.class, "foo2");
-    assertTrack()
-        .event("event2")
-        .noFilters()
-        .noAttributes()
-        .superAttribute("key1", "value1")
-        .superAttribute("key2", "value2");
+    assertThat(superAttributes).containsExactly("key1", "value1", "key2", "value2");
   }
 
   @Test public void superFixedAttribute() throws Throwable {
@@ -301,34 +279,32 @@ public class TracklyticsAspectTest {
       public String foo() {
         return "returnValue";
       }
-
-      @TrackEvent("event2")
-      public void foo2() {
-      }
     }
 
     when(joinPoint.proceed()).thenReturn("value1");
     invokeMethod(Foo.class, "foo");
 
-    assertTrack()
-        .event("title")
-        .noFilters()
-        .noTags()
-        .attribute("key1", "value1")
-        .attribute("key2", "value2")
-        .attribute("key3", "value3")
-        .superAttribute("key2", "value2")
-        .superAttribute("key3", "value3");
+    assertThat(superAttributes).containsExactly("key2", "value2", "key3", "value3");
+  }
 
-    invokeMethod(Foo.class, "foo2");
+  @Test public void superTransformAttribute() throws Throwable {
+    class Foo {
+      @TrackEvent("event")
+      @TransformAttributeMap(
+          keys = {0, 1},
+          values = {"value1", "value2"}
+      )
+      @TransformAttribute(value = "key1", isSuper = true)
+      public int foo(@TransformAttribute(value = "key2", isSuper = true) Integer val) {
+        return 0;
+      }
+    }
 
-    assertTrack()
-        .event("event2")
-        .noFilters()
-        .noTags()
-        .noAttributes()
-        .superAttribute("key2", "value2")
-        .superAttribute("key3", "value3");
+    when(joinPoint.proceed()).thenReturn(0);
+    when(joinPoint.getArgs()).thenReturn(new Object[]{1});
+    invokeMethod(Foo.class, "foo", Integer.class);
+
+    assertThat(superAttributes).containsExactly("key1", "value1", "key2", "value2");
   }
 
   @Test public void trackable() throws Throwable {
@@ -356,8 +332,7 @@ public class TracklyticsAspectTest {
         .noFilters()
         .noTags()
         .attribute("key1", "value1")
-        .attribute("key2", "value2")
-        .noSuperAttributes();
+        .attribute("key2", "value2");
   }
 
   @Test public void ignoreNullValuesOnTrackable() throws Throwable {
@@ -381,8 +356,7 @@ public class TracklyticsAspectTest {
         .event("title")
         .noFilters()
         .noTags()
-        .noAttributes()
-        .noSuperAttributes();
+        .noAttributes();
   }
 
   @Test public void throwExceptionWhenTrackableAnnotationNotMatchWithValue() throws Throwable {
@@ -440,8 +414,7 @@ public class TracklyticsAspectTest {
         .noFilters()
         .noTags()
         .attribute("key1", "value1")
-        .attribute("key2", "value2")
-        .noSuperAttributes();
+        .attribute("key2", "value2");
   }
 
   @Test public void transformAttributeForParameters() throws Throwable {
@@ -462,8 +435,7 @@ public class TracklyticsAspectTest {
         .event("event")
         .noFilters()
         .noTags()
-        .attribute("key1", "value1")
-        .noSuperAttributes();
+        .attribute("key1", "value1");
   }
 
   @Test public void transformAttributeMapInvalidState() throws Throwable {
@@ -522,35 +494,7 @@ public class TracklyticsAspectTest {
         .event("event")
         .noFilters()
         .noTags()
-        .attribute("key1", "value2")
-        .noSuperAttributes();
-  }
-
-  @Test public void superTransformAttribute() throws Throwable {
-    class Foo {
-      @TrackEvent("event")
-      @TransformAttributeMap(
-          keys = {0, 1},
-          values = {"value1", "value2"}
-      )
-      @TransformAttribute(value = "key1", isSuper = true)
-      public int foo(@TransformAttribute(value = "key2", isSuper = true) Integer val) {
-        return 0;
-      }
-    }
-
-    when(joinPoint.proceed()).thenReturn(0);
-    when(joinPoint.getArgs()).thenReturn(new Object[]{1});
-    invokeMethod(Foo.class, "foo", Integer.class);
-
-    assertTrack()
-        .event("event")
-        .noFilters()
-        .noTags()
-        .attribute("key1", "value1")
-        .attribute("key2", "value2")
-        .superAttribute("key1", "value1")
-        .superAttribute("key2", "value2");
+        .attribute("key1", "value2");
   }
 
   @Test public void transformAttributeDefaultValue() throws Throwable {
@@ -574,8 +518,7 @@ public class TracklyticsAspectTest {
         .noFilters()
         .noTags()
         .attribute("key1", "default1")
-        .attribute("key2", "default2")
-        .noSuperAttributes();
+        .attribute("key2", "default2");
   }
 
   @Test public void trackableAttributeForCurrentClass() throws Throwable {
@@ -601,8 +544,7 @@ public class TracklyticsAspectTest {
         .event("event")
         .noFilters()
         .noTags()
-        .attribute("key", "value")
-        .noSuperAttributes();
+        .attribute("key", "value");
   }
 
   @Test public void doNotUseTrackableAttributesWhenTrackableAttributeNotExists() throws Throwable {
@@ -626,8 +568,7 @@ public class TracklyticsAspectTest {
         .event("event")
         .noFilters()
         .noTags()
-        .noAttributes()
-        .noSuperAttributes();
+        .noAttributes();
   }
 
   @Test public void ignoreNullValueOnTrackableAttributeForCurrentClass() throws Throwable {
@@ -651,8 +592,7 @@ public class TracklyticsAspectTest {
         .event("event")
         .noFilters()
         .noTags()
-        .noAttributes()
-        .noSuperAttributes();
+        .noAttributes();
   }
 
   @Test public void overrideClassWideAttributeOnMethodWhenAttributesAreSame() throws Throwable {
@@ -678,8 +618,7 @@ public class TracklyticsAspectTest {
         .noFilters()
         .noTags()
         .attribute("key", "method")
-        .attribute("key1", "method1")
-        .noSuperAttributes();
+        .attribute("key1", "method1");
   }
 
   @Test public void useThisClassWhenCalledFromSuperClass() throws Throwable {
@@ -708,24 +647,7 @@ public class TracklyticsAspectTest {
         .noTags()
         .attribute("key0", "value0")
         .attribute("key", "value")
-        .attribute("key2", "value2")
-        .noSuperAttributes();
-  }
-
-  @Test public void log() throws Throwable {
-    EventLogListener logger = mock(EventLogListener.class);
-    tracklytics.setEventLogListener(logger);
-
-    class Foo {
-      @TrackEvent("event")
-      @FixedAttribute(key = "key", value = "value")
-      public void foo() {
-      }
-    }
-
-    invokeMethod(Foo.class, "foo");
-
-    verify(logger).log("event-> {key=value}, super attrs: {}, filters: []");
+        .attribute("key2", "value2");
   }
 
   @Test public void filters() throws Throwable {
@@ -743,8 +665,7 @@ public class TracklyticsAspectTest {
         .event("event")
         .noTags()
         .filters(100, 200)
-        .noAttributes()
-        .noSuperAttributes();
+        .noAttributes();
   }
 
   @Test public void tags() throws Throwable {
@@ -762,43 +683,11 @@ public class TracklyticsAspectTest {
         .event("event")
         .noFilters()
         .tags("abc", "123")
-        .noAttributes()
-        .noSuperAttributes();
-  }
-
-  @Test public void superAttributeWithoutTrackEvent() throws Throwable {
-    class Foo {
-      @TrackSuperAttribute
-      public void foo(@Attribute("key3") String value) {
-      }
-    }
-
-    when(joinPoint.getArgs()).thenReturn(new Object[]{"value3"});
-    initMethod(Foo.class, "foo", String.class);
-
-    aspect.weaveJoinPointSuperAttribute(joinPoint);
-
-    assertThat(tracklytics.superAttributes).containsEntry("key3", "value3");
-    verifyZeroInteractions(tracklytics);
-  }
-
-  @Test public void removeSuperAttribute() throws Throwable {
-    tracklytics.superAttributes.put("key", "value");
-
-    class Foo {
-      @RemoveSuperAttribute("key")
-      public void foo() {
-      }
-    }
-
-    initMethod(Foo.class, "foo");
-    aspect.weaveJoinPointRemoveSuperAttribute(joinPoint);
-
-    assertThat(tracklytics.superAttributes).doesNotContainKey("key");
+        .noAttributes();
   }
 
   AssertTracker assertTrack() {
-    return new AssertTracker(event);
+    return new AssertTracker(trackEvent, attributes);
   }
 
 }

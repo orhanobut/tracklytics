@@ -9,5 +9,5 @@ package com.orhanobut.tracklytics;
 @SuppressWarnings("WeakerAccess")
 public interface EventSubscriber {
 
-  void onEvent(Event event);
+  void onEventTracked(Event event);
 }

@@ -16,10 +16,10 @@ import java.util.Map;
 @SuppressWarnings("WeakerAccess")
 public class TracklyticsAspect {
 
-  private static Tracklytics tracklytics;
+  private static AspectListener aspectListener;
 
-  static void init(Tracklytics tracklytics) {
-    TracklyticsAspect.tracklytics = tracklytics;
+  static void subscribe(AspectListener listener) {
+    TracklyticsAspect.aspectListener = listener;
   }
 
   @SuppressWarnings("unused")
@@ -68,7 +68,7 @@ public class TracklyticsAspect {
         } else if (attribute.defaultValue().length() != 0) {
           result = attribute.defaultValue();
         }
-        tracklytics.superAttributes.put(attribute.value(), result);
+        addSuperAttribute(attribute.value(), result);
       }
     }
   }
@@ -90,7 +90,7 @@ public class TracklyticsAspect {
   public void weaveJoinPointRemoveSuperAttribute(ProceedingJoinPoint joinPoint) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     RemoveSuperAttribute removeSuperAttribute = method.getAnnotation(RemoveSuperAttribute.class);
-    tracklytics.removeSuperAttribute(removeSuperAttribute.value());
+    removeSuperAttribute(removeSuperAttribute.value());
   }
 
   @SuppressWarnings("unused")
@@ -198,7 +198,7 @@ public class TracklyticsAspect {
     }
     attributes.put(attribute.value(), value);
     if (attribute.isSuper()) {
-      tracklytics.superAttributes.put(attribute.value(), value);
+      addSuperAttribute(attribute.value(), value);
     }
   }
 
@@ -214,7 +214,7 @@ public class TracklyticsAspect {
     }
     attributes.put(attribute.value(), value);
     if (attribute.isSuper()) {
-      tracklytics.superAttributes.put(attribute.value(), value);
+      addSuperAttribute(attribute.value(), value);
     }
   }
 
@@ -225,7 +225,7 @@ public class TracklyticsAspect {
     for (FixedAttribute attribute : attributeList) {
       attributes.put(attribute.key(), attribute.value());
       if (attribute.isSuper()) {
-        tracklytics.superAttributes.put(attribute.key(), attribute.value());
+        addSuperAttribute(attribute.key(), attribute.value());
       }
     }
   }
@@ -234,7 +234,7 @@ public class TracklyticsAspect {
     if (attribute == null) return;
     attributes.put(attribute.key(), attribute.value());
     if (attribute.isSuper()) {
-      tracklytics.superAttributes.put(attribute.key(), attribute.value());
+      addSuperAttribute(attribute.key(), attribute.value());
     }
   }
 
@@ -259,7 +259,7 @@ public class TracklyticsAspect {
         }
         attributes.put(attribute.value(), result);
         if (attribute.isSuper()) {
-          tracklytics.superAttributes.put(attribute.value(), result);
+          addSuperAttribute(attribute.value(), result);
         }
       }
       if (annotation instanceof TrackableAttribute) {
@@ -287,15 +287,28 @@ public class TracklyticsAspect {
 
         attributes.put(transformAttribute.value(), result);
         if (transformAttribute.isSuper()) {
-          tracklytics.superAttributes.put(transformAttribute.value(), result);
+          addSuperAttribute(transformAttribute.value(), result);
         }
       }
     }
   }
 
   private void pushEvent(TrackEvent trackEvent, Map<String, Object> attributes) {
-    if (tracklytics == null) return;
-    tracklytics.trackEvent(trackEvent, attributes);
+    if (aspectListener == null) return;
+
+    aspectListener.onAspectEventTriggered(trackEvent, attributes);
+  }
+
+  private void addSuperAttribute(String key, Object value) {
+    if (aspectListener == null) return;
+
+    aspectListener.onAspectSuperAttributeAdded(key, value);
+  }
+
+  private void removeSuperAttribute(String key) {
+    if (aspectListener == null) return;
+
+    aspectListener.onAspectSuperAttributeRemoved(key);
   }
 
 }

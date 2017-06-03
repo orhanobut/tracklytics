@@ -1,61 +1,55 @@
 package com.orhanobut.tracklytics;
 
+import java.util.Map;
+
 import static com.google.common.truth.Truth.assertThat;
 
 class AssertTracker {
 
-  private Event event;
+  private final TrackEvent trackEvent;
+  private final Map<String, Object> attributes;
 
-  AssertTracker(Event event) {
-    this.event = event;
+  AssertTracker(TrackEvent trackEvent, Map<String, Object> attributes) {
+    this.trackEvent = trackEvent;
+    this.attributes = attributes;
   }
 
   AssertTracker event(String name) {
-    assertThat(event.name).isEqualTo(name);
+    assertThat(trackEvent.value()).isEqualTo(name);
     return this;
   }
 
   AssertTracker filters(int... tags) {
     for (int tag : tags) {
-      assertThat(event.filters).asList().contains(tag);
+      assertThat(trackEvent.filters()).asList().contains(tag);
     }
     return this;
   }
 
   AssertTracker noFilters() {
-    assertThat(event.filters).isEmpty();
+    assertThat(trackEvent.filters()).isEmpty();
     return this;
   }
 
   AssertTracker tags(String... tags) {
     for (String tag : tags) {
-      assertThat(event.tags).asList().contains(tag);
+      assertThat(trackEvent.tags()).asList().contains(tag);
     }
     return this;
   }
 
   AssertTracker noTags() {
-    assertThat(event.tags).isEmpty();
+    assertThat(trackEvent.tags()).isEmpty();
     return this;
   }
 
   AssertTracker attribute(String key, Object value) {
-    assertThat(event.attributes).containsEntry(key, value);
+    assertThat(attributes).containsEntry(key, value);
     return this;
   }
 
   AssertTracker noAttributes() {
-    assertThat(event.attributes).isEmpty();
+    assertThat(attributes).isEmpty();
     return this;
   }
-
-  AssertTracker superAttribute(String key, Object value) {
-    assertThat(event.superAttributes).containsEntry(key, value);
-    return this;
-  }
-
-  void noSuperAttributes() {
-    assertThat(event.superAttributes).isEmpty();
-  }
-
 }
