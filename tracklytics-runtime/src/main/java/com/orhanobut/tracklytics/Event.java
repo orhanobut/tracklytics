@@ -10,7 +10,7 @@ import java.util.Map;
 @SuppressWarnings("WeakerAccess")
 public class Event {
 
-  public final String eventName;
+  public final String name;
   public final int[] filters;
   public final String[] tags;
   public final Map<String, Object> attributes;
@@ -18,7 +18,7 @@ public class Event {
 
   public Event(String eventName, int[] filters, String[] tags, Map<String, Object> attributes,
                Map<String, Object> superAttributes) {
-    this.eventName = eventName;
+    this.name = eventName;
     this.filters = filters;
     this.tags = tags;
     this.attributes = attributes;
@@ -26,7 +26,7 @@ public class Event {
   }
 
   public Event(TrackEvent trackEvent, Map<String, Object> attributes, Map<String, Object> superAttributes) {
-    this.eventName = trackEvent.value();
+    this.name = trackEvent.value();
     this.filters = trackEvent.filters();
     this.tags = trackEvent.tags();
     this.attributes = attributes;

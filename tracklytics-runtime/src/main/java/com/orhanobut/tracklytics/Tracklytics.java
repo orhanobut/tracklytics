@@ -1,7 +1,5 @@
 package com.orhanobut.tracklytics;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +29,11 @@ public class Tracklytics {
     trackEvent(new Event(trackEvent, attributes, superAttributes));
   }
 
-  public void trackEvent(String eventName, @Nullable Map<String, Object> attributes) {
+  public void trackEvent(String eventName) {
+    trackEvent(new Event(eventName, null, null, null, superAttributes));
+  }
+
+  public void trackEvent(String eventName, Map<String, Object> attributes) {
     trackEvent(new Event(eventName, null, null, attributes, superAttributes));
   }
 
@@ -46,7 +48,7 @@ public class Tracklytics {
 
     @SuppressWarnings("StringBufferReplaceableByString")
     StringBuilder builder = new StringBuilder()
-        .append(event.eventName)
+        .append(event.name)
         .append("-> ")
         .append(event.attributes.toString())
         .append(", super attrs: ")

@@ -11,7 +11,7 @@ class AssertTracker {
   }
 
   AssertTracker event(String name) {
-    assertThat(event.eventName).isEqualTo(name);
+    assertThat(event.name).isEqualTo(name);
     return this;
   }
 

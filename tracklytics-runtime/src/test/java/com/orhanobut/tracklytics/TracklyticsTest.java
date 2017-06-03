@@ -54,7 +54,18 @@ public class TracklyticsTest {
 
     verify(eventSubscriber).onEvent(eventCaptor.capture());
 
-    assertThat(eventCaptor.getValue().eventName).isEqualTo("event_name");
+    assertThat(eventCaptor.getValue().name).isEqualTo("event_name");
     assertThat(eventCaptor.getValue().attributes).containsEntry("key", "value");
+  }
+
+  @Test public void trackWithEvent() {
+    tracklytics.trackEvent("event_name");
+
+    ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+    verify(eventSubscriber).onEvent(eventCaptor.capture());
+
+    assertThat(eventCaptor.getValue().name).isEqualTo("event_name");
+    assertThat(eventCaptor.getValue().attributes).isNull();
   }
 }
