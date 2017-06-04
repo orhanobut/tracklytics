@@ -9,8 +9,8 @@ Events have a common pattern, and almost all of them have the following structur
 1. Event name 
 2. Event metadata as attributes (key/value pair)
 
-### How to use it
-##### Download
+## How to use it
+#### Download
 Add the following code block to in your app/build.gradle. 
 ```groovy
 buildscript {
@@ -24,7 +24,7 @@ apply plugin: 'com.orhanobut.tracklytics'   // Must be added after com.android.a
 
 ```
 
-##### Initiate
+#### Initiate
 Subscribe to all tracked events and send them to your preferred analytic tools.
 ```java
 Tracklytics.init(new EventSubscriber() {
@@ -34,17 +34,17 @@ Tracklytics.init(new EventSubscriber() {
 });
 ```
 
-##### Use
+#### Use
 ```java
 @TrackEvent("event_name") 
 public void foo() {
 }
 ```
 
-### Guideline
+## Guideline
 
-#### @TrackEvent
-**Scope:** Method
+### @TrackEvent
+_**Scope:** Method_
 
 Track an event and notify the subscriber(EventSubscriber) on each method invocation.
 ```java
@@ -53,8 +53,8 @@ public void foo() {
 }
 ```
 
-#### @Attribute
-**Scope:** Method, Method parameters
+### @Attribute
+_**Scope:** Method, Method parameters_
 
 There are multiple ways to add an attribute to the corresponding event. Assigns the values in runtime dynamically.
 
@@ -84,8 +84,8 @@ public void foo(@Attribute(value="attribute_key", defaultValue="defaultValue") S
 }
 ```
 
-#### @FixedAttribute
-**Scope:** Method, Class
+### @FixedAttribute
+_**Scope:** Method, Class_
 
 If the attribute values are constant, use FixedAttribute. 
 
@@ -109,8 +109,8 @@ public class LoginPresenter{
 }
 ```
 
-#### @FixedAttributes
-**Scope:** Method, Class
+### @FixedAttributes
+_**Scope:** Method, Class_
 
 Prior to Java 8, repeated annotations are not available. Sometimes you may need more fixed attributes. Use this annotation to add multiple attributes
 ```java
@@ -123,7 +123,7 @@ public void foo(){
 }
 ```
 
-#### Filters
+### Filters
 Use filters to differentiate some events. You may only want to send specific events to a specific analytics tool. 
 ie: Send login event to Fabric.
 ```java
@@ -132,7 +132,7 @@ public void foo() {
 }
 ```
 
-#### Tags
+### Tags
 You can use tags to send more information about the tracked event. For example: Adjust requires token for their events.
 ```java
 @TrackEvent(value="event",filters=100, tags="abc123")
@@ -140,7 +140,7 @@ public void trackNoValues() {
 }
 ```
 
-#### Super Attributes
+### Super Attributes
 Some attributes might be used for every event within the app such as device id.
 Tracklytics call them as super attributes. These attributes will be automatically added to each event.
 You only need to set them once and Tracklytics will do the rest.
@@ -174,7 +174,7 @@ Remove super attribute
 tracklytics.removeSuperAttribute("key");
 ```
 
-#### @TrackableAttribute / @Trackable
+### @TrackableAttribute / @Trackable
 You can make the class trackable in order to provide preset values. 
 Imagine your domain models, they contain a lot of information and you can re-use them as a source for tracking.
 For the following use case: When `event` is triggered, attributes from `Foo.getTrackableAttributes()` will be added to this event.
@@ -196,7 +196,7 @@ void something(@TrackableAttribute FooTrackable foo){
 }
 ```
 
-#### @TransformAttribute / @TransformAttributeMap
+### @TransformAttribute / @TransformAttributeMap
 Sometimes values are not in the correct form, such as position or index is in Integer type. 
 This might not be clear if you track them as raw.
 You may want to send a more understandable value to the analytic tools.
@@ -219,7 +219,7 @@ class Foo {
 // foo(1) : event -> [{"key","value1}]
 ```
 
-#### Log
+### Log
 Tracklytics provides a stream for logs which sends formatted event messages.
 ```java
 Tracker tracklytics = Tracker.init(...);
@@ -235,10 +235,18 @@ Log output sample
 eventName:{key=value}, super attrs: {key=value}, tags={100,200}
 ```
 
-#### Event Debugging Monitor
+### More API options
+You can also track event directly without annotations.
+```java
+tracklytics.trackEvent(String eventName)
+
+tracklytics.trackEvent(String eventName, Map attributes)
+```
+
+### Event Debugging Monitor
 Use [Bee](https://github.com/orhanobut/bee) to monitor your events
 
-#### How it works
+### How it works
 <img src='https://github.com/orhanobut/tracklytics/blob/master/art/how_it_works.png'/>
 
 ### Licence
