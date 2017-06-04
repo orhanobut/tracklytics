@@ -28,7 +28,7 @@ apply plugin: 'com.orhanobut.tracklytics'   // Must be added after com.android.a
 Subscribe to all tracked events and send them to your preferred analytic tools.
 ```java
 Tracklytics.init(new EventSubscriber() {
-  @Override public void onEvent(Event event) {
+  @Override public void onEventTracked(Event event) {
     // Send your events to Mixpanel, Fabric etc
   }
 });
