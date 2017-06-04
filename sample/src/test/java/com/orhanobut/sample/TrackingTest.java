@@ -20,7 +20,7 @@ public class TrackingTest {
 
   @Before public void setup() {
     Tracklytics.init(new EventSubscriber() {
-      @Override public void onEvent(Event event) {
+      @Override public void onEventTracked(Event event) {
         triggeredEvents.put(event.name, event);
       }
     });

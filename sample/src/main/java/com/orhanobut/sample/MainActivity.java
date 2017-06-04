@@ -29,7 +29,7 @@ public class MainActivity extends Activity implements Trackable {
     setContentView(R.layout.activity_main);
 
     Tracklytics.init(new EventSubscriber() {
-      @Override public void onEvent(Event event) {
+      @Override public void onEventTracked(Event event) {
         // Send your events to Mixpanel, Fabric etc
       }
     }).setEventLogListener(new EventLogListener() {
