@@ -1,22 +1,16 @@
 language: android
+jdk: oraclejdk8
 
 android:
   components:
     - tools
     - platform-tools
-    - build-tools-24.0.0
+    - build-tools-25.0.2
     - android-23
     - android-24
-
-addons:
-  apt_packages:
-    - pandoc
 
 env:
 - GRADLE_OPTS="-Xmx512m -XX:MaxPermSize=512m"
 
 script:
- - ./gradlew tracklytics-runtime:check
-
-after_failure:
-  - pandoc tracklytics-runtime/build/outputs/lint-results.html -t plain
+ - ./gradlew check

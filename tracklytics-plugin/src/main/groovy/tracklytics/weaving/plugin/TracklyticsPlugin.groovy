@@ -1,8 +1,5 @@
 package tracklytics.weaving.plugin
 
-import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.LibraryPlugin
-import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 import org.gradle.api.Plugin
@@ -11,60 +8,46 @@ import org.gradle.api.tasks.compile.JavaCompile
 
 class TracklyticsPlugin implements Plugin<Project> {
 
-  @Override void apply(Project project) {
-    def hasApp = project.plugins.withType(AppPlugin)
-    def hasLib = project.plugins.withType(LibraryPlugin)
-    if (!hasApp && !hasLib) {
-      throw new IllegalStateException("com.android.application or com.android.library plugin required.")
-    }
-
-    final def log = project.logger
-    final def variants
-    if (hasApp) {
-      variants = project.android.applicationVariants
-    } else {
-      variants = project.android.libraryVariants
-    }
+  @Override
+  void apply(Project project) {
 
     project.dependencies {
-      compile 'org.aspectj:aspectjrt:1.8.6'
-      compile 'com.orhanobut.tracklytics:tracklytics-runtime:1.3.0@aar'
+      compile 'org.aspectj:aspectjrt:1.8.10'
+      compile 'com.orhanobut.tracklytics:tracklytics-runtime:2.0.0'
     }
 
-    variants.all { variant ->
+    project.android.applicationVariants.all { variant ->
       JavaCompile javaCompile = variant.javaCompile
-      javaCompile.doLast {
-        String[] args = [
-            "-showWeaveInfo",
-            "-1.5",
-            "-inpath", javaCompile.destinationDir.toString(),
-            "-aspectpath", javaCompile.classpath.asPath,
-            "-d", javaCompile.destinationDir.toString(),
-            "-classpath", javaCompile.classpath.asPath,
-            "-bootclasspath", project.android.bootClasspath.join(File.pathSeparator)
-        ]
-        log.debug "ajc args: " + Arrays.toString(args)
+      String[] args = [
+          "-showWeaveInfo",
+          "-1.7",
+          "-inpath", javaCompile.destinationDir.toString(),
+          "-aspectpath", javaCompile.classpath.asPath,
+          "-d", javaCompile.destinationDir.toString(),
+          "-classpath", javaCompile.classpath.asPath,
+          "-bootclasspath", project.android.bootClasspath.join(File.pathSeparator)
+      ]
+      // Gets the variant name and capitalize the first character
+      def variantName = variant.name[0].toUpperCase() + variant.name[1..-1].toLowerCase()
 
-        MessageHandler handler = new MessageHandler(true);
-        new Main().run(args, handler);
-        for (IMessage message : handler.getMessages(null, true)) {
-          switch (message.getKind()) {
-            case IMessage.ABORT:
-            case IMessage.ERROR:
-            case IMessage.FAIL:
-              log.error message.message, message.thrown
-              break;
-            case IMessage.WARNING:
-              log.warn message.message, message.thrown
-              break;
-            case IMessage.INFO:
-              log.info message.message, message.thrown
-              break;
-            case IMessage.DEBUG:
-              log.debug message.message, message.thrown
-              break;
-          }
-        }
+      // Weave the binary for the actual code
+      // CompileSources task is invoked after java and kotlin compilers and copy kotlin classes
+      // That's the moment we have the finalized byte code and we can weave the aspects
+      project.tasks.findByName('compile' + variantName + 'Sources')?.doLast {
+        new Main().run(args, new MessageHandler(true));
+        println("----------------------------------------------")
+        println("--------------Tracklytics Weave---------------")
+        println("----------------------------------------------")
+      }
+
+      // Weave the binary for unit tests
+      // compile unit tests task is invoked after the byte code is finalized
+      // This is the time that we can weave the aspects onto byte code
+      project.tasks.findByName('compile' + variantName + 'UnitTestSources')?.doLast {
+        new Main().run(args, new MessageHandler(true));
+        println("----------------------------------------------")
+        println("--------------Tracklytics Weave---------------")
+        println("----------------------------------------------")
       }
     }
   }

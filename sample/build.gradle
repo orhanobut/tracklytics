@@ -1,0 +1,53 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.orhanobut.tracklytics'
+
+buildscript {
+  repositories {
+    mavenCentral()
+    mavenLocal()
+  }
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.2-3"
+    classpath 'com.orhanobut.tracklytics:tracklytics-plugin:2.0.0'
+  }
+}
+
+repositories {
+  mavenCentral()
+
+  // NOTE: This is only needed when developing the plugin!
+  mavenLocal()
+}
+
+android {
+  compileSdkVersion 25
+  buildToolsVersion "25.0.2"
+
+  compileOptions {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+  }
+
+  defaultConfig {
+    applicationId "com.orhanobut.sample"
+    minSdkVersion 16
+    targetSdkVersion 25
+    versionCode 1
+    versionName "1.0"
+  }
+
+  sourceSets {
+    test.java.srcDirs += 'src/test/kotlin'
+
+    main.java.srcDirs += 'src/main/kotlin'
+  }
+}
+
+dependencies {
+  testCompile deps.junit
+  testCompile deps.truth
+
+  compile "org.jetbrains.kotlin:kotlin-stdlib:1.1.0"
+}
