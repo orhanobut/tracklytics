@@ -18,6 +18,7 @@ build/
 *.iml
 *.ipr
 *.iws
+**/.idea/
 **/.idea/shelf
 **/.idea/workspace.xml
 **/.idea/tasks.xml
