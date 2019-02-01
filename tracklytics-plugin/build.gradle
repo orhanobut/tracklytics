@@ -2,13 +2,13 @@ apply plugin: 'groovy'
 apply plugin: 'nexus'
 
 dependencies {
-  compile gradleApi()
-  compile localGroovy()
-  compile 'org.aspectj:aspectjtools:1.8.10'
-  compile 'org.aspectj:aspectjrt:1.8.10'
-  compile 'com.android.tools.build:gradle:2.3.0'
+  implementation gradleApi()
+  implementation localGroovy()
+  implementation 'org.aspectj:aspectjtools:1.8.10'
+  implementation 'org.aspectj:aspectjrt:1.8.10'
+  implementation 'com.android.tools.build:gradle:3.3.0'
 
-  testCompile deps.junit
+  testImplementation 'junit:junit:4.12'
 }
 
 modifyPom {
@@ -27,7 +27,7 @@ modifyPom {
       license {
         name POM_LICENCE_NAME
         url POM_LICENCE_URL
-        Distribution POM_LICENCE_DIST
+        distribution POM_LICENCE_DIST
       }
     }
 

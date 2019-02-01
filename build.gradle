@@ -2,13 +2,14 @@
 
 buildscript {
   repositories {
+    google()
     jcenter()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.3.2'
+    classpath 'com.android.tools.build:gradle:3.3.0'
     classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
-    classpath 'org.aspectj:aspectjtools:1.8.6'
-    classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+    classpath 'org.aspectj:aspectjtools:1.8.10'
+    classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
 
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
@@ -40,14 +41,16 @@ subprojects { project ->
 
   buildscript {
     repositories {
+      google()
       jcenter()
     }
     dependencies {
-      classpath 'com.android.tools.build:gradle:2.3.2'
+      classpath 'com.android.tools.build:gradle:3.3.0'
     }
   }
 
   repositories {
+    google()
     jcenter()
   }
 }
@@ -58,9 +61,9 @@ task clean(type: Delete) {
 
 ext {
   minSdkVersion = 10
-  targetSdkVersion = 23
-  compileSdkVersion = 23
-  buildToolsVersion = '25.0.2'
+  targetSdkVersion = 26
+  compileSdkVersion = 26
+  buildToolsVersion = "28.0.3"
   sourceCompatibilityVersion = JavaVersion.VERSION_1_7
   targetCompatibilityVersion = JavaVersion.VERSION_1_7
 }
